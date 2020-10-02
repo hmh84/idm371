@@ -1,0 +1,80 @@
+# General
+*.DS_Store
+.AppleDouble
+.LSOverride
+.DS_Store?
+ehthumbs.db
+Thumbs.db
+graphics/community/*
+dist
+*.sql
+!db-import.sql
+.vscode
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Other file types
+*.ai
+*.xd
+*.eps
+*.psd
+*.pyc
+*.pyo
+*.pyc
+*~
+*.bak
+*.swp
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sqlite
+db.php
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Gulp #
+###################
+
+node_modules
+*.DS_Store
