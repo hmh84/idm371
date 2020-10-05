@@ -78,3 +78,24 @@ db.php
 
 node_modules
 *.DS_Store
+
+# WORDPRESS
+/*
+!wp-content/
+wp-content/*
+wp-content/plugins/*
+!wp-content/themes
+wp-content/themes/*
+!wp-content/themes/shuffle/
+node_modules/
+.*
+~*
+
+
+# track these files, if they exist
+!.gitignore
+!.editorconfig
+!.phpcs.xml.dist
+!README.md
+!CHANGELOG.md
+!composer.json
