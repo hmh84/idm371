@@ -7,13 +7,15 @@
       $week = get_field('sr_week_number');
     ?>
     <div class="archive-grid">
+    
+    <a href="<?php the_permalink(); ?>">
     <div class="archive-grid-item">
-      <a href="<?php the_permalink(); ?>">
         <h2><?php the_title(); ?></h2>
         <pre>Week <?php echo $week; ?> Status Report</pre>
-      </a>
-      </div>
+    </div>
+    </a>
     <?php endwhile; ?>
+    
     </div>
 
     <div>
