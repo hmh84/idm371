@@ -69,14 +69,14 @@ add_action('wp_enqueue_scripts', 'include_css_files');
  * @link https://developer.wordpress.org/reference/functions/wp_enqueue_script/
  */
 function include_js_files() {
-    wp_deregister_script('jquery');
-	wp_enqueue_script('jquery', 'https://code.jquery.com/jquery-3.5.1.min.js', [], null, true);
+    // wp_deregister_script('jquery');
+	// wp_enqueue_script('jquery', 'https://code.jquery.com/jquery-3.5.1.min.js', [], null, true);
     
     // Font Awesome icons
-    wp_enqueue_script('font-awesome', 'https://kit.fontawesome.com/080c06f1d6.js');
+    // wp_enqueue_script('font-awesome', 'https://kit.fontawesome.com/080c06f1d6.js');
 
     // CUSTOM JS
-    wp_enqueue_script('shuffle-js', get_template_directory_uri() . '/dist/scripts/scripts.js', ['jquery'], null, true);
+    // wp_enqueue_script('shuffle-js', get_template_directory_uri() . '/dist/scripts/scripts.js', ['jquery'], null, true);
 }
 
 // When WP performs this action, call our function
