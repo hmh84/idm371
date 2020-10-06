@@ -28,7 +28,7 @@
         <p><?php echo $acc; ?></p>
       <?php endif; ?>
 
-      <h4>Total Hours: <?php echo $hrs; ?></h4>
+      <h5>Total Hours: <?php echo $hrs; ?></h5>
 
       <?php if($s_link) : ?>
         <span>
