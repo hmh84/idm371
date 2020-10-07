@@ -13,19 +13,25 @@ io.on('connection', onConnected)
 let socketsConnected = new Set()
 
 function onConnected(socket) {
-    console.log(socket.id)
+    console.log('New Socket:', socket.id)
     socketsConnected.add(socket.id)
 
     io.emit('clients-total', socketsConnected.size)
 
     socket.on('disconnect', () => {
-        console.log('socket disconnected', socket.id)
+        console.log('Socket disconnected:', socket.id)
         socketsConnected.delete(socket.id)
         io.emit('clients-total', socketsConnected.size)
     })
 
     socket.on('message', (data) => {
-        console.log(data)
+
+        console.log(
+            '\n' + `New message from "${data.name}"`,
+            '\n' + `Message: "${data.message}"`,
+            '\n' + `Timestamp: ${data.dateTime}`
+        );
+
         socket.broadcast.emit('chat-message', data)
     })
 
