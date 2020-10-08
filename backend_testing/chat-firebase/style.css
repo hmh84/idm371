@@ -1,0 +1,96 @@
+* {
+    font-family: sans-serif;
+    color: black;
+}
+
+html, body, main {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background-color: #f3f3f3;
+}
+
+body, main, form, #btnWrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#btnWrap {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-evenly;
+}
+
+form {
+    background-color: white;
+    padding: 3rem 4rem;
+}
+
+form * {
+    margin: 1rem 0;
+}
+
+input {
+    border-bottom: 2px #2e2e2e solid;
+}
+
+button {
+    padding: .5rem .75rem;
+    background-color: rgb(70, 148, 87);;
+    color: white
+}
+
+#updateBtn {
+    margin: 0 .25rem;
+}
+
+#removeBtn {
+    background-color: rgb(211, 32, 0);
+}
+
+/* USERS */
+
+.userCard {
+    background-color: white;
+    margin: .5rem 0;
+    padding: 1rem;
+}
+
+.name {
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* CHAT */
+
+.chatList {
+    width: 100%;
+    display: none;
+    flex-direction: column;
+}
+
+.userCard {
+    max-width: 25rem;
+}
+
+.userCard.sent {
+    align-self: flex-end;
+    background-color: #2e2e2e;
+}
+
+.userCard.sent * {
+    color: white;
+}
+
+.userCard.received {
+    align-self: flex-start;
+    background-color: white;
+}
+
+#chatForm {
+    display: none;
+}
