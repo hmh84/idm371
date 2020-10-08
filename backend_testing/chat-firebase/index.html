@@ -6,7 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="style.css">
-    <script src="functions.js" defer></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-database.js"></script>
+    <script src="firebase-config.js" defer></script>
+    <!-- Additional Scripts After -->
+    <script src="main.js" defer></script>
     <script>const currentPage = 'index';</script>
     <title>Home</title>
 </head>
@@ -32,27 +37,7 @@
             </section>
         </form>
     </main>
-    <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-database.js"></script>
 
-    <!-- TODO: Add SDKs for Firebase products that you want to use
-    https://firebase.google.com/docs/web/setup#available-libraries -->
-
-    <script>
-        // Your web app's Firebase configuration
-        var firebaseConfig = {
-            apiKey: "AIzaSyBlBedJDEvem2r8myXJf4gmoHlHIY8cqGI",
-            authDomain: "shuffle-devtest.firebaseapp.com",
-            databaseURL: "https://shuffle-devtest.firebaseio.com",
-            projectId: "shuffle-devtest",
-            storageBucket: "shuffle-devtest.appspot.com",
-            messagingSenderId: "540304405587",
-            appId: "1:540304405587:web:c4dd45e44d7fe236f542a6"
-        };
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-    </script>
 </body>
 
 </html>

@@ -2,7 +2,15 @@ const database = firebase.database();
 const userRef = database.ref('users');
 const chatRef = database.ref('messages');
 
+// ==============================
+// PAGE_INDEX
+// ==============================
+
 if (currentPage == 'index') {
+
+    // ==============================
+    // VARIABLES
+    // ==============================
 
     const userForm = document.querySelector('#userForm');
 
@@ -18,8 +26,30 @@ if (currentPage == 'index') {
     const addBtn = document.querySelector('#addBtn');
     const updateBtn = document.querySelector('#updateBtn');
 
+    // ==============================
+    // LISTENERS
+    // ==============================
+
     addBtn.addEventListener('click', (e) => {
         e.preventDefault();
+        addUser();
+    })
+
+    updateBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        updateUser();
+    })
+
+    removeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        removeUser();
+    })
+
+    // ==============================
+    // FUNCTIONS
+    // ==============================
+
+    function addUser() {
         const autoId = 'user' + userRef.push().key
         userRef.child(uuid.value ? uuid.value : autoId).set({
             api_id: apiId.value,
@@ -29,10 +59,9 @@ if (currentPage == 'index') {
             gender: gender.value
         })
         userForm.reset();
-    })
+    }
 
-    updateBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+    function updateUser() {
         const newData = {
             age: age.value,
             api_id: apiId.value,
@@ -46,10 +75,9 @@ if (currentPage == 'index') {
         // updates['/super-users/' + uuid.value] = newData;
         database.ref().update(updates);
         userForm.reset();
-    })
+    }
 
-    removeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+    function removeUser() {
         userRef.child(uuid.value).remove().then(() => {
             window.alert('User was deleted')
         })
@@ -58,22 +86,29 @@ if (currentPage == 'index') {
             });
         // database.ref('/super-users').child(uuid.value).remove().then();
         userForm.reset();
-    })
+    }
 
 }
 
 // ==============================
-// USERS
+// PAGE_USERS
 // ==============================
 
-currentPage == 'users' ? userPage_functions() : console.log();
+if (currentPage == 'users') {
 
-function userPage_functions() {
+    // ==============================
+    // VARIABLES
+    // ==============================
+
     const userList = document.querySelector('.userList');
 
     const name = document.querySelector('#name');
     const age = document.querySelector('#age');
     const gender = document.querySelector('#gender');
+
+    // ==============================
+    // QUERIES
+    // ==============================
 
     userRef.on('value', (snapshot) => {
         userList.innerHTML = '';
@@ -95,12 +130,15 @@ function userPage_functions() {
 }
 
 // ==============================
-// CHATS
+// PAGE_CHATS
 // ==============================
 
-currentPage == 'chats' ? chatPage_functions() : console.log();
+if (currentPage == 'chats') {
 
-function chatPage_functions() {
+    // ==============================
+    // VARIABLES
+    // ==============================
+
     const chatList = document.querySelector('.chatList');
     const chatForm = document.querySelector('#chatForm');
     const loginModal = document.querySelector('.loginModal');
@@ -110,14 +148,34 @@ function chatPage_functions() {
     const uuid = document.querySelector('#uuid');
     const login = document.querySelector('#login');
 
+    // ==============================
+    // LISTENERS
+    // ==============================
+
     login.addEventListener('click', (e) => {
         e.preventDefault();
-        console.log(`Logging in as \n ${uuid.value}`);
-        loginModal.hidden = true;
         loadChats(uuid.value);
     })
 
+    sendBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const autoId = 'message' + userRef.push().key
+        database.ref('messages/thread-MJ5J0647jY6BCWJKW62-MJ5H5ZCtmYCwIXRD8Og').child(autoId).set({
+            sender: uuid.value,
+            message_text: messageInput.value,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        })
+        chatForm.reset();
+    })
+
+    // ==============================
+    // FUNCTIONS
+    // ==============================
+
     function loadChats(clientUUID) {
+        console.log(`Logging in as \n ${clientUUID}`);
+        loginModal.hidden = true;
+
         database.ref('messages/thread-MJ5J0647jY6BCWJKW62-MJ5H5ZCtmYCwIXRD8Og').orderByChild('timestamp').on('value', (snapshot) => {
             chatList.style.display = 'flex';
             chatForm.style.display = 'flex';
@@ -149,17 +207,6 @@ function chatPage_functions() {
             });
         })
     }
-
-    sendBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const autoId = 'message' + userRef.push().key
-        database.ref('messages/thread-MJ5J0647jY6BCWJKW62-MJ5H5ZCtmYCwIXRD8Og').child(autoId).set({
-            sender: uuid.value,
-            message_text: messageInput.value,
-            timestamp: admin.database.ServerValue.TIMESTAMP
-        })
-        chatForm.reset();
-    })
 
     decideNodeName('-MJ5H5ZCtmYCwIXRD8Og', '-MJ5J0647jY6BCWJKW62')
     function decideNodeName(uuid1, uuid2) {
