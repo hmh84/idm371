@@ -1,0 +1,15 @@
+form {
+    display: none;
+}
+
+#login_form {
+    display: block;
+}
+
+.from_me {
+    color: blue;
+}
+
+.from_them {
+    color: red;
+}
