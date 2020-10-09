@@ -14,28 +14,21 @@ const home_button = document.querySelector('#home_button');
 
 home_button.addEventListener('click', (e) => {
     e.preventDefault();
-    window.current_uuid = '';
-    window.match_uuid = '';
+    title.innerText = '';
+    status.style.color = 'unset';
     status.innerText = 'Logged out';
     console.log('Logging out');
     toggle_page('login_form');
 })
 
-function decipher_uuid(uuid) {
-    // console.log('working on ' + uuid);
-    var docRef = db.collection('users').doc(uuid);
-    docRef.get()
-        .then(function (doc) {
-            if (doc.exists) {
-                name = doc.data().first_name;
-                // return name;
-                return;
-            } else {
-                console.log("User doesn't exist");
-            }
-        }).catch(function (error) {
-            console.log(error);
-        });
+function decipher_uuid(current_uuid) {
+    const docRef = db.collection('users').doc(current_uuid);
+    docRef.get().then(function (doc) {
+        const name = doc.data().first_name;
+        return name;
+    }).catch(function (error) {
+        console.log(error);
+    });
 }
 
 // ==============================
@@ -48,11 +41,23 @@ const status = document.querySelector('#status');
 
 login_button.addEventListener('click', (e) => {
     e.preventDefault();
-    window.current_uuid = uuid_input.value;
-    console.log(`Logging in as: ${current_uuid}`);
-    status.innerText = `Logging in as: ${current_uuid}`;
-    toggle_page('pick_match_form');
-    list_matches(current_uuid);
+    const current_uuid = uuid_input.value;
+
+    const docRef = db.collection('users').doc(current_uuid);
+    docRef.get().then(function (doc) {
+        if (doc.exists) {
+            status.style.color = 'unset';
+            console.log(`Logged in as: '${current_uuid}'`);
+            status.innerText = `Logged in as: '${current_uuid}'`;
+            toggle_page('pick_match_form');
+            init_pick_match_form(current_uuid);
+        } else {
+            status.innerText = `'${current_uuid}' is not a user!`;
+            status.style.color = 'red';
+        }
+    }).catch(function (error) {
+        console.log(error);
+    });
 })
 
 // ==============================
@@ -63,13 +68,38 @@ const pick_match_button = document.querySelector('#pick_match_button');
 const pick_match_form = document.querySelector('#pick_match_form');
 const match_input = document.querySelector('#match_input');
 
-pick_match_button.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.match_uuid = match_input.value;
-    console.log(`Chatting with: ${match_uuid}`);
-    toggle_page('chat_form');
-    refresh_chat();
-})
+function init_pick_match_form(current_uuid) {
+    list_matches(current_uuid);
+    pick_match_button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const match_uuid = match_input.value;
+        console.log(`Chatting with: ${match_uuid}`);
+        toggle_page('chat_form');
+        init_chat_form(current_uuid, match_uuid);
+        refresh_chat(current_uuid, match_uuid);
+    })
+}
+
+function list_matches(current_uuid) {
+    const doc = db.collection('users').doc(current_uuid).collection('matches');
+    const observer = doc.onSnapshot(docSnapshot => {
+        doc.get()
+            .then(function (querySnapshot) {
+                match_input.innerHTML = '';
+                querySnapshot.forEach(function (doc) {
+                    const element = `
+                        <option value="${doc.id}">${doc.id}</option>
+                    `
+                    match_input.innerHTML += element;
+                });
+            })
+            .catch(function (error) {
+                console.log("Error getting documents: ", error);
+            });
+    }, err => {
+        console.log(err);
+    });
+}
 
 // ==============================
 // chat_form
@@ -80,12 +110,14 @@ const message_input = document.querySelector('#message_input');
 const send_button = document.querySelector('#send_button');
 const chat_box = document.querySelector('#chat_box');
 
-send_button.addEventListener('click', (e) => {
-    e.preventDefault();
-    send_message();
-})
+function init_chat_form(current_uuid, match_uuid) {
+    send_button.addEventListener('click', (e) => {
+        e.preventDefault();
+        send_message(current_uuid, match_uuid);
+    })
+}
 
-function send_message() {
+function send_message(current_uuid, match_uuid) {
     if (message_input.value) {
         const thread_id = set_thread_id(current_uuid, match_uuid);
 
@@ -106,7 +138,7 @@ function send_message() {
     }
 }
 
-function refresh_chat() {
+function refresh_chat(current_uuid, match_uuid) {
     const thread_id = set_thread_id(current_uuid, match_uuid);
     console.log('This Thread ID: ' + thread_id);
 
@@ -116,7 +148,6 @@ function refresh_chat() {
             // .orderBy("when", "desc")
             .get()
             .then(function (querySnapshot) {
-                const name = decipher_uuid(match_uuid);
                 title.innerText = match_uuid;
                 chat_box.innerHTML = '';
                 querySnapshot.forEach(function (doc) {
@@ -124,7 +155,7 @@ function refresh_chat() {
                     const from = (doc.id, " => ", doc.data().from);
 
                     const element = `
-                    <li class="message ${who_sent(from)}">
+                    <li class="message ${who_sent(from, current_uuid, match_uuid)}">
                         <p class="name">${content}</p>
                     </li>
                     `
@@ -144,29 +175,12 @@ function set_thread_id(uuid1, uuid2) {
     return thread_id;
 }
 
-function who_sent(from) {
+function who_sent(from, current_uuid, match_uuid) {
     from == current_uuid ? sender = 'from_me' : sender = 'from_them';
     return sender;
 }
 
-function list_matches(uuid) {
-    const doc = db.collection('users').doc(uuid).collection('matches');
-    const observer = doc.onSnapshot(docSnapshot => {
-        doc.get()
-            .then(function (querySnapshot) {
-                match_input.innerHTML = '';
-                querySnapshot.forEach(function (doc) {
+// Needs work
 
-                    const element = `
-                        <option value="${doc.id}">${doc.id}</option>
-                    `
-                    match_input.innerHTML += element;
-                });
-            })
-            .catch(function (error) {
-                console.log("Error getting documents: ", error);
-            });
-    }, err => {
-        console.log(err);
-    });
-}
+// 1. Order by when
+// 2. Decipher names
