@@ -6,7 +6,7 @@ function toggle_page(new_form) {
     all_forms = document.querySelectorAll('form');
     all_forms.forEach(form => {
         form.reset();
-        form == new_form ? form.style.display = 'block' : form.style.display = 'none';
+        form == new_form ? form.style.display = 'flex' : form.style.display = 'none';
     });
 }
 
@@ -16,6 +16,7 @@ home_button.addEventListener('click', (e) => {
     e.preventDefault();
     window.current_uuid = '';
     window.match_uuid = '';
+    status.innerText = 'Logged out';
     console.log('Logging out');
     toggle_page('login_form');
 })
@@ -43,11 +44,13 @@ function decipher_uuid(uuid) {
 
 const uuid_input = document.querySelector('#uuid_input');
 const login_button = document.querySelector('#login_button');
+const status = document.querySelector('#status');
 
 login_button.addEventListener('click', (e) => {
     e.preventDefault();
     window.current_uuid = uuid_input.value;
     console.log(`Logging in as: ${current_uuid}`);
+    status.innerText = `Logging in as: ${current_uuid}`;
     toggle_page('pick_match_form');
     list_matches(current_uuid);
 })
@@ -75,7 +78,7 @@ pick_match_button.addEventListener('click', (e) => {
 const title = document.querySelector('#title');
 const message_input = document.querySelector('#message_input');
 const send_button = document.querySelector('#send_button');
-const chat_box = document.querySelector('.chat_box');
+const chat_box = document.querySelector('#chat_box');
 
 send_button.addEventListener('click', (e) => {
     e.preventDefault();
@@ -83,22 +86,24 @@ send_button.addEventListener('click', (e) => {
 })
 
 function send_message() {
-    const thread_id = set_thread_id(current_uuid, match_uuid);
+    if (message_input.value) {
+        const thread_id = set_thread_id(current_uuid, match_uuid);
 
-    db.collection("chats").doc().set({
-        content: message_input.value,
-        thread_id: thread_id,
-        from: current_uuid,
-        to: match_uuid,
-        when: ''
-    })
-        .then(function () {
-            console.log("Message Sent!");
-            chat_form.reset(); // Clear input(s)
+        db.collection("chats").doc().set({
+            content: message_input.value,
+            thread_id: thread_id,
+            from: current_uuid,
+            to: match_uuid,
+            when: time_stamp
         })
-        .catch(function (error) {
-            console.error(error);
-        });
+            .then(function () {
+                console.log("Message Sent!");
+                chat_form.reset(); // Clear input(s)
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+    }
 }
 
 function refresh_chat() {
@@ -107,13 +112,12 @@ function refresh_chat() {
 
     const doc = db.collection('chats');
     const observer = doc.onSnapshot(docSnapshot => {
-        // Do stuff
-        console.log('An event occured..');
         doc.where("thread_id", "==", thread_id)
+            // .orderBy("when", "desc")
             .get()
             .then(function (querySnapshot) {
                 const name = decipher_uuid(match_uuid);
-                title.innerText = 'Chatting w/ ' + name;
+                title.innerText = match_uuid;
                 chat_box.innerHTML = '';
                 querySnapshot.forEach(function (doc) {
                     const content = (doc.id, " => ", doc.data().content);
@@ -148,11 +152,8 @@ function who_sent(from) {
 function list_matches(uuid) {
     const doc = db.collection('users').doc(uuid).collection('matches');
     const observer = doc.onSnapshot(docSnapshot => {
-        // Do stuff
-        console.log('An event occured..');
         doc.get()
             .then(function (querySnapshot) {
-                title.innerText = 'Chatting w/ ' + name;
                 match_input.innerHTML = '';
                 querySnapshot.forEach(function (doc) {
 

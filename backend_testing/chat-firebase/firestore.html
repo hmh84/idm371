@@ -8,39 +8,45 @@
     <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-firestore.js" defer></script>
     <script src="firebase-config.js" defer></script>
     <script src="app.js" defer></script>
-    <!-- <link rel="stylesheet" href="normalize.css"> -->
+    <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="main.css">
     <title>FireStore</title>
 </head>
 
 <body>
-    <button id="home_button">Home</button>
-    <br>
-    <br>
-    <br>
-    <form id="login_form">
-        <input type="text" id="uuid_input" placeholder="UUID" required>
-        <br>
-        <button id="login_button">Login</button>
-    </form>
-    <!-- ===== Pick who to chat with ===== -->
-    <form id="pick_match_form">
-        <select id="match_input" size="5">
-            <!-- Matches populate here... -->
-        </select>
-        <br>
-        <button id="pick_match_button">Select</button>
-    </form>
-    <!-- ===== 1:1 Chat ===== -->
-    <form id="chat_form">
-        <h1 id="title"></h1>
-        <ul class="chat_box">
-            <!-- Chats populate here... -->
-        </ul>
-        <input type="text" id="message_input" placeholder="Message">
-        <br>
-        <button id="send_button">Send</button>
-    </form>
+    <h1>Shuffle Chat</h1>
+    <main>
+        <nav>
+            <button id="home_button">Logout</button>
+            <h2 id="title"></h2>
+        </nav>
+        <div id="content_area">
+            <form class="prompt_form" id="login_form">
+                <h2>Welcome to Shuffle!</h2>
+                <input type="text" id="uuid_input" placeholder="Username" required>
+                <button id="login_button">Login</button>
+            </form>
+            <!-- ===== Pick who to chat with ===== -->
+            <form class="prompt_form" id="pick_match_form">
+                <h2>This week's matches:</h2>
+                <select id="match_input" size="5">
+                    <!-- Matches populate here... -->
+                </select>
+                <button id="pick_match_button">Select</button>
+            </form>
+            <!-- ===== 1:1 Chat ===== -->
+            <form id="chat_form">
+                <ul id="chat_box">
+                    <!-- Chats populate here... -->
+                </ul>
+                <div id="chat_controls">
+                    <input type="text" id="message_input" placeholder="Message">
+                    <button id="send_button">Send</button>
+                </div>
+            </form>
+        </div>
+    </main>
+    <h2 id="status"></h2>
 </body>
 
 </html>
