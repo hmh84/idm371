@@ -10,6 +10,9 @@
     <script src="app.js" defer></script>
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+        integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+        crossorigin="anonymous" />
     <title>FireStore</title>
 </head>
 
@@ -17,7 +20,7 @@
     <h1>Shuffle Chat</h1>
     <main>
         <nav>
-            <button id="home_button">Logout</button>
+            <button id="logout_button">Logout</button>
             <h2 id="title"></h2>
         </nav>
         <div id="content_area">
@@ -25,6 +28,17 @@
                 <h2>Welcome to Shuffle!</h2>
                 <input type="text" id="uuid_input" placeholder="Username" required>
                 <button id="login_button">Login</button>
+                <h2>Don't have an account?</h2>
+                <button id="sign_up_button">Sign Up</button>
+            </form>
+            <!-- ===== Sign Up Form ===== -->
+            <form class="prompt_form" id="sign_up_form">
+                <h2>Enter your info:</h2>
+                <input type="text" id="first_name_input" placeholder="First Name" required>
+                <input type="text" id="last_name_input" placeholder="Last Name" required>
+                <input type="text" id="age_input" placeholder="Age" required>
+                <input type="text" id="gender_input" placeholder="Gender" required>
+                <button id="add_account_button">Complete Sign Up</button>
             </form>
             <!-- ===== Pick who to chat with ===== -->
             <form class="prompt_form" id="pick_match_form">
@@ -32,7 +46,7 @@
                 <select id="match_input" size="5">
                     <!-- Matches populate here... -->
                 </select>
-                <button id="pick_match_button">Select</button>
+                <button id="pick_match_button">Chat</button>
             </form>
             <!-- ===== 1:1 Chat ===== -->
             <form id="chat_form">
@@ -41,7 +55,7 @@
                 </ul>
                 <div id="chat_controls">
                     <input type="text" id="message_input" placeholder="Message">
-                    <button id="send_button">Send</button>
+                    <button id="send_button">Send <i class="far fa-paper-plane"></i></button>
                 </div>
             </form>
         </div>

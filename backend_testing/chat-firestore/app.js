@@ -10,11 +10,12 @@ function toggle_page(new_form) {
     });
 }
 
-const home_button = document.querySelector('#home_button');
+const logout_button = document.querySelector('#logout_button');
 
-home_button.addEventListener('click', (e) => {
+logout_button.addEventListener('click', (e) => {
     e.preventDefault();
     title.innerText = '';
+    chat_box.innerText = '';
     status.style.color = 'unset';
     status.innerText = 'Logged out';
     console.log('Logging out');
@@ -37,6 +38,8 @@ function decipher_uuid(current_uuid) {
 
 const uuid_input = document.querySelector('#uuid_input');
 const login_button = document.querySelector('#login_button');
+const sign_up_button = document.querySelector('#sign_up_button');
+
 const status = document.querySelector('#status');
 
 login_button.addEventListener('click', (e) => {
@@ -59,6 +62,43 @@ login_button.addEventListener('click', (e) => {
         console.log(error);
     });
 })
+
+sign_up_button.addEventListener('click', (e) => {
+    e.preventDefault();
+    toggle_page('sign_up_form');
+    init_sign_up_form();
+})
+
+// ==============================
+// sign_up_form
+// ==============================
+
+const sign_up_form = document.querySelector('#sign_up_form');
+const add_account_button = document.querySelector('#add_account_button');
+
+function init_sign_up_form() {
+    add_account_button.addEventListener('click', (e) => {
+        e.preventDefault();
+        create_user();
+    })
+}
+
+function create_user() {
+    db.collection("users").doc().set({
+        first_name: first_name_input.value,
+        last_name: last_name_input.value,
+        age: age_input.value,
+        gender: gender_input.value,
+        account_created: time_stamp
+    })
+        .then(function () {
+            console.log("Account Created!");
+            // sign_up_form.reset(); // Clear input(s)
+        })
+        .catch(function (error) {
+            console.error(error);
+        });
+}
 
 // ==============================
 // pick_match_form
@@ -180,7 +220,8 @@ function who_sent(from, current_uuid, match_uuid) {
     return sender;
 }
 
-// Needs work
+// Needs to do
 
 // 1. Order by when
 // 2. Decipher names
+// 3. Navigate back to user pick list w/o logging out

@@ -64,10 +64,22 @@ form {
 select {
     width: 100%;
     padding: 1.5rem;
+    height: 50%;
+}
+
+select option {
+    margin: 0 !important;
+    height: 20%;
+    display: flex;
+    align-items: center;
 }
 
 .prompt_form * {
     margin: .5rem 0;
+}
+
+.prompt_form {
+    height: 100%;
 }
 
 #login_form {
@@ -87,7 +99,10 @@ button {
 }
 
 form button {
-    background-color: rgb(108, 162, 0);
+    background-color: rgb(75 165 7);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 /* Chat Form */
@@ -135,12 +150,13 @@ form button {
 
 input#message_input {
     border: .5rem 0 0 .5rem !important;
-    width: 75%;
+    width: 70%;
     padding-left: 1.25rem;
+    overflow-y: hidden;
 }
 
 button#send_button {
-    width: 25%;
+    width: 30%;
 }
 
 .message {
