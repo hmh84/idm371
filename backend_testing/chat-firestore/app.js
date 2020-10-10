@@ -1,7 +1,13 @@
-const time_stamp = firebase.firestore.Timestamp.fromDate(new Date());
+function timestamp() {
+    return firebase.firestore.Timestamp.fromDate(new Date());
+}
 
 function toggle_page(new_form) {
+    new_form == 'login_form' && init_login_form();
+
+    load_back_button(new_form);
     new_form = document.querySelector(`form#${new_form}`);
+
 
     all_forms = document.querySelectorAll('form');
     all_forms.forEach(form => {
@@ -10,17 +16,28 @@ function toggle_page(new_form) {
     });
 }
 
-const logout_button = document.querySelector('#logout_button');
+const back_button = document.querySelector('#back_button');
+const title = document.querySelector('#title');
+const chat_box = document.querySelector('#chat_box');
+const match_input = document.querySelector('#match_input');
 
-logout_button.addEventListener('click', (e) => {
+back_button.addEventListener('click', (e) => {
     e.preventDefault();
     title.innerText = '';
     chat_box.innerText = '';
     status.style.color = 'unset';
-    status.innerText = 'Logged out';
-    console.log('Logging out');
-    toggle_page('login_form');
+    toggle_page(back_button.dataset.value);
 })
+
+function load_back_button(this_form) {
+    if (this_form == 'sign_up_form') {
+        back_button.dataset.value = 'login_form';
+    } else if (this_form == 'pick_match_form') {
+        back_button.dataset.value = 'login_form';
+    } else if (this_form == 'chat_form') {
+        back_button.dataset.value = 'pick_match_form';
+    }
+}
 
 function decipher_uuid(current_uuid) {
     const docRef = db.collection('users').doc(current_uuid);
@@ -42,32 +59,43 @@ const sign_up_button = document.querySelector('#sign_up_button');
 
 const status = document.querySelector('#status');
 
-login_button.addEventListener('click', (e) => {
-    e.preventDefault();
-    const current_uuid = uuid_input.value;
+function init_login_form() {
+    match_input.innerText = '';
+    back_button.style.display = 'none';
+    title.innerText = '';
+    chat_box.innerText = '';
+    status.innerText = 'Logged out';
+    console.log('Logging out');
 
-    const docRef = db.collection('users').doc(current_uuid);
-    docRef.get().then(function (doc) {
-        if (doc.exists) {
-            status.style.color = 'unset';
-            console.log(`Logged in as: '${current_uuid}'`);
-            status.innerText = `Logged in as: '${current_uuid}'`;
-            toggle_page('pick_match_form');
-            init_pick_match_form(current_uuid);
-        } else {
-            status.innerText = `'${current_uuid}' is not a user!`;
-            status.style.color = 'red';
-        }
-    }).catch(function (error) {
-        console.log(error);
-    });
-})
+    login_button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const current_uuid = uuid_input.value;
 
-sign_up_button.addEventListener('click', (e) => {
-    e.preventDefault();
-    toggle_page('sign_up_form');
-    init_sign_up_form();
-})
+        const docRef = db.collection('users').doc(current_uuid);
+        docRef.get().then(function (doc) {
+            if (doc.exists) {
+                status.style.color = 'unset';
+                console.log(`Logged in as: '${current_uuid}'`);
+                status.innerText = `Logged in as: '${current_uuid}'`;
+                toggle_page('pick_match_form');
+                init_pick_match_form(current_uuid);
+            } else {
+                status.innerText = `'${current_uuid}' is not a user!`;
+                status.style.color = 'red';
+            }
+        }).catch(function (error) {
+            console.log(error);
+        });
+    })
+
+    sign_up_button.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggle_page('sign_up_form');
+        init_sign_up_form();
+    })
+}
+
+init_login_form()
 
 // ==============================
 // sign_up_form
@@ -77,6 +105,7 @@ const sign_up_form = document.querySelector('#sign_up_form');
 const add_account_button = document.querySelector('#add_account_button');
 
 function init_sign_up_form() {
+    back_button.style.display = 'unset';
     add_account_button.addEventListener('click', (e) => {
         e.preventDefault();
         create_user();
@@ -84,15 +113,15 @@ function init_sign_up_form() {
 }
 
 function create_user() {
-    db.collection("users").doc().set({
+    db.collection('users').doc().set({
         first_name: first_name_input.value,
         last_name: last_name_input.value,
         age: age_input.value,
         gender: gender_input.value,
-        account_created: time_stamp
+        account_created: timestamp()
     })
         .then(function () {
-            console.log("Account Created!");
+            console.log('Account Created!');
             // sign_up_form.reset(); // Clear input(s)
         })
         .catch(function (error) {
@@ -106,9 +135,9 @@ function create_user() {
 
 const pick_match_button = document.querySelector('#pick_match_button');
 const pick_match_form = document.querySelector('#pick_match_form');
-const match_input = document.querySelector('#match_input');
 
 function init_pick_match_form(current_uuid) {
+    back_button.style.display = 'flex';
     list_matches(current_uuid);
     pick_match_button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -134,7 +163,7 @@ function list_matches(current_uuid) {
                 });
             })
             .catch(function (error) {
-                console.log("Error getting documents: ", error);
+                console.log('Error getting documents: ', error);
             });
     }, err => {
         console.log(err);
@@ -145,10 +174,8 @@ function list_matches(current_uuid) {
 // chat_form
 // ==============================
 
-const title = document.querySelector('#title');
 const message_input = document.querySelector('#message_input');
 const send_button = document.querySelector('#send_button');
-const chat_box = document.querySelector('#chat_box');
 
 function init_chat_form(current_uuid, match_uuid) {
     send_button.addEventListener('click', (e) => {
@@ -161,15 +188,15 @@ function send_message(current_uuid, match_uuid) {
     if (message_input.value) {
         const thread_id = set_thread_id(current_uuid, match_uuid);
 
-        db.collection("chats").doc().set({
+        db.collection('chats').doc().set({
             content: message_input.value,
             thread_id: thread_id,
             from: current_uuid,
             to: match_uuid,
-            when: time_stamp
+            when: timestamp()
         })
             .then(function () {
-                console.log("Message Sent!");
+                console.log('Message Sent!');
                 chat_form.reset(); // Clear input(s)
             })
             .catch(function (error) {
@@ -184,15 +211,15 @@ function refresh_chat(current_uuid, match_uuid) {
 
     const doc = db.collection('chats');
     const observer = doc.onSnapshot(docSnapshot => {
-        doc.where("thread_id", "==", thread_id)
-            // .orderBy("when", "desc")
+        doc.where('thread_id', '==', thread_id)
+            .orderBy('when', 'asc') // Index Collection ID: 'chats'
             .get()
             .then(function (querySnapshot) {
                 title.innerText = match_uuid;
                 chat_box.innerHTML = '';
                 querySnapshot.forEach(function (doc) {
-                    const content = (doc.id, " => ", doc.data().content);
-                    const from = (doc.id, " => ", doc.data().from);
+                    const content = (doc.id, ' => ', doc.data().content);
+                    const from = (doc.id, ' => ', doc.data().from);
 
                     const element = `
                     <li class="message ${who_sent(from, current_uuid, match_uuid)}">
@@ -201,13 +228,22 @@ function refresh_chat(current_uuid, match_uuid) {
                     `
                     chat_box.innerHTML += element;
                 });
+                scroll_to_bottom();
             })
             .catch(function (error) {
-                console.log("Error getting documents: ", error);
+                console.log('Error getting documents: ', error);
             });
     }, err => {
         console.log(`Encountered error: ${err}`);
     });
+}
+
+function scroll_to_bottom() {
+    if (chat_box.scrollHeight - chat_box.scrollTop > 500) {
+        chat_box.scrollTo(0, chat_box.scrollHeight);
+    } else {
+        console.log('maybe scroll down');
+    }
 }
 
 function set_thread_id(uuid1, uuid2) {
@@ -222,6 +258,4 @@ function who_sent(from, current_uuid, match_uuid) {
 
 // Needs to do
 
-// 1. Order by when
-// 2. Decipher names
-// 3. Navigate back to user pick list w/o logging out
+// 1. Decipher names
