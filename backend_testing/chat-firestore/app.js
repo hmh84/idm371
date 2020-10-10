@@ -113,20 +113,19 @@ function init_sign_up_form() {
 }
 
 function create_user() {
-    db.collection('users').doc().set({
+    const data = {
         first_name: first_name_input.value,
         last_name: last_name_input.value,
         age: age_input.value,
         gender: gender_input.value,
         account_created: timestamp()
-    })
-        .then(function () {
-            console.log('Account Created!');
-            // sign_up_form.reset(); // Clear input(s)
-        })
-        .catch(function (error) {
-            console.error(error);
-        });
+    };
+    db.collection('users').doc().set(data).then(function () {
+        console.log('Account Created!');
+        // sign_up_form.reset(); // Clear input(s)
+    }).catch(function (error) {
+        console.error(error);
+    });
 }
 
 // ==============================
@@ -144,8 +143,10 @@ function init_pick_match_form(current_uuid) {
         const match_uuid = match_input.value;
         console.log(`Chatting with: ${match_uuid}`);
         toggle_page('chat_form');
+
+        const thread_id = set_thread_id(current_uuid, match_uuid);
         init_chat_form(current_uuid, match_uuid);
-        refresh_chat(current_uuid, match_uuid);
+        refresh_chat(current_uuid, match_uuid, thread_id);
     })
 }
 
@@ -186,33 +187,29 @@ function init_chat_form(current_uuid, match_uuid) {
 
 function send_message(current_uuid, match_uuid) {
     if (message_input.value) {
-        const thread_id = set_thread_id(current_uuid, match_uuid);
 
-        db.collection('chats').doc().set({
+        const data = {
             content: message_input.value,
-            thread_id: thread_id,
             from: current_uuid,
             to: match_uuid,
             when: timestamp()
-        })
-            .then(function () {
-                console.log('Message Sent!');
-                chat_form.reset(); // Clear input(s)
-            })
-            .catch(function (error) {
-                console.error(error);
-            });
+        };
+        db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function () {
+            console.log('Message Sent!');
+            chat_form.reset(); // Clear input(s)
+        }).catch(function (error) {
+            console.error(error);
+        });
+
     }
 }
 
-function refresh_chat(current_uuid, match_uuid) {
-    const thread_id = set_thread_id(current_uuid, match_uuid);
+function refresh_chat(current_uuid, match_uuid, thread_id) {
     console.log('This Thread ID: ' + thread_id);
 
-    const doc = db.collection('chats');
+    const doc = db.collection('chats').doc('thread-' + thread_id).collection('messages');
     const observer = doc.onSnapshot(docSnapshot => {
-        doc.where('thread_id', '==', thread_id)
-            .orderBy('when', 'asc') // Index Collection ID: 'chats'
+        doc.orderBy('when', 'asc') // Index Collection ID: 'chats'
             .get()
             .then(function (querySnapshot) {
                 title.innerText = match_uuid;
