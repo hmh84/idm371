@@ -2,11 +2,11 @@
 <?php if (have_posts()): ?>
 <main class="main-content">
 <h1 class="archive-page-title">Weekly Status Reports</h1>
+<div class="archive-grid">
 <?php while (have_posts()) : the_post(); ?>
     <?php
       $week = get_field('sr_week_number');
     ?>
-    <div class="archive-grid">
     
     <a href="<?php the_permalink(); ?>">
     <div class="archive-grid-item">
