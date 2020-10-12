@@ -30,24 +30,23 @@ back_button.addEventListener('click', (e) => {
 })
 
 function load_back_button(this_form) {
-    if (this_form == 'sign_up_form') {
-        back_button.dataset.value = 'login_form';
-    } else if (this_form == 'pick_match_form') {
+    if (this_form == 'sign_up_form' || this_form == 'pick_match_form') {
         back_button.dataset.value = 'login_form';
     } else if (this_form == 'chat_form') {
         back_button.dataset.value = 'pick_match_form';
     }
 }
 
-function decipher_uuid(current_uuid) {
-    const docRef = db.collection('users').doc(current_uuid);
-    docRef.get().then(function (doc) {
-        const name = doc.data().first_name;
-        return name;
-    }).catch(function (error) {
-        console.log(error);
-    });
+function decipher_uuid(uuid) {
+    const docRef = db.collection('users').doc(uuid);
+    return docRef.get()
+        .then(doc => doc.data().first_name)
+        .catch(error => console.log(error));
 }
+
+decipher_uuid('x2wpqRtYQvITUsrNGC9V').then((name) => {
+    console.log(name);
+})
 
 // ==============================
 // login_form
