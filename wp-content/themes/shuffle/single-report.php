@@ -19,8 +19,16 @@
       
       <?php if($week) : ?>
         <h3>Week <?php echo $week; ?> Status Report</h3>
+      <p class="p-post-tags">
       <?php endif; ?>
-
+        <?php $posttags = get_the_tags();
+        if ($posttags) {
+          foreach($posttags as $tag) {
+            echo $tag->name . ' '; 
+          }
+        }
+        ?>
+      </p>
       <pre class="p-post-date"><?php echo $post_date; ?></pre>
         
       <?php if($acc) : ?>
@@ -76,6 +84,8 @@
         <h4>Obstacles</h4>
         <p><?php echo $obs; ?></p>
       <?php endif; ?>
+
+      <?php the_content(); ?>
 
     </div>
   <?php endwhile; ?>
