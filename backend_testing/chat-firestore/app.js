@@ -30,10 +30,10 @@ back_button.addEventListener('click', (e) => {
 })
 
 function load_back_button(this_form) {
-    if (this_form == 'sign_up_form' || this_form == 'pick_match_form') {
+    if (this_form == 'sign_up_form' || this_form == 'match_form') {
         back_button.dataset.value = 'login_form';
     } else if (this_form == 'chat_form') {
-        back_button.dataset.value = 'pick_match_form';
+        back_button.dataset.value = 'match_form';
     }
 }
 
@@ -43,10 +43,6 @@ function decipher_uuid(uuid) {
         .then(doc => doc.data().first_name)
         .catch(error => console.log(error));
 }
-
-decipher_uuid('Dxd7mCNb9Kef7PX3R92v').then((name) => {
-    console.log(name);
-})
 
 // ==============================
 // login_form
@@ -68,23 +64,7 @@ function init_login_form() {
 
     login_button.addEventListener('click', (e) => {
         e.preventDefault();
-        const current_uuid = uuid_input.value;
-
-        const docRef = db.collection('users').doc(current_uuid);
-        docRef.get().then(function (doc) {
-            if (doc.exists) {
-                status.style.color = 'unset';
-                console.log(`Logged in as: '${current_uuid}'`);
-                status.innerText = `Logged in as: '${current_uuid}'`;
-                toggle_page('pick_match_form');
-                init_pick_match_form(current_uuid);
-            } else {
-                status.innerText = `'${current_uuid}' is not a user!`;
-                status.style.color = 'red';
-            }
-        }).catch(function (error) {
-            console.log(error);
-        });
+        login_shuffle(uuid_input.value);
     })
 
     sign_up_button.addEventListener('click', (e) => {
@@ -92,6 +72,29 @@ function init_login_form() {
         toggle_page('sign_up_form');
         init_sign_up_form();
     })
+}
+
+function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
+    const current_uuid = uuid;
+
+    const docRef = db.collection('users').doc(current_uuid);
+    docRef.get().then(function (doc) {
+        if (doc.exists) {
+            decipher_uuid(current_uuid).then((name) => {
+                console.log(`Logged in as: '${name}'`);
+                status.innerText = `Logged in as: '${name}'`;
+            })
+
+            status.style.color = 'unset';
+            toggle_page('match_form');
+            init_match_form(current_uuid);
+        } else {
+            status.innerText = `'${current_uuid}' is not a user!`;
+            status.style.color = 'red';
+        }
+    }).catch(function (error) {
+        console.log(error);
+    });
 }
 
 init_login_form() // First Function
@@ -112,6 +115,7 @@ function init_sign_up_form() {
 }
 
 function create_user() {
+    // Generate data variable
     const data = {
         first_name: first_name_input.value,
         last_name: last_name_input.value,
@@ -119,30 +123,35 @@ function create_user() {
         gender: gender_input.value,
         account_created: timestamp()
     };
-    db.collection('users').doc().set(data).then(function () {
+
+    // Generate unique id
+    var autoID = db.collection('users').doc().id;
+
+    // Push data to FireStore
+    db.collection('users').doc(autoID).set(data).then(function () {
+        alert(`This uuid = ${autoID}`);
         console.log('Account Created!');
-        // sign_up_form.reset(); // Clear input(s)
+        sign_up_form.reset(); // Clear input(s)
+        login_shuffle(autoID);
     }).catch(function (error) {
         console.error(error);
     });
 }
 
 // ==============================
-// pick_match_form
+// match_form
 // ==============================
 
 const pick_match_button = document.querySelector('#pick_match_button');
-const pick_match_form = document.querySelector('#pick_match_form');
+const match_form = document.querySelector('#match_form');
 
-function init_pick_match_form(current_uuid) {
+function init_match_form(current_uuid) {
     back_button.style.display = 'flex';
     list_matches(current_uuid);
     pick_match_button.addEventListener('click', (e) => {
         e.preventDefault();
         const match_uuid = match_input.value;
-        console.log(`Chatting with: ${match_uuid}`);
         toggle_page('chat_form');
-
         const thread_id = set_thread_id(current_uuid, match_uuid);
         init_chat_form(current_uuid, match_uuid);
         recall_chat(current_uuid, match_uuid, thread_id);
@@ -151,22 +160,27 @@ function init_pick_match_form(current_uuid) {
 
 function list_matches(current_uuid) {
     const doc = db.collection('users').doc(current_uuid).collection('matches');
-    const observer = doc.onSnapshot(docSnapshot => {
+    doc.onSnapshot(docSnapshot => { // Observer
         doc.get()
             .then(function (querySnapshot) {
                 match_input.innerHTML = '';
                 querySnapshot.forEach(function (doc) {
-                    const element = `
-                        <option value="${doc.id}">${doc.id}</option>
-                    `
-                    match_input.innerHTML += element;
+                    // Decipher uuid's
+                    decipher_uuid(doc.id).then((name) => {
+                        const element = `
+                            <option value="${doc.id}">${name}</option>
+                        `
+                        match_input.innerHTML += element;
+                        console.log('Found a match');
+                    });
+
                 });
             })
             .catch(function (error) {
                 console.log('Error getting documents: ', error);
-            });
+            })
     }, err => {
-        console.log(err);
+        console.log(`Encountered error: ${err}`);
     });
 }
 
@@ -204,13 +218,20 @@ function send_message(current_uuid, match_uuid) {
 }
 
 function recall_chat(current_uuid, match_uuid, thread_id) { // gets entire chat at first
-    console.log('This Thread ID: ' + thread_id);
+    // Decipher match uuid
+    decipher_uuid(match_uuid).then((name) => {
+        console.log(`Chatting with: ${name} \nThread_id: ${thread_id}`);
+    });
 
     const doc = db.collection('chats').doc('thread-' + thread_id).collection('messages');
     doc.orderBy('when', 'asc') // Index Collection ID: 'chats'
         .get()
         .then(function (querySnapshot) {
-            title.innerText = match_uuid;
+            // Decipher ID
+            decipher_uuid(match_uuid).then((name) => {
+                title.innerText = name;
+            });
+
             chat_box.innerHTML = '';
             querySnapshot.forEach(function (doc) {
                 const content = (doc.id, ' => ', doc.data().content);
@@ -218,7 +239,7 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // gets entire chat 
                 const time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
 
                 const element = `
-                    <li class="message ${who_sent(from, current_uuid, match_uuid)}">
+                    <li class="message ${who_sent(from, current_uuid)}">
                         <p class="name">${content}</p>
                         <p class="time">${time}</p>
                     </li>
@@ -234,11 +255,15 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // gets entire chat 
 }
 
 function observe_chat(current_uuid, match_uuid, doc) {
-    doc.onSnapshot(docSnapshot => {
+    doc.onSnapshot(docSnapshot => { // Observer
         doc.orderBy('when', 'asc') // Index Collection ID: 'chats'
             .get()
             .then(function (querySnapshot) {
-                title.innerText = match_uuid;
+                // Decipher uuid
+                decipher_uuid(match_uuid).then((name) => {
+                    title.innerText = name;
+                });
+
                 chat_box.innerHTML = '';
                 querySnapshot.forEach(function (doc) {
                     const content = (doc.id, ' => ', doc.data().content);
@@ -246,7 +271,7 @@ function observe_chat(current_uuid, match_uuid, doc) {
                     const time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
 
                     const element = `
-                    <li class="message ${who_sent(from, current_uuid, match_uuid)}">
+                    <li class="message ${who_sent(from, current_uuid)}">
                         <p class="name">${content}</p>
                         <p class="time">${time}</p>
                     </li>
@@ -266,15 +291,16 @@ function observe_chat(current_uuid, match_uuid, doc) {
 
 // Features/Extras
 
-const message_tone = new Audio('/message-tone.mp3');
+const message_tone = new Audio('message-tone.mp3');
 
 function play_tone() {
     const last_message = document.querySelector('.message:last-of-type');
-    if (last_message.classList.contains('from_them')) {
-        message_tone.play();
+    if (last_message) {
+        if (last_message.classList.contains('from_them')) {
+            message_tone.play();
+        }
     }
 }
-
 
 function scroll_to_bottom(command) {
     if (command == 'ask') {
@@ -282,9 +308,7 @@ function scroll_to_bottom(command) {
             chat_box.scrollTop = chat_box.scrollHeight;
         }
     } else if (command == 'tell') {
-        // setTimeout(function () {
         chat_box.scrollTop = chat_box.scrollHeight;
-        // }, 500);
     }
 }
 
@@ -293,15 +317,20 @@ function set_thread_id(uuid1, uuid2) {
     return thread_id;
 }
 
-function who_sent(from, current_uuid, match_uuid) {
+function who_sent(from, current_uuid) {
     from == current_uuid ? sender = 'from_me' : sender = 'from_them';
     return sender;
 }
 
 function format_fs_tstamp(tstamp) {
-    return moment(tstamp.toDate()).format("D/M/YY • h:mm a");
+    return moment(tstamp.toDate()).format("M/D/YY • h:mm a");
 }
 
-// Needs to do
+// ==============================
+// match_info
+// ==============================
 
-// 1. Decipher names
+// ==============================
+// profile_info
+// ==============================
+

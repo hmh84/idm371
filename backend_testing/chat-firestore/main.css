@@ -40,7 +40,7 @@ main {
 
 nav {
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     background-color:#ebebeb;
     width: 100%;
     height: 10%;
@@ -48,11 +48,17 @@ nav {
 }
 
 nav button {
-    margin: 0 .5rem 0 0;
+    /* margin: 0 .5rem 0 0; */
+}
+
+.nav_end {
+    width: 42px;
+    pointer-events: none;
 }
 
 #title {
-    align-self: center;
+    font-size: 1.25rem;
+    margin-left: calc(50% -26px);
 }
 
 #content_area {
@@ -194,5 +200,5 @@ button#send_button {
 
 
 #status {
-    margin-top: 2rem;
+    margin: 2rem 0;
 }

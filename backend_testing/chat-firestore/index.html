@@ -23,6 +23,7 @@
                 <i class="fa fa-chevron-left" aria-hidden="true"></i>
             </button>
             <h2 id="title"></h2>
+            <div class="nav_end"></div>
         </nav>
         <div id="content_area">
             <form class="prompt_form" id="login_form">
@@ -30,7 +31,7 @@
                 <input type="text" id="uuid_input" placeholder="Username" required>
                 <button id="login_button">Login</button>
                 <h2>Don't have an account?</h2>
-                <button id="sign_up_button">Sign Up</button>
+                <button id="sign_up_button">Sign up</button>
             </form>
             <!-- ===== Sign Up Form ===== -->
             <form class="prompt_form" id="sign_up_form">
@@ -42,14 +43,14 @@
                 <button id="add_account_button">Complete Sign Up</button>
             </form>
             <!-- ===== Pick who to chat with ===== -->
-            <form class="prompt_form" id="pick_match_form">
+            <form class="prompt_form" id="match_form">
                 <h2>This week's matches:</h2>
                 <select id="match_input" size="5">
                     <!-- Matches populate here... -->
                 </select>
                 <button id="pick_match_button">Chat</button>
             </form>
-            <!-- ===== 1:1 Chat ===== -->
+            <!-- ===== Chat ===== -->
             <form id="chat_form">
                 <ul id="chat_box">
                     <!-- Chats populate here... -->
