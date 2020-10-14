@@ -32,7 +32,7 @@ back_button.addEventListener('click', (e) => {
 function load_back_button(this_form) {
     if (this_form == 'sign_up_form' || this_form == 'match_form') {
         back_button.dataset.value = 'login_form';
-    } else if (this_form == 'chat_form') {
+    } else if (this_form == 'chat_form' || this_form == 'profile_form') {
         back_button.dataset.value = 'match_form';
     }
 }
@@ -121,6 +121,8 @@ function create_user() {
         last_name: last_name_input.value,
         age: age_input.value,
         gender: gender_input.value,
+        location: 'Philadelphia, PA',
+        looking_for: merge_checkboxes('lf_checkbox'),
         account_created: timestamp()
     };
 
@@ -138,15 +140,30 @@ function create_user() {
     });
 }
 
+function merge_checkboxes(category) {
+    const boxes = document.querySelectorAll(`.${category}`);
+    const checked = [];
+    for (i = 0; boxes[i]; ++i) {
+        if (boxes[i].checked) {
+            checked.push(boxes[i].value);
+        }
+    }
+
+    const checked_str = checked.join(', ');
+    return checked_str;
+}
+
 // ==============================
 // match_form
 // ==============================
 
 const pick_match_button = document.querySelector('#pick_match_button');
 const match_form = document.querySelector('#match_form');
+const profile_button = document.querySelector('#profile_button');
 
 function init_match_form(current_uuid) {
     back_button.style.display = 'flex';
+    profile_button.style.display = 'flex';
     list_matches(current_uuid);
     pick_match_button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -155,6 +172,14 @@ function init_match_form(current_uuid) {
         const thread_id = set_thread_id(current_uuid, match_uuid);
         init_chat_form(current_uuid, match_uuid);
         recall_chat(current_uuid, match_uuid, thread_id);
+    })
+
+    // User profile button
+    profile_button.removeEventListener('click', toggle_page);
+    profile_button.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggle_page('profile_form');
+        init_profile_form(current_uuid, current_uuid);
     })
 }
 
@@ -170,8 +195,7 @@ function list_matches(current_uuid) {
                         const element = `
                             <option value="${doc.id}">${name}</option>
                         `
-                        match_input.innerHTML += element;
-                        console.log('Found a match');
+                        match_input.innerHTML = element;
                     });
 
                 });
@@ -195,6 +219,15 @@ function init_chat_form(current_uuid, match_uuid) {
     send_button.addEventListener('click', (e) => {
         e.preventDefault();
         send_message(current_uuid, match_uuid);
+    });
+
+    // User profile button
+    profile_button.style.display = 'flex';
+    profile_button.removeEventListener('click', toggle_page);
+    profile_button.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggle_page('profile_form');
+        init_profile_form(match_uuid, current_uuid);
     })
 }
 
@@ -331,6 +364,44 @@ function format_fs_tstamp(tstamp) {
 // ==============================
 
 // ==============================
-// profile_info
+// profile_form
 // ==============================
 
+const stat_name = document.querySelector('#stat_name');
+const stat_location = document.querySelector('#stat_location');
+const stat_age = document.querySelector('#stat_age');
+const stat_looking_for = document.querySelector('#stat_looking_for');
+const stat_gender = document.querySelector('#stat_gender');
+
+function init_profile_form(uuid, current_uuid) {
+    title.innerText = '';
+    profile_button.style.display = 'none';
+    load_back_button('profile_form');
+
+    if (uuid === current_uuid) { // My profile
+        // Add edit button
+    } else { // Match Profile
+        // Do something match related...
+    }
+
+    // Display data
+    const docRef = db.collection('users').doc(uuid);
+    docRef.get()
+        .then(function (doc) {
+            const name = doc.data().first_name + ' ' + doc.data().last_name;
+            const age = doc.data().age;
+            const gender = doc.data().gender;
+            const location = doc.data().location;
+            const looking_for = doc.data().looking_for;
+
+            stat_name.innerText = name,
+                stat_age.innerText = age,
+                stat_gender.innerText = gender,
+                stat_location.innerText = location,
+                stat_looking_for.innerText = looking_for
+
+        })
+        .catch(function (error) {
+            console.log('Error getting documents: ', error);
+        })
+}

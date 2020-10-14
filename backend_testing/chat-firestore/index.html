@@ -23,7 +23,9 @@
                 <i class="fa fa-chevron-left" aria-hidden="true"></i>
             </button>
             <h2 id="title"></h2>
-            <div class="nav_end"></div>
+            <button class="nav-end" id="profile_button">
+                <i class="fas fa-user" aria-hidden="true"></i>
+            </button>
         </nav>
         <div id="content_area">
             <form class="prompt_form" id="login_form">
@@ -40,6 +42,14 @@
                 <input type="text" id="last_name_input" placeholder="Last Name" required>
                 <input type="text" id="age_input" placeholder="Age" required>
                 <input type="text" id="gender_input" placeholder="Gender" required>
+                
+                <h2>What are you looking for?</h2>
+                <div class="checkboxes">
+                    <span><input class="lf_checkbox" type="checkbox" value="Chat">Chat</span>
+                    <span><input class="lf_checkbox" type="checkbox" value="Relationships">Relationships</span>
+                    <span><input class="lf_checkbox" type="checkbox" value="Friends">Friends</span>
+                </div>
+
                 <button id="add_account_button">Complete Sign Up</button>
             </form>
             <!-- ===== Pick who to chat with ===== -->
@@ -58,6 +68,23 @@
                 <div id="chat_controls">
                     <input type="text" id="message_input" placeholder="Message">
                     <button id="send_button">Send <i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                </div>
+            </form>
+            <!-- ===== Profile ===== -->
+            <form id="profile_form">
+                <div class="profile_section" id="profile_top">
+                    <div id="me">
+                        <i class="fas fa-user fa-3x" aria-hidden="true"></i>
+                        <h2 id="stat_name"><!-- Inserted by FireStore... --></h2>
+                        <p id="stat_location"><!-- Inserted by FireStore... --></p>
+                    </div>
+                </div>
+                <div class="profile_section" id="profile_btm">
+                    <ul id="profile_stats">
+                        <li class="stat"><div class="stat_left">Age:</div><div id="stat_age"><!-- Inserted by FireStore... --></div></li>
+                        <li class="stat"><div class="stat_left">Gender:</div><div id="stat_gender"><!-- Inserted by FireStore... --></div></li>
+                        <li class="stat"><div class="stat_left">Looking for:</div><div id="stat_looking_for"><!-- Inserted by FireStore... --></div></li>
+                    </ul>
                 </div>
             </form>
         </div>
