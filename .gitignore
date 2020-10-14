@@ -79,3 +79,4 @@ db.php
 
 node_modules
 *.DS_Store
+spotify_connect/web-api-example/authorization_code/app.js
