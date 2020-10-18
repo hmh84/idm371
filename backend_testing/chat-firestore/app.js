@@ -1,8 +1,8 @@
-function timestamp() {
+function timestamp() { // Returns the current timestamp, Usage: "console.log(timestamp());"
     return firebase.firestore.Timestamp.fromDate(new Date());
 }
 
-function toggle_page(new_form) {
+function toggle_page(new_form) { // Hides all forms except the form pass to 'new_form' argument
     new_form == 'login_form' && init_login_form();
 
     load_back_button(new_form);
@@ -29,7 +29,7 @@ back_button.addEventListener('click', (e) => {
     toggle_page(back_button.dataset.value);
 })
 
-function load_back_button(this_form) {
+function load_back_button(this_form) { // Adds correct link to back button
     if (this_form == 'sign_up_form' || this_form == 'match_form') {
         back_button.dataset.value = 'login_form';
     } else if (this_form == 'chat_form' || this_form == 'profile_form') {
@@ -37,7 +37,7 @@ function load_back_button(this_form) {
     }
 }
 
-function decipher_uuid(uuid) {
+function decipher_uuid(uuid) { // Turns UUID strings into first_name
     const docRef = db.collection('users').doc(uuid);
     return docRef.get()
         .then(doc => doc.data().first_name)
@@ -54,7 +54,7 @@ const sign_up_button = document.querySelector('#sign_up_button');
 
 const status = document.querySelector('#status');
 
-function init_login_form() {
+function init_login_form() { // Initialize the login form, reset login status
     match_input.innerText = '';
     back_button.style.display = 'none';
     title.innerText = '';
@@ -106,7 +106,7 @@ init_login_form() // First Function
 const sign_up_form = document.querySelector('#sign_up_form');
 const add_account_button = document.querySelector('#add_account_button');
 
-function init_sign_up_form() {
+function init_sign_up_form() { // Initialize the login form, show back button
     back_button.style.display = 'unset';
     add_account_button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -114,7 +114,7 @@ function init_sign_up_form() {
     })
 }
 
-function create_user() {
+function create_user() { // Create a user
     // Generate data variable
     const data = {
         first_name: first_name_input.value,
@@ -140,7 +140,7 @@ function create_user() {
     });
 }
 
-function merge_checkboxes(category) {
+function merge_checkboxes(category) { // [Reusable] Combines values of checkboxes by category
     const boxes = document.querySelectorAll(`.${category}`);
     const checked = [];
     for (i = 0; boxes[i]; ++i) {
@@ -161,7 +161,7 @@ const pick_match_button = document.querySelector('#pick_match_button');
 const match_form = document.querySelector('#match_form');
 const profile_button = document.querySelector('#profile_button');
 
-function init_match_form(current_uuid) {
+function init_match_form(current_uuid) { // Initialize match chat selection form
     back_button.style.display = 'flex';
     profile_button.style.display = 'flex';
     list_matches(current_uuid);
@@ -183,7 +183,7 @@ function init_match_form(current_uuid) {
     })
 }
 
-function list_matches(current_uuid) {
+function list_matches(current_uuid) { // Populates SELECT form with matches
     const doc = db.collection('users').doc(current_uuid).collection('matches');
     doc.onSnapshot(docSnapshot => { // Observer
         doc.get()
@@ -215,7 +215,7 @@ function list_matches(current_uuid) {
 const message_input = document.querySelector('#message_input');
 const send_button = document.querySelector('#send_button');
 
-function init_chat_form(current_uuid, match_uuid) {
+function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     send_button.addEventListener('click', (e) => {
         e.preventDefault();
         send_message(current_uuid, match_uuid);
@@ -231,7 +231,7 @@ function init_chat_form(current_uuid, match_uuid) {
     })
 }
 
-function send_message(current_uuid, match_uuid) {
+function send_message(current_uuid, match_uuid) { // Sends a message from chat form message input
     if (message_input.value) {
 
         const data = {
@@ -250,7 +250,7 @@ function send_message(current_uuid, match_uuid) {
     }
 }
 
-function recall_chat(current_uuid, match_uuid, thread_id) { // gets entire chat at first
+function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat history when entering chat with a match
     // Decipher match uuid
     decipher_uuid(match_uuid).then((name) => {
         console.log(`Chatting with: ${name} \nThread_id: ${thread_id}`);
@@ -287,7 +287,7 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // gets entire chat 
         });
 }
 
-function observe_chat(current_uuid, match_uuid, doc) {
+function observe_chat(current_uuid, match_uuid, doc) { // [!!!Does not stop listening per instance!!!] Sets up event listener for the thread you and your match are on
     doc.onSnapshot(docSnapshot => { // Observer
         doc.orderBy('when', 'asc') // Index Collection ID: 'chats'
             .get()
@@ -326,7 +326,7 @@ function observe_chat(current_uuid, match_uuid, doc) {
 
 const message_tone = new Audio('message-tone.mp3');
 
-function play_tone() {
+function play_tone() { // Plays message tone when receiving a message from match
     const last_message = document.querySelector('.message:last-of-type');
     if (last_message) {
         if (last_message.classList.contains('from_them')) {
@@ -335,7 +335,7 @@ function play_tone() {
     }
 }
 
-function scroll_to_bottom(command) {
+function scroll_to_bottom(command) { // Scroll to the bottom if scroll height is not too far up (to prevent annoyance)
     if (command == 'ask') {
         if ((chat_box.scrollHeight - (chat_box.scrollTop + chat_box.clientHeight)) <= 500) {
             chat_box.scrollTop = chat_box.scrollHeight;
@@ -345,23 +345,19 @@ function scroll_to_bottom(command) {
     }
 }
 
-function set_thread_id(uuid1, uuid2) {
+function set_thread_id(uuid1, uuid2) { // Determines what the thread_id will be based on current_uuid and match_uuid
     uuid1 > uuid2 ? thread_id = uuid1 + '-' + uuid2 : thread_id = uuid2 + '-' + uuid1;
     return thread_id;
 }
 
-function who_sent(from, current_uuid) {
+function who_sent(from, current_uuid) { // Determines who sent the message, returns a class name to add to the message bubble
     from == current_uuid ? sender = 'from_me' : sender = 'from_them';
     return sender;
 }
 
-function format_fs_tstamp(tstamp) {
+function format_fs_tstamp(tstamp) { // Formats moment.js timestamp into cleaner format
     return moment(tstamp.toDate()).format("M/D/YY • h:mm a");
 }
-
-// ==============================
-// match_info
-// ==============================
 
 // ==============================
 // profile_form
@@ -373,15 +369,15 @@ const stat_age = document.querySelector('#stat_age');
 const stat_looking_for = document.querySelector('#stat_looking_for');
 const stat_gender = document.querySelector('#stat_gender');
 
-function init_profile_form(uuid, current_uuid) {
+function init_profile_form(uuid, current_uuid) { // Initializes profile page
     title.innerText = '';
     profile_button.style.display = 'none';
     load_back_button('profile_form');
 
-    if (uuid === current_uuid) { // My profile
+    if (uuid === current_uuid) { // If it's current_uuid profile
         // Add edit button
-    } else { // Match Profile
-        // Do something match related...
+    } else { // If it's the matches profile
+        // Do something match related...?
     }
 
     // Display data
@@ -405,3 +401,5 @@ function init_profile_form(uuid, current_uuid) {
             console.log('Error getting documents: ', error);
         })
 }
+
+// EDIT PROFILE
