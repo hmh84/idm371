@@ -80,3 +80,8 @@ db.php
 node_modules
 *.DS_Store
 spotify_connect/web-api-example/authorization_code/app.js
+
+# Secret keys and secret things! #
+##################################
+serviceAccountKey.json
+spotify_firebase_integration/authorization_code/app.js
