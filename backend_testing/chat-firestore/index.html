@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="main.css">
     <script src="https://kit.fontawesome.com/a57c47fadc.js" crossorigin="anonymous"></script>
-    <title>FireStore</title>
+    <title>FireStore Chat</title>
 </head>
 
 <body>
@@ -28,6 +28,7 @@
             </button>
         </nav>
         <div id="content_area">
+            <!-- Login Form -->
             <form class="prompt_form" id="login_form">
                 <h2>Welcome to Shuffle!</h2>
                 <input type="text" id="uuid_input" placeholder="Username" required>
@@ -56,14 +57,14 @@
             <form class="prompt_form" id="match_form">
                 <h2>This week's matches:</h2>
                 <select id="match_input" size="5">
-                    <!-- Matches populate here... -->
+                    <!-- Matches populated by DB... -->
                 </select>
                 <button id="pick_match_button">Chat</button>
             </form>
             <!-- ===== Chat ===== -->
             <form id="chat_form">
                 <ul id="chat_box">
-                    <!-- Chats populate here... -->
+                    <!-- Chats populated by DB... -->
                 </ul>
                 <div id="chat_controls">
                     <input type="text" id="message_input" placeholder="Message">
@@ -75,15 +76,15 @@
                 <div class="profile_section" id="profile_top">
                     <div id="me">
                         <i class="fas fa-user fa-3x" aria-hidden="true"></i>
-                        <h2 id="stat_name"><!-- Inserted by FireStore... --></h2>
-                        <p id="stat_location"><!-- Inserted by FireStore... --></p>
+                        <h2 id="stat_name"><!-- Populated by DB... --></h2>
+                        <p id="stat_location"><!-- Populated by DB... --></p>
                     </div>
                 </div>
                 <div class="profile_section" id="profile_btm">
                     <ul id="profile_stats">
-                        <li class="stat"><div class="stat_left">Age:</div><div id="stat_age"><!-- Inserted by FireStore... --></div></li>
-                        <li class="stat"><div class="stat_left">Gender:</div><div id="stat_gender"><!-- Inserted by FireStore... --></div></li>
-                        <li class="stat"><div class="stat_left">Looking for:</div><div id="stat_looking_for"><!-- Inserted by FireStore... --></div></li>
+                        <li class="stat"><div class="stat_left">Age:</div><div id="stat_age"><!-- Populated by DB... --></div></li>
+                        <li class="stat"><div class="stat_left">Gender:</div><div id="stat_gender"><!-- Populated by DB... --></div></li>
+                        <li class="stat"><div class="stat_left">Looking for:</div><div id="stat_looking_for"><!-- Populated by DB... --></div></li>
                     </ul>
                 </div>
             </form>

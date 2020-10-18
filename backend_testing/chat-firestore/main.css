@@ -186,6 +186,7 @@ button#send_button {
     padding: 1rem;
     box-shadow: -2px 2px 4px #c5c5c5;
     margin-bottom: .5rem;
+    max-width: 80%;
 }
 
 .time {
