@@ -78,3 +78,8 @@ db.php
 
 node_modules
 *.DS_Store
+
+# Secret keys and secret things! #
+##################################
+serviceAccountKey.json
+spotify_firebase_integration/authorization_code/app.js
