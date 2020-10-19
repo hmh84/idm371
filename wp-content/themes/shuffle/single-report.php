@@ -3,7 +3,7 @@
   <?php while (have_posts()) : the_post(); ?>
 
   <?php
-      $week = get_field('sr_week_number');
+      $postnum = get_field('sr_post_number');
       $acc = get_field('sr_accomplishments');
       $hrs = get_field('sr_total_hours');
       $s_link = get_field('sr_samples_link');
@@ -17,8 +17,8 @@
     <div class="container">
       <h1><?php the_title(); ?></h1>
       
-      <?php if($week) : ?>
-        <h3>Week <?php echo $week; ?> Status Report</h3>
+      <?php if($postnum) : ?>
+        <h3>Post <?php echo $postnum; ?> Status Report</h3>
       <p class="p-post-tags">
       <?php endif; ?>
         <?php $posttags = get_the_tags();

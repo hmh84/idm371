@@ -5,13 +5,13 @@
 <div class="archive-grid">
 <?php while (have_posts()) : the_post(); ?>
     <?php
-      $week = get_field('sr_week_number');
+      $postnum = get_field('sr_post_number');
     ?>
     
     <a href="<?php the_permalink(); ?>">
     <div class="archive-grid-item">
         <h2><?php the_title(); ?></h2>
-        <pre>Week <?php echo $week; ?> Status Report</pre>
+        <pre>Post <?php echo $postnum; ?> Status Report</pre>
     </div>
     </a>
     <?php endwhile; ?>
