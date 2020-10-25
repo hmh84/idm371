@@ -1,13 +1,25 @@
+// ==============================
+// General Functions
+// ==============================
+
 function timestamp() { // Returns the current timestamp, Usage: "console.log(timestamp());"
     return firebase.firestore.Timestamp.fromDate(new Date());
 }
 
 function toggle_page(new_form) { // Hides all forms except the form pass to 'new_form' argument
-    new_form == 'login_form' && init_login_form();
+    if (new_form == 'login_form') {
+        init_login_form();
+        profile_button.style.display = 'none';
+    } else if (new_form == 'sign_up_form') {
+        init_sign_up_form();
+        profile_button.style.display = 'none';
+    } else if (new_form == 'match_form') {
+        profile_button.style.display = 'flex';
+    }
 
     load_back_button(new_form);
-    new_form = document.querySelector(`form#${new_form}`);
 
+    new_form = document.querySelector(`form#${new_form}`);
 
     all_forms = document.querySelectorAll('form');
     all_forms.forEach(form => {
@@ -23,6 +35,7 @@ const match_input = document.querySelector('#match_input');
 
 back_button.addEventListener('click', (e) => {
     e.preventDefault();
+    stop_players();
     title.innerText = '';
     chat_box.innerText = '';
     status.style.color = 'unset';
@@ -44,6 +57,25 @@ function decipher_uuid(uuid) { // Turns UUID strings into first_name
         .catch(error => console.log(error));
 }
 
+function stop_players() { // Stops all iframe OR video players
+    var videos = document.querySelectorAll('iframe, video');
+    Array.prototype.forEach.call(videos, function (video) {
+        if (video.tagName.toLowerCase() === 'video') {
+            video.pause();
+        } else {
+            var src = video.src;
+            video.src = src;
+        }
+    });
+};
+
+const checkbox_spans = document.querySelectorAll('.checkboxes span');
+checkbox_spans.forEach(span => { // Clicking on checkbox containers will select the checkbox input. There's also a CSS reference for pointer-events: none;
+    span.addEventListener('click', () => {
+        span.getElementsByTagName("input")[0].click();
+    });
+});
+
 // ==============================
 // login_form
 // ==============================
@@ -51,10 +83,12 @@ function decipher_uuid(uuid) { // Turns UUID strings into first_name
 const uuid_input = document.querySelector('#uuid_input');
 const login_button = document.querySelector('#login_button');
 const sign_up_button = document.querySelector('#sign_up_button');
+const profile_button = document.querySelector('#profile_button');
 
 const status = document.querySelector('#status');
 
 function init_login_form() { // Initialize the login form, reset login status
+    stop_players();
     match_input.innerText = '';
     back_button.style.display = 'none';
     title.innerText = '';
@@ -64,7 +98,13 @@ function init_login_form() { // Initialize the login form, reset login status
 
     login_button.addEventListener('click', (e) => {
         e.preventDefault();
-        login_shuffle(uuid_input.value);
+        // Check form validity
+        if (document.querySelector('#login_form').checkValidity() === true) {
+            login_shuffle(uuid_input.value);
+        } else {
+            status.innerText = 'Enter a username.';
+            status.style.color = 'red';
+        }
     })
 
     sign_up_button.addEventListener('click', (e) => {
@@ -105,13 +145,27 @@ init_login_form() // First Function
 
 const sign_up_form = document.querySelector('#sign_up_form');
 const add_account_button = document.querySelector('#add_account_button');
+const school_input = document.querySelector('#school_input');
+const anthem_id_input = document.querySelector('#anthem_id_input');
 
 function init_sign_up_form() { // Initialize the login form, show back button
     back_button.style.display = 'unset';
     add_account_button.addEventListener('click', (e) => {
         e.preventDefault();
-        create_user();
+        // Check form validity
+        if (document.querySelector('#sign_up_form').checkValidity() === true) {
+            create_user();
+        } else {
+            status.innerText = 'Form is incomplete.';
+            status.style.color = 'red';
+        }
     })
+    collages.forEach(collage => {
+        const element = `
+            <option value="${collage}">${collage}</option>
+        `
+        school_input.innerHTML += element;
+    });
 }
 
 function create_user() { // Create a user
@@ -122,6 +176,8 @@ function create_user() { // Create a user
         age: age_input.value,
         gender: gender_input.value,
         location: 'Philadelphia, PA',
+        school: school_input.value,
+        anthem_id: anthem_id_input.value,
         looking_for: merge_checkboxes('lf_checkbox'),
         account_created: timestamp()
     };
@@ -159,11 +215,10 @@ function merge_checkboxes(category) { // [Reusable] Combines values of checkboxe
 
 const pick_match_button = document.querySelector('#pick_match_button');
 const match_form = document.querySelector('#match_form');
-const profile_button = document.querySelector('#profile_button');
 
 function init_match_form(current_uuid) { // Initialize match chat selection form
+    stop_players();
     back_button.style.display = 'flex';
-    profile_button.style.display = 'flex';
     list_matches(current_uuid);
     pick_match_button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -175,7 +230,9 @@ function init_match_form(current_uuid) { // Initialize match chat selection form
     })
 
     // User profile button
-    profile_button.removeEventListener('click', toggle_page);
+    // profile_button.removeEventListener('click', toggle_page);
+    // profile_button.removeEventListener('click', init_profile_form);
+    $('#profile_button').unbind();
     profile_button.addEventListener('click', (e) => {
         e.preventDefault();
         toggle_page('profile_form');
@@ -223,17 +280,18 @@ function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
 
     // User profile button
     profile_button.style.display = 'flex';
-    profile_button.removeEventListener('click', toggle_page);
+    // profile_button.removeEventListener('click', toggle_page);
+    // profile_button.removeEventListener('click', init_profile_form);
+    $('#profile_button').unbind();
     profile_button.addEventListener('click', (e) => {
         e.preventDefault();
         toggle_page('profile_form');
-        init_profile_form(match_uuid, current_uuid);
+        init_profile_form(match_uuid, current_uuid, 'from_chat');
     })
 }
 
 function send_message(current_uuid, match_uuid) { // Sends a message from chat form message input
     if (message_input.value) {
-
         const data = {
             content: message_input.value,
             from: current_uuid,
@@ -241,12 +299,15 @@ function send_message(current_uuid, match_uuid) { // Sends a message from chat f
             when: timestamp()
         };
         db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function () {
-            console.log('Message Sent!');
             chat_form.reset(); // Clear input(s)
+            status.style.color = 'unset';
+            status.innerText = 'Message Sent!';
         }).catch(function (error) {
             console.error(error);
         });
-
+    } else {
+        status.innerText = 'Type a message.';
+        status.style.color = 'red';
     }
 }
 
@@ -322,10 +383,7 @@ function observe_chat(current_uuid, match_uuid, doc) { // [!!!Does not stop list
     });
 }
 
-// Features/Extras
-
 const message_tone = new Audio('message-tone.mp3');
-
 function play_tone() { // Plays message tone when receiving a message from match
     const last_message = document.querySelector('.message:last-of-type');
     if (last_message) {
@@ -363,20 +421,30 @@ function format_fs_tstamp(tstamp) { // Formats moment.js timestamp into cleaner 
 // profile_form
 // ==============================
 
+const stats = document.querySelectorAll('.stat');
+const stat_location_space = document.querySelector('#stat_location_space');
+
 const stat_name = document.querySelector('#stat_name');
 const stat_location = document.querySelector('#stat_location');
+const stat_school = document.querySelector('#stat_school');
 const stat_age = document.querySelector('#stat_age');
 const stat_looking_for = document.querySelector('#stat_looking_for');
 const stat_gender = document.querySelector('#stat_gender');
 
+const anthem_wrap = document.querySelector('#anthem_wrap');
+const stat_anthem_label = document.querySelector('#stat_anthem_label');
+const stat_anthem = document.querySelector('#stat_anthem');
+
 function init_profile_form(uuid, current_uuid) { // Initializes profile page
     title.innerText = '';
     profile_button.style.display = 'none';
-    load_back_button('profile_form');
+    console.log('init profile form');
 
     if (uuid === current_uuid) { // If it's current_uuid profile
         // Add edit button
+        console.log('my profile');
     } else { // If it's the matches profile
+        console.log('their profile');
         // Do something match related...?
     }
 
@@ -384,22 +452,77 @@ function init_profile_form(uuid, current_uuid) { // Initializes profile page
     const docRef = db.collection('users').doc(uuid);
     docRef.get()
         .then(function (doc) {
-            const name = doc.data().first_name + ' ' + doc.data().last_name;
-            const age = doc.data().age;
-            const gender = doc.data().gender;
-            const location = doc.data().location;
-            const looking_for = doc.data().looking_for;
-
-            stat_name.innerText = name,
-                stat_age.innerText = age,
-                stat_gender.innerText = gender,
-                stat_location.innerText = location,
-                stat_looking_for.innerText = looking_for
-
+            const result = doc.data(); // Make doc.data() a variable for convenience
+            load_profile_stats(result);
         })
         .catch(function (error) {
             console.log('Error getting documents: ', error);
         })
 }
 
-// EDIT PROFILE
+function load_profile_stats(result) {
+    // Required
+    const first_name = result.first_name;
+    const last_name = result.last_name;
+
+    // Optional
+    const age = result.age;
+    const gender = result.gender;
+    const location = result.location;
+    const school = result.school;
+    const looking_for = result.looking_for;
+    const anthem_id = result.anthem_id;
+
+    // Check fields
+    age == '' || age === undefined ? stat_age.dataset.status = 'empty' : stat_age.removeAttribute('data-status');
+    gender == '' || gender === undefined ? stat_gender.dataset.status = 'empty' : stat_gender.removeAttribute('data-status');
+    location == '' || location === undefined ? stat_location.dataset.status = 'empty' : stat_location.removeAttribute('data-status');
+    school == '' || school === undefined ? stat_school.dataset.status = 'empty' : stat_school.removeAttribute('data-status');
+    looking_for == '' || looking_for === undefined ? stat_looking_for.dataset.status = 'empty' : stat_looking_for.removeAttribute('data-status');
+
+    for (var i = 0, len = stats.length; i < len; i++) {
+        if (stats[i].dataset.status == 'empty') {
+            stats[i].parentElement.style.display = 'none';
+        } else {
+            stats[i].parentElement.style.display = 'flex';
+        }
+    };
+
+    // === Inject field content ===
+
+    // Required
+    stat_name.innerText = first_name + ' ' + last_name;
+
+    // Optional
+    stat_age.innerText = age;
+    stat_gender.innerText = gender;
+    stat_location.innerText = location;
+    stat_school.innerText = school;
+    stat_looking_for.innerText = looking_for;
+
+    if (anthem_id === '' || anthem_id === undefined) {
+        anthem_wrap.style.display = 'none';
+    } else {
+        stat_anthem_label.innerText = `${first_name}'s Anthem`;
+        stat_anthem.src = `https://open.spotify.com/embed/track/${anthem_id}`;
+    }
+}
+
+// ==============================
+// TASKS
+// ==============================
+
+// Priority tasks
+
+// 1. Login with Spotify id as uuid (Holding until green-light from Gabby)
+// 2. Fix profile form page not showing correct profile. (Re-initialize the match form every time you enter it (to reset match_id for profile views))
+// 3. Edit profile after creation
+// 4. Hide profile features if not entered
+// 5. Search for Anthem on profile creation (Needs Spotify SDK)
+//      https://developer.spotify.com/console/get-search-item/?q=i%20can%20make%20you%20dance&type=track&market=US&limit=2
+
+// Scope Creep Tasks
+
+// 1. Embedded chat messages for links, music. (Try to get meta to appear)
+// 2. Offline chat storage
+// 3. Delete messages, appear as 'Message Deleted'

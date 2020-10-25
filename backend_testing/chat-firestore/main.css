@@ -222,7 +222,7 @@ button#send_button {
 
 #profile_top {
     background-color: #ebebeb;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -239,7 +239,7 @@ button#send_button {
     
 }
 
-.stat {
+.stat_li {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -250,7 +250,7 @@ button#send_button {
     border-bottom: 1px #ebebeb solid;
 }
 
-.stat:last-of-type {
+.stat_li:last-of-type {
     margin-bottom: 0;
     border: none;
 }
@@ -270,9 +270,51 @@ button#send_button {
     padding: 0 .5rem;
     border-radius: .25rem;
     box-shadow: -2px 2px 4px #c5c5c5;
-    width: 70%;
+    width: 201px;
 }
 
 .lf_checkbox {
     margin-right: .5rem;
+    pointer-events: none;
+}
+
+/* Player */
+
+#anthem_wrap {
+    margin: 0 !important;
+    width: 100%;
+    align-items: flex-start;
+}
+
+iframe {
+    height: 5rem;
+    border-radius: 1rem 1rem 0 0;
+    width: 100%;
+    margin: 0 !important;
+}
+
+#stat_anthem_label {
+    font-weight: bold;
+    margin-left: 1rem;
+}
+
+#sign_up_form {
+    overflow-y: scroll;
+    justify-content: flex-start;
+}
+
+select#school_input {
+    border-radius: .25rem;
+    padding: 9px .75rem;
+    width: 201px;
+    box-shadow: -2px 2px 4px #c5c5c5;
+}
+
+#school_input option {
+    padding: 1rem 0;
+}
+
+.row {
+    display: flex;
+    flex-direction: row !important;
 }
