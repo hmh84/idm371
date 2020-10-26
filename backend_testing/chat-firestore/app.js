@@ -517,8 +517,7 @@ function load_profile_stats(result) {
 // 1. Login with Spotify id as uuid (Holding until green-light from Gabby)
 // 2. Fix profile form page not showing correct profile. (Re-initialize the match form every time you enter it (to reset match_id for profile views))
 // 3. Edit profile after creation
-// 4. Hide profile features if not entered
-// 5. Search for Anthem on profile creation (Needs Spotify SDK)
+// 4. Search for Anthem on profile creation (Needs Spotify SDK)
 //      https://developer.spotify.com/console/get-search-item/?q=i%20can%20make%20you%20dance&type=track&market=US&limit=2
 
 // Scope Creep Tasks
