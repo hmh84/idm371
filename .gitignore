@@ -83,3 +83,9 @@ node_modules
 ##################################
 serviceAccountKey.json
 spotify_firebase_integration/authorization_code/app.js
+spotify_chat/authorization_code/firebase-config.js
+spotify_chat/authorization_code/server.js
+spotify_chat/authorization_code/server.js
+spotify_chat/authorization_code/server.js
+spotify_chat/authorization_code/server.js
+spotify_chat/authorization_code/server.js
