@@ -581,8 +581,9 @@ init(); // First Function
 // 1. Fix function duplication, might have to do with callback
 // 2. Correctly route login or setup profile if user is new
 // 3. Fix profile form page not showing correct profile. (Re-initialize the match form every time you enter it (to reset match_id for profile views)), maybe event listeners are piling up
-// 4. Edit profile after creation
-// 5. Merge in search for anthem song
+// 4. Only show profiles that are not new & are not yourself
+// 5. Edit profile after creation
+// 6. Merge in search for anthem song
 
 // Scope Creep Tasks
 
