@@ -219,7 +219,7 @@ const match_form = document.querySelector('#match_form');
 function init_match_form(current_uuid) { // Initialize match chat selection form
     stop_players();
     back_button.style.display = 'flex';
-    list_matches(current_uuid);
+    list_users(current_uuid);
     pick_match_button.addEventListener('click', (e) => {
         e.preventDefault();
         const match_uuid = match_input.value;
@@ -227,6 +227,7 @@ function init_match_form(current_uuid) { // Initialize match chat selection form
         const thread_id = set_thread_id(current_uuid, match_uuid);
         init_chat_form(current_uuid, match_uuid);
         recall_chat(current_uuid, match_uuid, thread_id);
+        message_input.focus();
     })
 
     // User profile button
@@ -240,21 +241,22 @@ function init_match_form(current_uuid) { // Initialize match chat selection form
     })
 }
 
-function list_matches(current_uuid) { // Populates SELECT form with matches
-    const doc = db.collection('users').doc(current_uuid).collection('matches');
+function list_users(current_uuid) { // Populates SELECT form with matches
+    const doc = db.collection('users');
     doc.onSnapshot(docSnapshot => { // Observer
         doc.get()
             .then(function (querySnapshot) {
                 match_input.innerHTML = '';
                 querySnapshot.forEach(function (doc) {
                     // Decipher uuid's
+                    // if (!doc.id === current_uuid) { // Don't list your own user
                     decipher_uuid(doc.id).then((name) => {
                         const element = `
-                            <option value="${doc.id}">${name}</option>
-                        `
-                        match_input.innerHTML = element;
+                                <option value="${doc.id}">${name}</option>
+                            `
+                        match_input.innerHTML += element;
                     });
-
+                    // }
                 });
             })
             .catch(function (error) {
