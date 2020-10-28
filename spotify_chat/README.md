@@ -5,5 +5,5 @@
 3. Download the necessary secret files from Teams under Back End Development > Secret Keys & Files > spotify_chat
     # Put serviceAccountKey.json AND server.js into the current directory
     # Put firebase-config.js into assets/scripts/
-4. Run the command `npm run dev` to startup the Nodemon server
+4. Run the command `node server.js` to startup the server
 5. In your browser, goto `http://localhost:4000`
