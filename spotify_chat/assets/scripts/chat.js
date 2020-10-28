@@ -19,12 +19,12 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
 
     load_back_button(new_form);
 
-    new_form = document.querySelector(`form#${new_form}`);
+    const new_form_obj = document.querySelector(`form#${new_form}`);
 
     all_forms = document.querySelectorAll('form');
     all_forms.forEach(form => {
         form.reset();
-        form == new_form ? form.style.display = 'flex' : form.style.display = 'none';
+        form == new_form_obj ? form.style.display = 'flex' : form.style.display = 'none';
     });
 }
 
@@ -87,31 +87,82 @@ const profile_button = document.querySelector('#profile_button');
 
 const status = document.querySelector('#status');
 
-function init_login_form() { // Initialize the login form, reset login status
+function init() { // Initialize the login form, reset login status
+    init_login_form();
+    console.log('Initializing App');
+
+    if (node_mode === false) {
+        toggle_page('login_form');
+
+        login_button.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Check form validity
+            if (document.querySelector('#login_form').checkValidity() === true) {
+                login_shuffle(uuid_input.value);
+            } else {
+                status.innerText = 'Enter a username.';
+                status.style.color = 'red';
+            }
+        })
+
+        sign_up_button.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggle_page('sign_up_form');
+            init_sign_up_form();
+        })
+    } else if (node_mode == true) {
+        // if ((user_exist(spotify_id) === true) && (user_new(spotify_id) === false)) { // If user exists & is not new
+        if (user_exist(spotify_id) === true) { // If user exists & is not new
+            if (user_new(uuid) === false) {
+                login_shuffle(spotify_id);
+                console.log('Logging in as ' + spotify_id);
+            }
+        } else {
+            toggle_page('sign_up_form');
+            // I wanna setup user
+            console.log('I wanna setup user');
+        }
+    }
+}
+
+function user_exist(uuid) {
+    const docRef = db.collection('users').doc(uuid);
+    docRef.get().then(function (doc) {
+        if (doc.exists) {
+            // Is already a user...
+            return true;
+        } else {
+            // Not already a user...
+            return false;
+        }
+    }).catch(function (error) {
+        console.log(error);
+    });
+}
+
+function user_new(uuid) {
+    console.log('yep');
+    const docRef = db.collection('users').doc(uuid);
+    docRef.get().then(function (doc) {
+        if (doc.data().new_user === true) {
+            console.log('User is new');
+            return true;
+        } else {
+            console.log('User is NOT new');
+            return false;
+        }
+    }).catch(function (error) {
+        console.log(error);
+    });
+}
+
+function init_login_form() {
     stop_players();
     match_input.innerText = '';
     back_button.style.display = 'none';
     title.innerText = '';
     chat_box.innerText = '';
     status.innerText = 'Logged out';
-    console.log('Logging out');
-
-    login_button.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Check form validity
-        if (document.querySelector('#login_form').checkValidity() === true) {
-            login_shuffle(uuid_input.value);
-        } else {
-            status.innerText = 'Enter a username.';
-            status.style.color = 'red';
-        }
-    })
-
-    sign_up_button.addEventListener('click', (e) => {
-        e.preventDefault();
-        toggle_page('sign_up_form');
-        init_sign_up_form();
-    })
 }
 
 function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
@@ -137,8 +188,6 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
     });
 }
 
-init_login_form() // First Function
-
 // ==============================
 // sign_up_form
 // ==============================
@@ -154,7 +203,7 @@ function init_sign_up_form() { // Initialize the login form, show back button
         e.preventDefault();
         // Check form validity
         if (document.querySelector('#sign_up_form').checkValidity() === true) {
-            create_user();
+            create_user(spotify_id);
         } else {
             status.innerText = 'Form is incomplete.';
             status.style.color = 'red';
@@ -179,21 +228,32 @@ function create_user() { // Create a user
         school: school_input.value,
         anthem_id: anthem_id_input.value,
         looking_for: merge_checkboxes('lf_checkbox'),
+        new_user: false,
         account_created: timestamp()
     };
 
-    // Generate unique id
-    var autoID = db.collection('users').doc().id;
-
     // Push data to FireStore
-    db.collection('users').doc(autoID).set(data).then(function () {
-        alert(`This uuid = ${autoID}`);
-        console.log('Account Created!');
-        sign_up_form.reset(); // Clear input(s)
-        login_shuffle(autoID);
-    }).catch(function (error) {
-        console.error(error);
-    });
+    function push_new_user_data(id_to_use) {
+        db.collection('users').doc(id_to_use).set(data).then(function () {
+            alert(`This uuid = ${id_to_use}`);
+            console.log('Account Created!');
+            sign_up_form.reset(); // Clear input(s)
+            login_shuffle(spotify_id);
+        }).catch(function (error) {
+            console.error(error);
+        });
+    }
+
+    if (node_mode) {
+        // Use API user id
+        const id_to_use = spotify_id;
+        push_new_user_data(id_to_use);
+    } else {
+        // Generate unique id
+        var autoID = db.collection('users').doc().id;
+        id_to_use = autoID;
+        push_new_user_data(id_to_use);
+    }
 }
 
 function merge_checkboxes(category) { // [Reusable] Combines values of checkboxes by category
@@ -510,17 +570,19 @@ function load_profile_stats(result) {
     }
 }
 
+init(); // First Function
+
 // ==============================
 // TASKS
 // ==============================
 
 // Priority tasks
 
-// 1. Login with Spotify id as uuid (Holding until green-light from Gabby)
-// 2. Fix profile form page not showing correct profile. (Re-initialize the match form every time you enter it (to reset match_id for profile views))
-// 3. Edit profile after creation
-// 4. Search for Anthem on profile creation (Needs Spotify SDK)
-//      https://developer.spotify.com/console/get-search-item/?q=i%20can%20make%20you%20dance&type=track&market=US&limit=2
+// 1. Fix function duplication, might have to do with callback
+// 2. Correctly route login or setup profile if user is new
+// 3. Fix profile form page not showing correct profile. (Re-initialize the match form every time you enter it (to reset match_id for profile views)), maybe event listeners are piling up
+// 4. Edit profile after creation
+// 5. Merge in search for anthem song
 
 // Scope Creep Tasks
 
