@@ -57,7 +57,9 @@ function include_css_files() {
     // External font links
     wp_enqueue_style('Roboto', 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
     wp_enqueue_style('Open Sans', 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700;800&display=swap');
-    wp_enqueue_style('Fascinate', 'https://fonts.googleapis.com/css2?family=Fascinate&display=swap');   
+    wp_enqueue_style('Russo One', 'https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+    // wp_enqueue_style('Fascinate', 'https://fonts.googleapis.com/css2?family=Fascinate&display=swap');   
+
 }
 
 // When WP performs this action, call our function
