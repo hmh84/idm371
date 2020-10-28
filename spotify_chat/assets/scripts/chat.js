@@ -383,7 +383,7 @@ function observe_chat(current_uuid, match_uuid, doc) { // [!!!Does not stop list
     });
 }
 
-const message_tone = new Audio('message-tone.mp3');
+const message_tone = new Audio('assets/sounds/message-tone.mp3');
 function play_tone() { // Plays message tone when receiving a message from match
     const last_message = document.querySelector('.message:last-of-type');
     if (last_message) {
