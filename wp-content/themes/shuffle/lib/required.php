@@ -1,6 +1,6 @@
 <?php
 // Check Server PHP Version
-if (version_compare('7.4', phpversion(), '>')) {
+if (version_compare('7.4', phpversion(), '>=')) {
     die('You must be using PHP 7.4 or greater.');
 }
 
