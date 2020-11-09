@@ -611,10 +611,10 @@ init(); // First Function
 
 // Test if one time event still piles on
 
-// #1. Correctly route login or setup profile if user is new.
-// #2. Only show profiles that are not new & are not yourself.
-// #3. Fix profile form page not showing correct profile.
-// #4. Fix send function duplication.
+// #1. *Correctly route login or setup profile if user is new.
+// #2. *Only show profiles that are not new & are not yourself.
+// #3. *Fix profile form page not showing correct profile.
+// #4. *Fix send function duplication.
 
 // #Priority tasks
 
