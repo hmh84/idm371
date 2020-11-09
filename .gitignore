@@ -78,15 +78,8 @@ db.php
 
 node_modules
 *.DS_Store
-spotify_connect/web-api-example/authorization_code/app.js
 
 # Secret keys and secret things! #
 ##################################
-serviceAccountKey.json
-spotify_firebase_integration/authorization_code/app.js
-spotify_chat/authorization_code/firebase-config.js
-spotify_chat/authorization_code/server.js
-spotify_chat/server.js
-spotify_chat/app.js
-archived_code/spotify_firebase_integration/authorization_code/app.js
-firebase-config.js
+secret/
+spotify_chat/assets/scripts/firebase-config.js
