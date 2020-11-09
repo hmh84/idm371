@@ -1,20 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
-
 * {
     font-family: 'Open Sans', sans-serif;
     /* color: #7e7e7e; */
+}
+
+:root {
+    --green: #4ba507;
+    --red: #c50606;
+    --blue: #0089ff;
 }
 
 html {
     scroll-behavior: smooth;
 }
 
-html, body, main {
+html,
+body,
+main {
     width: 100%;
     height: 100%;
 }
 
-body, main, nav, #content_area, form, #chat_box  {
+body,
+main,
+nav,
+#content_area,
+form,
+#chat_box {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -41,7 +53,7 @@ main {
 nav {
     flex-direction: row;
     justify-content: space-between;
-    background-color:#ebebeb;
+    background-color: #ebebeb;
     width: 100%;
     height: 10%;
     padding: 0 1rem;
@@ -92,7 +104,8 @@ select option {
     height: 100%;
 }
 
-button, input {
+button,
+input {
     background-color: white;
     padding: .75rem 1rem;
     border-radius: .25rem;
@@ -105,11 +118,22 @@ button {
 }
 
 form button {
-    background-color: rgb(75 165 7);
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
+}
+
+button.green-btn {
+    background-color: var(--green);
+}
+
+button.red-btn {
+    background-color: var(--red);
+}
+
+button.blue-btn {
+    background-color: var(--blue);
 }
 
 #login_button {
@@ -121,8 +145,9 @@ form button {
 }
 
 #sign_up_button {
-    background-color: #0089ff;
+    background-color: var(--blue);
 }
+
 
 /* Chat Form */
 
@@ -199,6 +224,7 @@ button#send_button {
     margin: 2rem 0;
 }
 
+
 /* Profile */
 
 #profile_button {
@@ -232,7 +258,6 @@ button#send_button {
 
 #profile_btm {
     padding: 1rem;
-    
 }
 
 .stat_li {
@@ -250,6 +275,7 @@ button#send_button {
     margin-bottom: 0;
     border: none;
 }
+
 
 /* Checkbox on form */
 
@@ -273,6 +299,7 @@ button#send_button {
     margin-right: .5rem;
     pointer-events: none;
 }
+
 
 /* Player */
 
@@ -313,4 +340,48 @@ select#school_input {
 .row {
     display: flex;
     flex-direction: row !important;
+}
+
+
+/* Modals */
+
+#modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: #00000095;
+    width: 100vw;
+    height: 100vh;
+}
+
+.modal_common {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding: 1rem;
+    border-radius: .5rem;
+}
+
+.modal_common>* {
+    margin-bottom: .5rem;
+    width: 100%;
+}
+
+.modal_common>*:last-of-type {
+    margin-bottom: 0;
+}
+
+#match_options_button {
+    display: none;
+    /* Default */
+}
+
+#modal_match_options {
+    display: none;
+    /* Default */
+    width: 20rem;
 }

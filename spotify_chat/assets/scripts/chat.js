@@ -14,6 +14,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
         init_sign_up_form();
         profile_button.style.display = 'none';
     } else if (new_form == 'match_form') {
+        init_match_form(spotify_id);
         profile_button.style.display = 'flex';
     }
 
@@ -32,9 +33,19 @@ const back_button = document.querySelector('#back_button');
 const title = document.querySelector('#title');
 const chat_box = document.querySelector('#chat_box');
 const match_input = document.querySelector('#match_input');
+const modal = document.querySelector('#modal');
+const modal_close_button = document.querySelector('#modal_close_button');
+
+modal_close_button.addEventListener('click', (e) => {
+    e.preventDefault();
+    modal.style.display = 'none';
+})
 
 back_button.addEventListener('click', (e) => {
     e.preventDefault();
+
+    match_options_button.style.display = 'none';
+    modal.style.display = 'none';
     stop_players();
     title.innerText = '';
     chat_box.innerText = '';
@@ -59,7 +70,7 @@ function decipher_uuid(uuid) { // Turns UUID strings into first_name
 
 function stop_players() { // Stops all iframe OR video players
     var videos = document.querySelectorAll('iframe, video');
-    Array.prototype.forEach.call(videos, function (video) {
+    Array.prototype.forEach.call(videos, function(video) {
         if (video.tagName.toLowerCase() === 'video') {
             video.pause();
         } else {
@@ -94,7 +105,7 @@ function init() { // Initialize the login form, reset login status
     if (node_mode === false) {
         toggle_page('login_form');
 
-        login_button.addEventListener('click', (e) => {
+        $("#login_button").one("click", function(e) {
             e.preventDefault();
             // Check form validity
             if (document.querySelector('#login_form').checkValidity() === true) {
@@ -103,55 +114,44 @@ function init() { // Initialize the login form, reset login status
                 status.innerText = 'Enter a username.';
                 status.style.color = 'red';
             }
-        })
+        });
 
-        sign_up_button.addEventListener('click', (e) => {
+        $("#sign_up_button").one("click", function(e) {
             e.preventDefault();
             toggle_page('sign_up_form');
             init_sign_up_form();
-        })
+        });
+
     } else if (node_mode == true) {
-        // if ((user_exist(spotify_id) === true) && (user_new(spotify_id) === false)) { // If user exists & is not new
-        if (user_exist(spotify_id) === true) { // If user exists & is not new
-            if (user_new(uuid) === false) {
-                login_shuffle(spotify_id);
-                console.log('Logging in as ' + spotify_id);
-            }
-        } else {
-            toggle_page('sign_up_form');
-            // I wanna setup user
-            console.log('I wanna setup user');
-        }
+        user_exist(spotify_id); // Check if user exists
     }
 }
 
 function user_exist(uuid) {
-    const docRef = db.collection('users').doc(uuid);
-    docRef.get().then(function (doc) {
+    const docRef = db.collection("users").doc(uuid);
+
+    docRef.get().then(function(doc) {
         if (doc.exists) {
-            // Is already a user...
-            return true;
+            if (user_new(uuid)) {
+                toggle_page('sign_up_form');
+            }
         } else {
-            // Not already a user...
-            return false;
+            login_shuffle(uuid);
         }
-    }).catch(function (error) {
-        console.log(error);
+    }).catch(function(error) {
+        console.log("Error getting document:", error);
     });
 }
 
 function user_new(uuid) {
-    console.log('yep');
     const docRef = db.collection('users').doc(uuid);
-    docRef.get().then(function (doc) {
+    docRef.get().then(function(doc) {
         if (doc.data().new_user === true) {
-            console.log('User is new');
-            return true;
+            toggle_page('sign_up_form');
         } else {
-            console.log('User is NOT new');
-            return false;
+            login_shuffle(uuid);
         }
-    }).catch(function (error) {
+    }).catch(function(error) {
         console.log(error);
     });
 }
@@ -169,7 +169,7 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
     const current_uuid = uuid;
 
     const docRef = db.collection('users').doc(current_uuid);
-    docRef.get().then(function (doc) {
+    docRef.get().then(function(doc) {
         if (doc.exists) {
             decipher_uuid(current_uuid).then((name) => {
                 console.log(`Logged in as: '${name}'`);
@@ -178,12 +178,11 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
 
             status.style.color = 'unset';
             toggle_page('match_form');
-            init_match_form(current_uuid);
         } else {
             status.innerText = `'${current_uuid}' is not a user!`;
             status.style.color = 'red';
         }
-    }).catch(function (error) {
+    }).catch(function(error) {
         console.log(error);
     });
 }
@@ -234,12 +233,12 @@ function create_user() { // Create a user
 
     // Push data to FireStore
     function push_new_user_data(id_to_use) {
-        db.collection('users').doc(id_to_use).set(data).then(function () {
-            alert(`This uuid = ${id_to_use}`);
+        db.collection('users').doc(id_to_use).set(data).then(function() {
+            // alert(`This uuid = ${id_to_use}`);
             console.log('Account Created!');
             sign_up_form.reset(); // Clear input(s)
             login_shuffle(spotify_id);
-        }).catch(function (error) {
+        }).catch(function(error) {
             console.error(error);
         });
     }
@@ -277,8 +276,8 @@ const pick_match_button = document.querySelector('#pick_match_button');
 const match_form = document.querySelector('#match_form');
 
 function init_match_form(current_uuid) { // Initialize match chat selection form
+    node_mode == true ? back_button.style.display = 'none' : back_button.style.display = 'flex'; // While no logout
     stop_players();
-    back_button.style.display = 'flex';
     list_users(current_uuid);
     pick_match_button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -291,40 +290,38 @@ function init_match_form(current_uuid) { // Initialize match chat selection form
     })
 
     // User profile button
-    // profile_button.removeEventListener('click', toggle_page);
-    // profile_button.removeEventListener('click', init_profile_form);
-    $('#profile_button').unbind();
-    profile_button.addEventListener('click', (e) => {
+    load_profile_button(current_uuid, current_uuid);
+}
+
+function load_profile_button(target, current_uuid) {
+    profile_button.style.display = 'flex';
+    $("#profile_button").one("click", function(e) {
         e.preventDefault();
         toggle_page('profile_form');
-        init_profile_form(current_uuid, current_uuid);
-    })
+        init_profile_form(target, current_uuid);
+    });
 }
 
 function list_users(current_uuid) { // Populates SELECT form with matches
-    const doc = db.collection('users');
-    doc.onSnapshot(docSnapshot => { // Observer
-        doc.get()
-            .then(function (querySnapshot) {
-                match_input.innerHTML = '';
-                querySnapshot.forEach(function (doc) {
-                    // Decipher uuid's
-                    // if (!doc.id === current_uuid) { // Don't list your own user
+    const docRef = db.collection('users');
+    docRef.get().then(function(doc) {
+            match_input.innerHTML = '';
+            doc.forEach(function(doc) {
+                const result = doc.data();
+                if (doc.id == current_uuid) { // Don't list your own user
+                } else if (!result.new_user) { // If user is finished setting up
                     decipher_uuid(doc.id).then((name) => {
                         const element = `
-                                <option value="${doc.id}">${name}</option>
-                            `
+                    <option value="${doc.id}">${name}</option>
+                    `
                         match_input.innerHTML += element;
                     });
-                    // }
-                });
-            })
-            .catch(function (error) {
-                console.log('Error getting documents: ', error);
-            })
-    }, err => {
-        console.log(`Encountered error: ${err}`);
-    });
+                }
+            });
+        })
+        .catch(function(error) {
+            console.log('Error getting documents: ', error);
+        })
 }
 
 // ==============================
@@ -335,21 +332,15 @@ const message_input = document.querySelector('#message_input');
 const send_button = document.querySelector('#send_button');
 
 function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
-    send_button.addEventListener('click', (e) => {
+    back_button.style.display = 'flex';
+
+    $("#send_button").one("click", function(e) {
         e.preventDefault();
         send_message(current_uuid, match_uuid);
     });
 
     // User profile button
-    profile_button.style.display = 'flex';
-    // profile_button.removeEventListener('click', toggle_page);
-    // profile_button.removeEventListener('click', init_profile_form);
-    $('#profile_button').unbind();
-    profile_button.addEventListener('click', (e) => {
-        e.preventDefault();
-        toggle_page('profile_form');
-        init_profile_form(match_uuid, current_uuid, 'from_chat');
-    })
+    load_profile_button(match_uuid);
 }
 
 function send_message(current_uuid, match_uuid) { // Sends a message from chat form message input
@@ -360,11 +351,12 @@ function send_message(current_uuid, match_uuid) { // Sends a message from chat f
             to: match_uuid,
             when: timestamp()
         };
-        db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function () {
+        db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function() {
             chat_form.reset(); // Clear input(s)
             status.style.color = 'unset';
             status.innerText = 'Message Sent!';
-        }).catch(function (error) {
+            console.log('Message Sent!');
+        }).catch(function(error) {
             console.error(error);
         });
     } else {
@@ -379,17 +371,17 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat 
         console.log(`Chatting with: ${name} \nThread_id: ${thread_id}`);
     });
 
-    const doc = db.collection('chats').doc('thread-' + thread_id).collection('messages');
-    doc.orderBy('when', 'asc') // Index Collection ID: 'chats'
+    const docRef = db.collection('chats').doc('thread-' + thread_id).collection('messages');
+    docRef.orderBy('when', 'asc') // Index Collection ID: 'chats'
         .get()
-        .then(function (querySnapshot) {
+        .then(function(querySnapshot) {
             // Decipher ID
             decipher_uuid(match_uuid).then((name) => {
                 title.innerText = name;
             });
 
             chat_box.innerHTML = '';
-            querySnapshot.forEach(function (doc) {
+            querySnapshot.forEach(function(doc) {
                 const content = (doc.id, ' => ', doc.data().content);
                 const from = (doc.id, ' => ', doc.data().from);
                 const time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
@@ -403,25 +395,25 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat 
                 chat_box.innerHTML += element;
             });
             scroll_to_bottom('tell');
-            observe_chat(current_uuid, match_uuid, doc);
+            observe_chat(current_uuid, match_uuid, docRef);
         })
-        .catch(function (error) {
+        .catch(function(error) {
             console.log('Error getting documents: ', error);
         });
 }
 
-function observe_chat(current_uuid, match_uuid, doc) { // [!!!Does not stop listening per instance!!!] Sets up event listener for the thread you and your match are on
-    doc.onSnapshot(docSnapshot => { // Observer
-        doc.orderBy('when', 'asc') // Index Collection ID: 'chats'
+function observe_chat(current_uuid, match_uuid, docRef) { // [!!!Does not stop listening per instance!!!] Sets up event listener for the thread you and your match are on
+    docRef.onSnapshot(docSnapshot => { // Observer
+        docRef.orderBy('when', 'asc') // Index Collection ID: 'chats'
             .get()
-            .then(function (querySnapshot) {
+            .then(function(querySnapshot) {
                 // Decipher uuid
                 decipher_uuid(match_uuid).then((name) => {
                     title.innerText = name;
                 });
 
                 chat_box.innerHTML = '';
-                querySnapshot.forEach(function (doc) {
+                querySnapshot.forEach(function(doc) {
                     const content = (doc.id, ' => ', doc.data().content);
                     const from = (doc.id, ' => ', doc.data().from);
                     const time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
@@ -437,7 +429,7 @@ function observe_chat(current_uuid, match_uuid, doc) { // [!!!Does not stop list
                 play_tone();
                 scroll_to_bottom('ask');
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 console.log('Error getting documents: ', error);
             });
     }, err => {
@@ -446,6 +438,7 @@ function observe_chat(current_uuid, match_uuid, doc) { // [!!!Does not stop list
 }
 
 const message_tone = new Audio('assets/sounds/message-tone.mp3');
+
 function play_tone() { // Plays message tone when receiving a message from match
     const last_message = document.querySelector('.message:last-of-type');
     if (last_message) {
@@ -492,32 +485,50 @@ const stat_school = document.querySelector('#stat_school');
 const stat_age = document.querySelector('#stat_age');
 const stat_looking_for = document.querySelector('#stat_looking_for');
 const stat_gender = document.querySelector('#stat_gender');
+const stat_account_created = document.querySelector('#stat_account_created');
 
 const anthem_wrap = document.querySelector('#anthem_wrap');
 const stat_anthem_label = document.querySelector('#stat_anthem_label');
 const stat_anthem = document.querySelector('#stat_anthem');
 
-function init_profile_form(uuid, current_uuid) { // Initializes profile page
+const modal_match_options = document.querySelector('#modal_match_options');
+const match_options_button = document.querySelector('#match_options_button');
+const report_user_button = document.querySelector('#report_user');
+const block_user_button = document.querySelector('#block_user');
+
+function init_profile_form(target, current_uuid) { // Initializes profile page
+    console.log('1: ' + current_uuid);
     title.innerText = '';
     profile_button.style.display = 'none';
-    console.log('init profile form');
+    back_button.style.display = 'flex';
 
-    if (uuid === current_uuid) { // If it's current_uuid profile
+    if (target === current_uuid) { // If it's current_uuid profile
+        console.log('2: ' + current_uuid);
         // Add edit button
-        console.log('my profile');
     } else { // If it's the matches profile
-        console.log('their profile');
-        // Do something match related...?
+        console.log('3: ' + current_uuid);
+        // Add match options button
+        match_options_button.style.display = 'flex';
+        $("#match_options_button").one("click", function(e) {
+            e.preventDefault();
+            modal.style.display = 'flex';
+            modal_match_options.style.display = 'flex';
+        });
+        $("#block_user_button").one("click", function(e) {
+            e.preventDefault();
+            console.log('4: ' + current_uuid);
+            block_user(target, current_uuid);
+        });
     }
 
     // Display data
-    const docRef = db.collection('users').doc(uuid);
+    const docRef = db.collection('users').doc(target);
     docRef.get()
-        .then(function (doc) {
+        .then(function(doc) {
             const result = doc.data(); // Make doc.data() a variable for convenience
             load_profile_stats(result);
         })
-        .catch(function (error) {
+        .catch(function(error) {
             console.log('Error getting documents: ', error);
         })
 }
@@ -526,6 +537,7 @@ function load_profile_stats(result) {
     // Required
     const first_name = result.first_name;
     const last_name = result.last_name;
+    const account_created = result.account_created;
 
     // Optional
     const age = result.age;
@@ -554,6 +566,7 @@ function load_profile_stats(result) {
 
     // Required
     stat_name.innerText = first_name + ' ' + last_name;
+    stat_account_created.innerText = moment(account_created.toDate()).format('M/D/YY');
 
     // Optional
     stat_age.innerText = age;
@@ -570,23 +583,51 @@ function load_profile_stats(result) {
     }
 }
 
+function block_user(target, current_uuid) {
+    console.log('5: ' + current_uuid);
+    console.log('b target= ' + target);
+    console.log('b current_uuid= ' + current_uuid);
+    docRef = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
+
+    const data = { // Create data
+        blocked: true,
+    };
+
+    docRef.set(data).then(function() { // Push data to DB
+        // do stuff after
+        console.log('Blocked User...');
+    }).catch(function(error) {
+        console.error(error);
+    });
+}
+
 init(); // First Function
 
 // ==============================
 // TASKS
 // ==============================
 
-// Priority tasks
+// Completed This Week
 
-// 1. Fix function duplication, might have to do with callback
-// 2. Correctly route login or setup profile if user is new
-// 3. Fix profile form page not showing correct profile. (Re-initialize the match form every time you enter it (to reset match_id for profile views)), maybe event listeners are piling up
-// 4. Only show profiles that are not new & are not yourself
-// 5. Edit profile after creation
-// 6. Merge in search for anthem song
+// Test if one time event still piles on
+
+// #1. Correctly route login or setup profile if user is new.
+// #2. Only show profiles that are not new & are not yourself.
+// #3. Fix profile form page not showing correct profile.
+// #4. Fix send function duplication.
+
+// #Priority tasks
+
+// #1. Fix authorization issue on chat.html (Gabby)
+// #2. Merge search for anthem song (Gabby), cannot refresh page
+// #3. Ability to block users.
+// #4  Ability to delete account.
+// #5. Delete chat history on account deletion.
+
+// #4. Edit profile after creation.
 
 // Scope Creep Tasks
 
-// 1. Embedded chat messages for links, music. (Try to get meta to appear)
-// 2. Offline chat storage
-// 3. Delete messages, appear as 'Message Deleted'
+// #1. Embedded chat messages for links, music. (Try to get meta to appear)
+// #2. Offline chat storage
+// #3. Delete messages, appear as 'Message Deleted'
