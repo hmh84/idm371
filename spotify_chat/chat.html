@@ -14,10 +14,22 @@
     <script src="assets/scripts/firebase-config.js" defer></script>
     <!-- Our own scripts -->
     <script>
-        const spotify_id = '<%= s_id %>';
-        const new_user = '<%= new_user %>';
+	    
+	   function getHashParams() {
+          var hashParams = {};
+          var e, r = /([^&;=]+)=?([^&;]*)/g,
+              q = window.location.hash.substring(1);
+          while ( e = r.exec(q)) {
+             hashParams[e[1]] = decodeURIComponent(e[2]);
+          }
+		return hashParams;
+	   }
+	   
+	   params = getHashParams();
+        const spotify_id = params.s_id;
+        const new_user = params.new_user;
 
-        if ('<%= dev_mode %>' === 'node') {
+        if (params.dev_mode === 'node') {
             var node_mode = true;
         } else {
             var node_mode = false;
