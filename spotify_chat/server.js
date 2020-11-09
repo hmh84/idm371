@@ -13,9 +13,9 @@ var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
-const config = require('../secret/config.js'); //secret things
+const config = require('../secret/config');
 
-var client_id = config.client_id; // Your client id
+var client_id = config.client_id;
 var client_secret = config.client_secret; // Your secret
 var redirect_uri = config.redirect_uri; // Your redirect uri
 
@@ -252,9 +252,16 @@ function update_shuffle_user(res, docRef, obj, user_id) {
 		console.error(error);
 	});
 	// Render client script data
-	res.render(__dirname + "/chat.html", {
-		dev_mode: 'node',
-		s_id: user_id,
-		new_user: false
-	});
+//	res.render(__dirname + "/chat.html", {
+//		dev_mode: 'node',
+//		s_id: user_id,
+//		new_user: false
+//	});
+	
+	res.redirect("/chat.html#" +
+          querystring.stringify({
+			dev_mode: 'node',
+			s_id: user_id,
+			new_user: false
+          }));
 }
