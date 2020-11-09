@@ -83,3 +83,4 @@ node_modules
 ##################################
 secret/
 spotify_chat/assets/scripts/firebase-config.js
+archived_code/spotify_firebase_integration/authorization_code/serviceAccountKey.json
