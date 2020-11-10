@@ -615,18 +615,15 @@ init(); // First Function
 
 // Completed This Week
 
-// Test if one time event still piles on
-
-// #1. *Correctly route login or setup profile if user is new.
-// #2. *Only show profiles that are not new & are not yourself.
-// #3. *Fix profile form page not showing correct profile.
-// #4. *Fix send function duplication.
+// #1. *Gender drop-down for profile setup
+// #2. *Pronoun drop-down for profile setup
 
 // #Priority tasks
 
 // #1. Fix authorization issue on chat.html (Gabby)
 // #2. Merge search for anthem song (Gabby), cannot refresh page
 
+// Test if one time event still piles on
 // #3. Ability to block users.
 // #4  Ability to delete account.
 // #5. Delete chat history on account deletion.
