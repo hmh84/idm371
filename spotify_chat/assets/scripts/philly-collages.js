@@ -1,4 +1,4 @@
-const collages = [
+const philly_collages = [
     "Art Institute of Philadelphia",
     "Chestnut Hill College",
     "Community College of Philadelphia",

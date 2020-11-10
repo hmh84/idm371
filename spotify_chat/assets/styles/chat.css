@@ -326,7 +326,7 @@ iframe {
     justify-content: flex-start;
 }
 
-select#school_input {
+#sign_up_form select {
     border-radius: .25rem;
     padding: 9px .75rem;
     width: 201px;

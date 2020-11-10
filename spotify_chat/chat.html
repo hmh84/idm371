@@ -14,18 +14,17 @@
     <script src="assets/scripts/firebase-config.js" defer></script>
     <!-- Our own scripts -->
     <script>
-	    
-	   function getHashParams() {
-          var hashParams = {};
-          var e, r = /([^&;=]+)=?([^&;]*)/g,
-              q = window.location.hash.substring(1);
-          while ( e = r.exec(q)) {
-             hashParams[e[1]] = decodeURIComponent(e[2]);
-          }
-		return hashParams;
-	   }
-	   
-	   params = getHashParams();
+        function getHashParams() {
+            var hashParams = {};
+            var e, r = /([^&;=]+)=?([^&;]*)/g,
+                q = window.location.hash.substring(1);
+            while (e = r.exec(q)) {
+                hashParams[e[1]] = decodeURIComponent(e[2]);
+            }
+            return hashParams;
+        }
+
+        params = getHashParams();
         const spotify_id = params.s_id;
         const new_user = params.new_user;
 
@@ -38,6 +37,7 @@
         console.log('Using Node? = ' + node_mode);
     </script>
     <script src="assets/scripts/philly-collages.js" defer></script>
+    <script src="assets/scripts/spotify-genres.js" defer></script>
     <script src="assets/scripts/chat.js" defer></script>
     <!-- Styles -->
     <link rel="stylesheet" href="assets/styles/normalize.css">
@@ -99,11 +99,28 @@
                 <h2>Enter your info:</h2>
                 <input type="text" id="first_name_input" placeholder="First Name" required>
                 <input type="text" id="last_name_input" placeholder="Last Name" required>
-                <input type="text" id="age_input" placeholder="Age">
-                <input type="text" id="gender_input" placeholder="Gender">
+                <input type="number" id="age_input" placeholder="Age">
+                <select id="gender_input" required>
+                    <option value="">Choose gender</option>
+
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Gender-Queer">Gender-Queer</option>
+                    <option value="Non-Binary">Non-Binary</option>
+                    <option value="">Prefer not to say</option>
+                </select>
+                <select id="pronouns_input">
+                    <option value="">Choose pronouns</option>
+
+                    <option value="He/Him">He/Him</option>
+                    <option value="She/Her">She/Her</option>
+                    <option value="They-Them">They-Them</option>
+                    <option value="">Prefer not to say</option>
+                </select>
                 <select id="school_input">
                     <option>Choose a school</option>
-                    <!-- Schools populated by JS -->
+
+                    <!-- Schools populated by philly-collages.js -->
                 </select>
 
                 <h2>What are you looking for?</h2>
@@ -176,6 +193,12 @@
                         <li class="stat_wrap stat_li">
                             <div class="stat_left">Gender:</div>
                             <div class="stat" id="stat_gender">
+                                <!-- Populated by DB... -->
+                            </div>
+                        </li>
+                        <li class="stat_wrap stat_li">
+                            <div class="stat_left">Pronouns:</div>
+                            <div class="stat" id="stat_pronouns">
                                 <!-- Populated by DB... -->
                             </div>
                         </li>

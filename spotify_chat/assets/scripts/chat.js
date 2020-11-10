@@ -193,8 +193,11 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
 
 const sign_up_form = document.querySelector('#sign_up_form');
 const add_account_button = document.querySelector('#add_account_button');
+
 const school_input = document.querySelector('#school_input');
 const anthem_id_input = document.querySelector('#anthem_id_input');
+const gender_input = document.querySelector('#gender_input');
+const pronouns_input = document.querySelector('#pronouns_input');
 
 function init_sign_up_form() { // Initialize the login form, show back button
     back_button.style.display = 'unset';
@@ -208,11 +211,10 @@ function init_sign_up_form() { // Initialize the login form, show back button
             status.style.color = 'red';
         }
     })
-    collages.forEach(collage => {
-        const element = `
+    philly_collages.forEach(collage => {
+        school_input.innerHTML += `
             <option value="${collage}">${collage}</option>
-        `
-        school_input.innerHTML += element;
+        `;
     });
 }
 
@@ -223,6 +225,7 @@ function create_user() { // Create a user
         last_name: last_name_input.value,
         age: age_input.value,
         gender: gender_input.value,
+        pronouns: pronouns_input.value,
         location: 'Philadelphia, PA',
         school: school_input.value,
         anthem_id: anthem_id_input.value,
@@ -485,6 +488,7 @@ const stat_school = document.querySelector('#stat_school');
 const stat_age = document.querySelector('#stat_age');
 const stat_looking_for = document.querySelector('#stat_looking_for');
 const stat_gender = document.querySelector('#stat_gender');
+const stat_pronouns = document.querySelector('#stat_pronouns');
 const stat_account_created = document.querySelector('#stat_account_created');
 
 const anthem_wrap = document.querySelector('#anthem_wrap');
@@ -542,6 +546,7 @@ function load_profile_stats(result) {
     // Optional
     const age = result.age;
     const gender = result.gender;
+    const pronouns = result.pronouns;
     const location = result.location;
     const school = result.school;
     const looking_for = result.looking_for;
@@ -550,6 +555,7 @@ function load_profile_stats(result) {
     // Check fields
     age == '' || age === undefined ? stat_age.dataset.status = 'empty' : stat_age.removeAttribute('data-status');
     gender == '' || gender === undefined ? stat_gender.dataset.status = 'empty' : stat_gender.removeAttribute('data-status');
+    pronouns == '' || pronouns === undefined ? stat_pronouns.dataset.status = 'empty' : stat_pronouns.removeAttribute('data-status');
     location == '' || location === undefined ? stat_location.dataset.status = 'empty' : stat_location.removeAttribute('data-status');
     school == '' || school === undefined ? stat_school.dataset.status = 'empty' : stat_school.removeAttribute('data-status');
     looking_for == '' || looking_for === undefined ? stat_looking_for.dataset.status = 'empty' : stat_looking_for.removeAttribute('data-status');
@@ -620,14 +626,21 @@ init(); // First Function
 
 // #1. Fix authorization issue on chat.html (Gabby)
 // #2. Merge search for anthem song (Gabby), cannot refresh page
+
 // #3. Ability to block users.
 // #4  Ability to delete account.
 // #5. Delete chat history on account deletion.
+
+// #6. Remove node_mode when gabby is done debugging
+
+// Down the road
 
 // #4. Edit profile after creation.
 
 // Scope Creep Tasks
 
-// #1. Embedded chat messages for links, music. (Try to get meta to appear)
-// #2. Offline chat storage
-// #3. Delete messages, appear as 'Message Deleted'
+// #1. Guilty-Pleasure song
+
+// #2. Embedded chat messages for links, music. (Try to get meta to appear)
+// #3. Offline chat storage
+// #4. Delete messages, appear as 'Message Deleted'
