@@ -591,8 +591,8 @@ function load_profile_stats(result) {
 
 function block_user(target, current_uuid) {
     console.log('5: ' + current_uuid);
-    console.log('b target= ' + target);
-    console.log('b current_uuid= ' + current_uuid);
+    console.log('block is targeting= ' + target);
+    console.log('block current_uuid= ' + current_uuid);
     docRef = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
 
     const data = { // Create data
