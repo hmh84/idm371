@@ -11,7 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" defer></script>
     <script src="https://kit.fontawesome.com/a57c47fadc.js" crossorigin="anonymous" defer></script>
-    <script src="../secret/firebase-config.js" defer></script>
+    <script src="assets/scripts/firebase-config.js" defer></script>
     <!-- Our own scripts -->
     <script>
         function getHashParams() {
@@ -24,20 +24,15 @@
             return hashParams;
         }
 
-        const params = getHashParams();
-        console.log(params);
-
+        params = getHashParams();
         const spotify_id = params.s_id;
         const new_user = params.new_user;
-
-        console.log('new_user' + new_user);
-        console.log('new_user' + new_user);
 
         if (params.dev_mode === 'node') {
             var node_mode = true;
         } else {
             var node_mode = false;
-            console.log('Functions are running twice without Node...');
+            console.log('Functions are running twice without Node.....')
         }
         console.log('Using Node? = ' + node_mode);
     </script>
