@@ -107,30 +107,7 @@ const uuid_input = docQ('#uuid_input'),
 function init() { // Initialize the login form, reset login status
     init_login_form();
     console.log('Initializing App');
-
-    if (node_mode === false) {
-        toggle_page('login_form');
-
-        $('#login_button').one('click', function(e) {
-            e.preventDefault();
-            // Check form validity
-            if (docQ('#login_form').checkValidity() === true) {
-                login_shuffle(uuid_input.value);
-            } else {
-                status.innerText = 'Enter a username.';
-                status.style.color = 'red';
-            }
-        });
-
-        $('#sign_up_button').one('click', function(e) {
-            e.preventDefault();
-            toggle_page('sign_up_form');
-            init_sign_up_form();
-        });
-
-    } else if (node_mode == true) {
-        user_exist(spotify_id); // Check if user exists
-    }
+    user_exist(spotify_id); // Check if user exists
 }
 
 function user_exist(uuid) { // Checks if target user exists
@@ -293,17 +270,9 @@ function create_user() { // Create a user
             console.error(error);
         });
     }
-
-    if (node_mode) {
-        // Use API user id
-        const id_to_use = spotify_id;
-        push_new_user_data(id_to_use);
-    } else {
-        // Generate unique id
-        var autoID = db.collection('users').doc().id;
-        id_to_use = autoID;
-        push_new_user_data(id_to_use);
-    }
+    // Use API user id
+    const id_to_use = spotify_id;
+    push_new_user_data(id_to_use);
 }
 
 function merge_checkboxes(category) { // [Reusable] Combines values of checkboxes by category
@@ -327,7 +296,7 @@ const pick_match_button = docQ('#pick_match_button'),
     match_form = docQ('#match_form');
 
 function init_match_form(current_uuid) { // Initialize match chat selection form
-    node_mode == true ? back_button.style.display = 'none' : back_button.style.display = 'flex'; // While no logout
+    back_button.style.display = 'none'; // While no logout
     stop_players();
     list_users(current_uuid);
     pick_match_button.addEventListener('click', (e) => {

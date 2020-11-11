@@ -1,18 +1,37 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-app.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/7.22.1/firebase-firestore.js" defer></script>
-    <title>Example of the Authorization Code flow with Spotify</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <title>Login w/ Spotify</title>
+    <link rel="stylesheet" href="assets/styles/normalize.css">
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js" defer></script>
+    <link rel="stylesheet" href="assets/styles/normalize.css">
 </head>
+
 <body>
-    <div class="container">
-        <div id="login">
-            <h1>Welcome to Shuffle! Begin by logging in with Spotify</h1>
-            <a href="/login" class="btn btn-primary">Login</a>
-        </div>
-    </div>
+    <h1>Welcome to Shuffle!</h1>
+    <h2>Begin by logging in with Spotify</h2>
+    <a href="/login"><button>Login</button></a>
 </body>
+
+<style>
+    * {
+        font-family: sans-serif;
+        margin: 1rem 0;
+    }
+    
+    body {
+        padding: 1rem;
+    }
+    
+    button {
+        background-color: turquoise;
+        padding: .75rem 1rem;
+        color: white;
+    }
+</style>
+
 </html>
