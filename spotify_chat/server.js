@@ -7,17 +7,17 @@
  */
 
 //STEP 1: ADD DEPENDENCIES / AUTHENTICATION FOR SPOTIFY
-var express = require('express'); // Express web server framework
-var request = require('request'); // "Request" library
-var cors = require('cors');
-var querystring = require('querystring');
-var cookieParser = require('cookie-parser');
+const express = require('express'); // Express web server framework
+const request = require('request'); // "Request" library
+const cors = require('cors');
+const querystring = require('querystring');
+const cookieParser = require('cookie-parser');
 
 const config = require('../secret/config');
 
-var client_id = config.client_id;
-var client_secret = config.client_secret; // Your secret
-var redirect_uri = config.redirect_uri; // Your redirect uri
+const client_id = config.client_id;
+const client_secret = config.client_secret; // Your secret
+const redirect_uri = config.redirect_uri; // Your redirect uri
 
 //STEP 2: CONNECT TO FIREBASE FIRESTORE DB WITH SERVICE ACCT KEY
 const admin = require('firebase-admin');
@@ -36,18 +36,18 @@ const db = admin.firestore();
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
-var generateRandomString = function(length) {
+const generateRandomString = function(length) {
     var text = '';
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-    for (var i = 0; i < length; i++) {
+    for (i = 0; i < length; i++) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
 };
 
 //statekey and state are used to redirect user
-var stateKey = 'spotify_auth_state';
+const stateKey = 'spotify_auth_state';
 
 //get data to send to firestore db as json string
 //this function sends it as a promise
@@ -65,7 +65,7 @@ function getDialogue(thebody) {
 //this gives you functions that let you say node app.js
 //and it runs a server
 //instead of having to make the whole http request manually
-var app = express();
+const app = express();
 app.use(express.static(__dirname + '/'))
     .use(cors())
     .use(cookieParser());
@@ -81,7 +81,7 @@ app.get('/login', function(req, res) {
     res.cookie(stateKey, state);
 
     // your application requests authorization
-    var scope = 'user-read-private user-read-email';
+    const scope = 'user-read-private user-read-email';
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -104,7 +104,7 @@ app.get('/callback', function(req, res) {
     var state = req.query.state || null;
 
     //check if we saved a state (our code for authentication)
-    var storedState = req.cookies ? req.cookies[stateKey] : null;
+    const storedState = req.cookies ? req.cookies[stateKey] : null;
 
     //if state isnt right we don't take the response
     if (state === null || state !== storedState) {
@@ -114,7 +114,7 @@ app.get('/callback', function(req, res) {
             }));
     } else { //if the state checks out, we go ahead and get the response
         res.clearCookie(stateKey);
-        var authOptions = {
+        const authOptions = {
             url: 'https://accounts.spotify.com/api/token',
             form: {
                 code: code,
@@ -250,4 +250,4 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
 // ==============================
 
 app.listen(8888);
-console.log('Listening on 8888');
+console.log('Server started at localhost:8888');
