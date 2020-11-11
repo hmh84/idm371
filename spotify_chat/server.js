@@ -249,5 +249,5 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
 // START NODE SERVER
 // ==============================
 
-console.log('Listening on 8888');
 app.listen(8888);
+console.log('Listening on 8888');
