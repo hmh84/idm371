@@ -2,6 +2,9 @@
 // General Functions
 // ==============================
 
+const docQ = document.querySelector.bind(document);
+const docQA = document.querySelectorAll.bind(document);
+
 function timestamp() { // Returns the current timestamp, Usage: 'console.log(timestamp());'
     return firebase.firestore.Timestamp.fromDate(new Date());
 }
@@ -24,21 +27,21 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
 
     load_back_button(new_form);
 
-    const new_form_obj = document.querySelector(`form#${new_form}`);
+    const new_form_obj = docQ(`form#${new_form}`);
 
-    all_forms = document.querySelectorAll('form');
+    all_forms = docQA('form');
     all_forms.forEach(form => {
         form.reset();
         form == new_form_obj ? form.style.display = 'flex' : form.style.display = 'none';
     });
 }
 
-const back_button = document.querySelector('#back_button'),
-    title = document.querySelector('#title'),
-    chat_box = document.querySelector('#chat_box'),
-    match_input = document.querySelector('#match_input'),
-    modal = document.querySelector('#modal'),
-    modal_close_button = document.querySelector('#modal_close_button');
+const back_button = docQ('#back_button'),
+    title = docQ('#title'),
+    chat_box = docQ('#chat_box'),
+    match_input = docQ('#match_input'),
+    modal = docQ('#modal'),
+    modal_close_button = docQ('#modal_close_button');
 
 modal_close_button.addEventListener('click', (e) => {
     e.preventDefault();
@@ -73,7 +76,7 @@ function decipher_uuid(uuid) { // Turns UUID strings into first_name
 }
 
 function stop_players() { // Stops all iframe OR video players
-    var videos = document.querySelectorAll('iframe, video');
+    var videos = docQA('iframe, video');
     Array.prototype.forEach.call(videos, function(video) {
         if (video.tagName.toLowerCase() === 'video') {
             video.pause();
@@ -84,7 +87,7 @@ function stop_players() { // Stops all iframe OR video players
     });
 };
 
-const checkbox_spans = document.querySelectorAll('.checkboxes span');
+const checkbox_spans = docQA('.checkboxes span');
 checkbox_spans.forEach(span => { // Clicking on checkbox containers will select the checkbox input. There's also a CSS reference for pointer-events: none;
     span.addEventListener('click', () => {
         span.getElementsByTagName('input')[0].click();
@@ -95,11 +98,11 @@ checkbox_spans.forEach(span => { // Clicking on checkbox containers will select 
 // login_form
 // ==============================
 
-const uuid_input = document.querySelector('#uuid_input'),
-    login_button = document.querySelector('#login_button'),
-    sign_up_button = document.querySelector('#sign_up_button'),
-    profile_button = document.querySelector('#profile_button'),
-    status = document.querySelector('#status');
+const uuid_input = docQ('#uuid_input'),
+    login_button = docQ('#login_button'),
+    sign_up_button = docQ('#sign_up_button'),
+    profile_button = docQ('#profile_button'),
+    status = docQ('#status');
 
 function init() { // Initialize the login form, reset login status
     init_login_form();
@@ -111,7 +114,7 @@ function init() { // Initialize the login form, reset login status
         $('#login_button').one('click', function(e) {
             e.preventDefault();
             // Check form validity
-            if (document.querySelector('#login_form').checkValidity() === true) {
+            if (docQ('#login_form').checkValidity() === true) {
                 login_shuffle(uuid_input.value);
             } else {
                 status.innerText = 'Enter a username.';
@@ -237,19 +240,19 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
 // sign_up_form
 // ==============================
 
-const sign_up_form = document.querySelector('#sign_up_form'),
-    add_account_button = document.querySelector('#add_account_button'),
-    school_input = document.querySelector('#school_input'),
-    anthem_id_input = document.querySelector('#anthem_id_input'),
-    gender_input = document.querySelector('#gender_input'),
-    pronouns_input = document.querySelector('#pronouns_input');
+const sign_up_form = docQ('#sign_up_form'),
+    add_account_button = docQ('#add_account_button'),
+    school_input = docQ('#school_input'),
+    anthem_id_input = docQ('#anthem_id_input'),
+    gender_input = docQ('#gender_input'),
+    pronouns_input = docQ('#pronouns_input');
 
 function init_sign_up_form() { // Initialize the login form, show back button
     back_button.style.display = 'unset';
     add_account_button.addEventListener('click', (e) => {
         e.preventDefault();
         // Check form validity
-        if (document.querySelector('#sign_up_form').checkValidity() === true) {
+        if (docQ('#sign_up_form').checkValidity() === true) {
             create_user(spotify_id);
         } else {
             status.innerText = 'Form is incomplete.';
@@ -304,7 +307,7 @@ function create_user() { // Create a user
 }
 
 function merge_checkboxes(category) { // [Reusable] Combines values of checkboxes by category
-    const boxes = document.querySelectorAll(`.${category}`),
+    const boxes = docQA(`.${category}`),
         checked = [];
     for (i = 0; boxes[i]; ++i) {
         if (boxes[i].checked) {
@@ -320,8 +323,8 @@ function merge_checkboxes(category) { // [Reusable] Combines values of checkboxe
 // match_form
 // ==============================
 
-const pick_match_button = document.querySelector('#pick_match_button'),
-    match_form = document.querySelector('#match_form');
+const pick_match_button = docQ('#pick_match_button'),
+    match_form = docQ('#match_form');
 
 function init_match_form(current_uuid) { // Initialize match chat selection form
     node_mode == true ? back_button.style.display = 'none' : back_button.style.display = 'flex'; // While no logout
@@ -378,8 +381,8 @@ function list_users(current_uuid) { // Populates SELECT form with matches
 // chat_form
 // ==============================
 
-const message_input = document.querySelector('#message_input'),
-    send_button = document.querySelector('#send_button');
+const message_input = docQ('#message_input'),
+    send_button = docQ('#send_button');
 
 function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     back_button.style.display = 'flex';
@@ -490,7 +493,7 @@ function observe_chat(current_uuid, match_uuid, docRef) { // [!!!Does not stop l
 const message_tone = new Audio('assets/sounds/message-tone.mp3');
 
 function play_tone() { // Plays message tone when receiving a message from match
-    const last_message = document.querySelector('.message:last-of-type');
+    const last_message = docQ('.message:last-of-type');
     if (last_message) {
         if (last_message.classList.contains('from_them')) {
             message_tone.play();
@@ -526,23 +529,23 @@ function format_fs_tstamp(tstamp) { // Formats moment.js timestamp into cleaner 
 // profile_form
 // ==============================
 
-const stats = document.querySelectorAll('.stat'),
-    stat_location_space = document.querySelector('#stat_location_space'),
-    stat_name = document.querySelector('#stat_name'),
-    stat_location = document.querySelector('#stat_location'),
-    stat_school = document.querySelector('#stat_school'),
-    stat_age = document.querySelector('#stat_age'),
-    stat_looking_for = document.querySelector('#stat_looking_for'),
-    stat_gender = document.querySelector('#stat_gender'),
-    stat_pronouns = document.querySelector('#stat_pronouns'),
-    stat_account_created = document.querySelector('#stat_account_created'),
-    anthem_wrap = document.querySelector('#anthem_wrap'),
-    stat_anthem_label = document.querySelector('#stat_anthem_label'),
-    stat_anthem = document.querySelector('#stat_anthem'),
-    modal_match_options = document.querySelector('#modal_match_options'),
-    match_options_button = document.querySelector('#match_options_button'),
-    report_user_button = document.querySelector('#report_user'),
-    block_user_button = document.querySelector('#block_user');
+const stats = docQA('.stat'),
+    stat_location_space = docQ('#stat_location_space'),
+    stat_name = docQ('#stat_name'),
+    stat_location = docQ('#stat_location'),
+    stat_school = docQ('#stat_school'),
+    stat_age = docQ('#stat_age'),
+    stat_looking_for = docQ('#stat_looking_for'),
+    stat_gender = docQ('#stat_gender'),
+    stat_pronouns = docQ('#stat_pronouns'),
+    stat_account_created = docQ('#stat_account_created'),
+    anthem_wrap = docQ('#anthem_wrap'),
+    stat_anthem_label = docQ('#stat_anthem_label'),
+    stat_anthem = docQ('#stat_anthem'),
+    modal_match_options = docQ('#modal_match_options'),
+    match_options_button = docQ('#match_options_button'),
+    report_user_button = docQ('#report_user'),
+    block_user_button = docQ('#block_user');
 
 function init_profile_form(target, current_uuid) { // Initializes profile page
     title.innerText = '';
