@@ -246,14 +246,6 @@ button#send_button {
     overflow-y: scroll;
 }
 
-[data-stat] {
-    display: flex;
-}
-
-[data-stat="empty"] {
-    display: none;
-}
-
 #profile_top {
     background-color: #ebebeb;
     justify-content: space-between;
