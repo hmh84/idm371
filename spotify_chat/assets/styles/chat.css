@@ -37,6 +37,10 @@ body {
     background-color: #ebebeb;
 }
 
+#title {
+    margin: 2rem 0;
+}
+
 main {
     background-color: #f6f6f6;
     width: 100%;
@@ -68,7 +72,7 @@ nav button {
     pointer-events: none;
 }
 
-#title {
+#nav_title {
     font-size: 1.25rem;
     margin-left: calc(50% -26px);
 }

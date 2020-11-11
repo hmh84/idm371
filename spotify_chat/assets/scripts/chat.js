@@ -37,7 +37,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
 }
 
 const back_button = docQ('#back_button'),
-    title = docQ('#title'),
+    nav_title = docQ('#nav_title'),
     chat_box = docQ('#chat_box'),
     match_input = docQ('#match_input'),
     modal = docQ('#modal'),
@@ -54,7 +54,7 @@ back_button.addEventListener('click', (e) => {
     match_options_button.style.display = 'none';
     modal.style.display = 'none';
     stop_players();
-    title.innerText = '';
+    nav_title.innerText = '';
     chat_box.innerText = '';
     status.style.color = 'unset';
     toggle_page(back_button.dataset.value);
@@ -186,7 +186,7 @@ function init_login_form() {
     stop_players();
     match_input.innerText = '';
     back_button.style.display = 'none';
-    title.innerText = '';
+    nav_title.innerText = '';
     chat_box.innerText = '';
     status.innerText = 'Logged out';
 }
@@ -399,7 +399,7 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat 
         .then(function(querySnapshot) {
             // Decipher ID
             decipher_uuid(match_uuid).then((name) => {
-                title.innerText = name;
+                nav_title.innerText = name;
             });
 
             chat_box.innerHTML = '';
@@ -431,7 +431,7 @@ function observe_chat(current_uuid, match_uuid, docRef) { // [!!!Does not stop l
             .then(function(querySnapshot) {
                 // Decipher uuid
                 decipher_uuid(match_uuid).then((name) => {
-                    title.innerText = name;
+                    nav_title.innerText = name;
                 });
 
                 chat_box.innerHTML = '';
@@ -517,7 +517,7 @@ const stats = docQA('.stat'),
     block_user_button = docQ('#block_user');
 
 function init_profile_form(target, current_uuid) { // Initializes profile page
-    title.innerText = '';
+    nav_title.innerText = '';
     profile_button.style.display = 'none';
     back_button.style.display = 'flex';
 
