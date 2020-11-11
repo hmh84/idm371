@@ -581,12 +581,14 @@ function init_profile_form(target, current_uuid) { // Initializes profile page
 }
 
 function load_profile_stats(result) {
-    // Required
+    // === Get Field Contents ===
+
+    // Required Stats
     const first_name = result.first_name,
         last_name = result.last_name,
         account_created = result.account_created;
 
-    // Optional
+    // Optional Stats
     let age = result.age || false,
         gender = result.gender || false,
         pronouns = result.pronouns || false,
@@ -595,7 +597,7 @@ function load_profile_stats(result) {
         looking_for = result.looking_for || false,
         anthem_id = result.anthem_id || false;
 
-    // Check fields
+    // Check for Empty Fields
     age ? stat_age.removeAttribute('data-status') : stat_age.dataset.status = 'empty';
     gender ? stat_gender.removeAttribute('data-status') : stat_gender.dataset.status = 'empty';
     pronouns ? stat_pronouns.removeAttribute('data-status') : stat_pronouns.dataset.status = 'empty';
@@ -603,7 +605,7 @@ function load_profile_stats(result) {
     school ? stat_school.removeAttribute('data-status') : stat_school.dataset.status = 'empty';
     looking_for ? stat_looking_for.removeAttribute('data-status') : stat_looking_for.dataset.status = 'empty';
 
-    for (var i = 0, len = stats.length; i < len; i++) {
+    for (var i = 0, len = stats.length; i < len; i++) { // Hide empty fields
         if (stats[i].dataset.status == 'empty') {
             stats[i].parentElement.style.display = 'none';
         } else {
@@ -611,7 +613,7 @@ function load_profile_stats(result) {
         }
     };
 
-    // === Inject field content ===
+    // === Inject Field Content ===
 
     // Required
     stat_name.innerText = first_name + ' ' + last_name;
@@ -625,7 +627,7 @@ function load_profile_stats(result) {
     stat_school.innerText = school;
     stat_looking_for.innerText = looking_for;
 
-    if (anthem_id) {
+    if (anthem_id) { // Hide Anthem if empty
         stat_anthem_label.innerText = `${first_name}'s Anthem`;
         stat_anthem.src = `https://open.spotify.com/embed/track/${anthem_id}`;
     } else {
