@@ -52,7 +52,6 @@ var stateKey = 'spotify_auth_state';
 //get data to send to firestore db as json string
 //this function sends it as a promise
 function getDialogue(thebody) {
-    console.log(thebody);
     //return a promise since we'll imitating an API call
     return new Promise(function(resolve, reject) {
         resolve({
@@ -123,7 +122,7 @@ app.get('/callback', function(req, res) {
                 grant_type: 'authorization_code'
             },
             headers: {
-                'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+                'Authorization': 'Basic ' + (Buffer.from(client_id + ':' + client_secret).toString('base64'))
             },
             json: true
         };
@@ -146,23 +145,16 @@ app.get('/callback', function(req, res) {
                 // use the access token to access the Spotify Web API
                 //STEP 6: SEND INFO FROM RESPONSE BACK TO FIRESTORE DB
                 request.get(options, function(error, response, body) {
-                    console.log(body);
+                    // console.log(body);
                     getDialogue(body).then(result => {
-                        console.log(result);
                         const obj = result;
                         const user_id = body.id; // Set current user id
 
                         // Now check if user exists already...
                         const docRef = db.collection('users').doc(user_id);
                         docRef.get().then(function(doc) {
-                            if (doc.exists) {
-                                // Is already a user...
-                                var user_status = false;
-                            } else {
-                                // Not already a user...
-                                var user_status = true;
-                            }
-                            redirect_to_shuffle(res, docRef, obj, user_id, user_status);
+                            doc.exists ? user_status = false : user_status = true; // Get new user status
+                            redirect_to_shuffle(res, docRef, obj, user_id, user_status); // Send data to redirect
                         }).catch(function(error) {
                             console.log(error);
                         });
@@ -194,7 +186,7 @@ app.get('/refresh_token', function(req, res) {
     var refresh_token = req.query.refresh_token;
     var authOptions = {
         url: 'https://accounts.spotify.com/api/token',
-        headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
+        headers: { 'Authorization': 'Basic ' + (Buffer.from(client_id + ':' + client_secret).toString('base64')) },
         form: {
             grant_type: 'refresh_token',
             refresh_token: refresh_token
@@ -222,11 +214,20 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
         email: obj.email,
         new_user: user_status
     };
-    docRef.set(data).then(function() { // Using .SET() method
-        user_status ? console.log('Added user to DB!') : console.log('Updated user in DB!');
-    }).catch(function(error) {
-        console.error(error);
-    });
+
+    if (user_status) { // New Users
+        docRef.set(data).then(function() { // Using .SET() method
+            console.log(`Added ${user_id} to DB!`);
+        }).catch(function(error) {
+            console.error(error);
+        });
+    } else { // Returning Users
+        docRef.update(data).then(function() { // Using .UPDATE() method
+            console.log(`Updated ${user_id} in DB!`);
+        }).catch(function(error) {
+            console.error(error);
+        });
+    }
 
     // Render client script data
     //	res.render(__dirname + "/chat.html", {
