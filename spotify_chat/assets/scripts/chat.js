@@ -597,7 +597,7 @@ function load_profile_stats(result) {
         looking_for = result.looking_for || false,
         anthem_id = result.anthem_id || false;
 
-    // Check for Empty Fields
+    // Find & Classify Empty Fields
     age ? stat_age.removeAttribute('data-status') : stat_age.dataset.status = 'empty';
     gender ? stat_gender.removeAttribute('data-status') : stat_gender.dataset.status = 'empty';
     pronouns ? stat_pronouns.removeAttribute('data-status') : stat_pronouns.dataset.status = 'empty';
@@ -605,13 +605,22 @@ function load_profile_stats(result) {
     school ? stat_school.removeAttribute('data-status') : stat_school.dataset.status = 'empty';
     looking_for ? stat_looking_for.removeAttribute('data-status') : stat_looking_for.dataset.status = 'empty';
 
-    for (var i = 0, len = stats.length; i < len; i++) { // Hide empty fields
+    // Hide Empty Fields
+    for (var i = 0, len = stats.length; i < len; i++) {
         if (stats[i].dataset.status == 'empty') {
             stats[i].parentElement.style.display = 'none';
         } else {
             stats[i].parentElement.style.display = 'flex';
         }
     };
+
+    // Hide Anthem if Empty
+    if (anthem_id) {
+        stat_anthem_label.innerText = `${first_name}'s Anthem`;
+        stat_anthem.src = `https://open.spotify.com/embed/track/${anthem_id}`;
+    } else {
+        anthem_wrap.style.display = 'none';
+    }
 
     // === Inject Field Content ===
 
@@ -626,13 +635,6 @@ function load_profile_stats(result) {
     stat_location.innerText = location;
     stat_school.innerText = school;
     stat_looking_for.innerText = looking_for;
-
-    if (anthem_id) { // Hide Anthem if empty
-        stat_anthem_label.innerText = `${first_name}'s Anthem`;
-        stat_anthem.src = `https://open.spotify.com/embed/track/${anthem_id}`;
-    } else {
-        anthem_wrap.style.display = 'none';
-    }
 }
 
 function block_user(target, current_uuid) {
