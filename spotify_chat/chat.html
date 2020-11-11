@@ -27,12 +27,15 @@
         params = getHashParams();
         const spotify_id = params.s_id;
         const new_user = params.new_user;
+        console.log('new_user = ' + new_user);
+        console.log('spotify_id = ' + spotify_id);
 
         if (params.dev_mode === 'node') {
             var node_mode = true;
+            console.log('node_mode = true');
         } else {
             var node_mode = false;
-            console.log('Functions are running twice without Node.....')
+            console.log('node_mode = false');
         }
         console.log('Using Node? = ' + node_mode);
     </script>

@@ -2,8 +2,12 @@
 // General Functions
 // ==============================
 
-function timestamp() { // Returns the current timestamp, Usage: "console.log(timestamp());"
+function timestamp() { // Returns the current timestamp, Usage: 'console.log(timestamp());'
     return firebase.firestore.Timestamp.fromDate(new Date());
+}
+
+function no() {
+    // do nothing
 }
 
 function toggle_page(new_form) { // Hides all forms except the form pass to 'new_form' argument
@@ -83,7 +87,7 @@ function stop_players() { // Stops all iframe OR video players
 const checkbox_spans = document.querySelectorAll('.checkboxes span');
 checkbox_spans.forEach(span => { // Clicking on checkbox containers will select the checkbox input. There's also a CSS reference for pointer-events: none;
     span.addEventListener('click', () => {
-        span.getElementsByTagName("input")[0].click();
+        span.getElementsByTagName('input')[0].click();
     });
 });
 
@@ -105,7 +109,7 @@ function init() { // Initialize the login form, reset login status
     if (node_mode === false) {
         toggle_page('login_form');
 
-        $("#login_button").one("click", function(e) {
+        $('#login_button').one('click', function(e) {
             e.preventDefault();
             // Check form validity
             if (document.querySelector('#login_form').checkValidity() === true) {
@@ -116,7 +120,7 @@ function init() { // Initialize the login form, reset login status
             }
         });
 
-        $("#sign_up_button").one("click", function(e) {
+        $('#sign_up_button').one('click', function(e) {
             e.preventDefault();
             toggle_page('sign_up_form');
             init_sign_up_form();
@@ -127,8 +131,8 @@ function init() { // Initialize the login form, reset login status
     }
 }
 
-function user_exist(uuid) {
-    const docRef = db.collection("users").doc(uuid);
+function user_exist(uuid) { // Checks if target user exists
+    const docRef = db.collection('users').doc(uuid);
 
     docRef.get().then(function(doc) {
         if (doc.exists) {
@@ -139,11 +143,11 @@ function user_exist(uuid) {
             login_shuffle(uuid);
         }
     }).catch(function(error) {
-        console.log("Error getting document:", error);
+        console.log('Error getting document:', error);
     });
 }
 
-function user_new(uuid) {
+function user_new(uuid) { // Checks if target user is new
     const docRef = db.collection('users').doc(uuid);
     docRef.get().then(function(doc) {
         if (doc.data().new_user === true) {
@@ -153,6 +157,49 @@ function user_new(uuid) {
         }
     }).catch(function(error) {
         console.log(error);
+    });
+}
+
+function user_blocked(uuid, current_uuid) { // Checks if target user is blocked by current user
+    let p1_block = false;
+    let p2_block = false;
+
+    const p1_docRef = db.collection('users').doc(current_uuid).collection('blocked').doc(uuid);
+
+    p1_docRef.get().then(function(doc) {
+        if (doc.exists) {
+            console.log('BEFORE p1 = ' + p1_block);
+            p1_block = true;
+        } else {
+            console.log('BEFORE p1 = ' + p1_block);
+            p1_block = false;
+        }
+        // P2.....
+        const p2_docRef = db.collection('users').doc(uuid).collection('blocked').doc(current_uuid);
+
+        p2_docRef.get().then(function(doc) {
+            if (doc.exists) {
+                console.log('BEFORE p2 = ' + p2_block);
+                p2_block = true;
+            } else {
+                console.log('BEFORE p2 = ' + p2_block);
+                p2_block = false;
+            }
+            console.log('AFTER p1 = ' + p1_block);
+            console.log('AFTER p2 = ' + p2_block);
+
+            if (p1_block || p2_block) {
+                console.log('true');
+                return true;
+            } else if (!p1_block && !p2_block) {
+                console.log('false');
+                return false;
+            }
+        }).catch(function(error) {
+            console.log('Error getting document:', error);
+        });
+    }).catch(function(error) {
+        console.log('Error getting document:', error);
     });
 }
 
@@ -298,7 +345,7 @@ function init_match_form(current_uuid) { // Initialize match chat selection form
 
 function load_profile_button(target, current_uuid) {
     profile_button.style.display = 'flex';
-    $("#profile_button").one("click", function(e) {
+    $('#profile_button').one('click', function(e) {
         e.preventDefault();
         toggle_page('profile_form');
         init_profile_form(target, current_uuid);
@@ -312,13 +359,15 @@ function list_users(current_uuid) { // Populates SELECT form with matches
             doc.forEach(function(doc) {
                 const result = doc.data();
                 if (doc.id == current_uuid) { // Don't list your own user
-                } else if (!result.new_user) { // If user is finished setting up
+                } else if (!result.new_user) { // If finished setting up
+                    // if (!user_blocked(doc.id, current_uuid)) { // If there's a block between the users
                     decipher_uuid(doc.id).then((name) => {
                         const element = `
-                    <option value="${doc.id}">${name}</option>
-                    `
+                        <option value="${doc.id}">${name}</option>
+                        `
                         match_input.innerHTML += element;
                     });
+                    // }
                 }
             });
         })
@@ -337,7 +386,7 @@ const send_button = document.querySelector('#send_button');
 function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     back_button.style.display = 'flex';
 
-    $("#send_button").one("click", function(e) {
+    $('#send_button').one('click', function(e) {
         e.preventDefault();
         send_message(current_uuid, match_uuid);
     });
@@ -501,26 +550,22 @@ const report_user_button = document.querySelector('#report_user');
 const block_user_button = document.querySelector('#block_user');
 
 function init_profile_form(target, current_uuid) { // Initializes profile page
-    console.log('1: ' + current_uuid);
     title.innerText = '';
     profile_button.style.display = 'none';
     back_button.style.display = 'flex';
 
     if (target === current_uuid) { // If it's current_uuid profile
-        console.log('2: ' + current_uuid);
         // Add edit button
     } else { // If it's the matches profile
-        console.log('3: ' + current_uuid);
         // Add match options button
         match_options_button.style.display = 'flex';
-        $("#match_options_button").one("click", function(e) {
+        $('#match_options_button').one('click', function(e) {
             e.preventDefault();
             modal.style.display = 'flex';
             modal_match_options.style.display = 'flex';
         });
-        $("#block_user_button").one("click", function(e) {
+        $('#block_user_button').one('click', function(e) {
             e.preventDefault();
-            console.log('4: ' + current_uuid);
             block_user(target, current_uuid);
         });
     }

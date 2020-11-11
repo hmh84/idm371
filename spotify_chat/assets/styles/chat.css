@@ -242,6 +242,10 @@ button#send_button {
     flex-direction: column;
 }
 
+#profile_stats {
+    overflow-y: scroll;
+}
+
 #profile_top {
     background-color: #ebebeb;
     justify-content: space-between;
