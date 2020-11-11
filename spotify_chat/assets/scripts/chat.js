@@ -33,12 +33,12 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
     });
 }
 
-const back_button = document.querySelector('#back_button');
-const title = document.querySelector('#title');
-const chat_box = document.querySelector('#chat_box');
-const match_input = document.querySelector('#match_input');
-const modal = document.querySelector('#modal');
-const modal_close_button = document.querySelector('#modal_close_button');
+const back_button = document.querySelector('#back_button'),
+    title = document.querySelector('#title'),
+    chat_box = document.querySelector('#chat_box'),
+    match_input = document.querySelector('#match_input'),
+    modal = document.querySelector('#modal'),
+    modal_close_button = document.querySelector('#modal_close_button');
 
 modal_close_button.addEventListener('click', (e) => {
     e.preventDefault();
@@ -95,12 +95,11 @@ checkbox_spans.forEach(span => { // Clicking on checkbox containers will select 
 // login_form
 // ==============================
 
-const uuid_input = document.querySelector('#uuid_input');
-const login_button = document.querySelector('#login_button');
-const sign_up_button = document.querySelector('#sign_up_button');
-const profile_button = document.querySelector('#profile_button');
-
-const status = document.querySelector('#status');
+const uuid_input = document.querySelector('#uuid_input'),
+    login_button = document.querySelector('#login_button'),
+    sign_up_button = document.querySelector('#sign_up_button'),
+    profile_button = document.querySelector('#profile_button'),
+    status = document.querySelector('#status');
 
 function init() { // Initialize the login form, reset login status
     init_login_form();
@@ -238,13 +237,12 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
 // sign_up_form
 // ==============================
 
-const sign_up_form = document.querySelector('#sign_up_form');
-const add_account_button = document.querySelector('#add_account_button');
-
-const school_input = document.querySelector('#school_input');
-const anthem_id_input = document.querySelector('#anthem_id_input');
-const gender_input = document.querySelector('#gender_input');
-const pronouns_input = document.querySelector('#pronouns_input');
+const sign_up_form = document.querySelector('#sign_up_form'),
+    add_account_button = document.querySelector('#add_account_button'),
+    school_input = document.querySelector('#school_input'),
+    anthem_id_input = document.querySelector('#anthem_id_input'),
+    gender_input = document.querySelector('#gender_input'),
+    pronouns_input = document.querySelector('#pronouns_input');
 
 function init_sign_up_form() { // Initialize the login form, show back button
     back_button.style.display = 'unset';
@@ -306,8 +304,8 @@ function create_user() { // Create a user
 }
 
 function merge_checkboxes(category) { // [Reusable] Combines values of checkboxes by category
-    const boxes = document.querySelectorAll(`.${category}`);
-    const checked = [];
+    const boxes = document.querySelectorAll(`.${category}`),
+        checked = [];
     for (i = 0; boxes[i]; ++i) {
         if (boxes[i].checked) {
             checked.push(boxes[i].value);
@@ -322,8 +320,8 @@ function merge_checkboxes(category) { // [Reusable] Combines values of checkboxe
 // match_form
 // ==============================
 
-const pick_match_button = document.querySelector('#pick_match_button');
-const match_form = document.querySelector('#match_form');
+const pick_match_button = document.querySelector('#pick_match_button'),
+    match_form = document.querySelector('#match_form');
 
 function init_match_form(current_uuid) { // Initialize match chat selection form
     node_mode == true ? back_button.style.display = 'none' : back_button.style.display = 'flex'; // While no logout
@@ -331,9 +329,9 @@ function init_match_form(current_uuid) { // Initialize match chat selection form
     list_users(current_uuid);
     pick_match_button.addEventListener('click', (e) => {
         e.preventDefault();
-        const match_uuid = match_input.value;
+        const match_uuid = match_input.value,
+            thread_id = set_thread_id(current_uuid, match_uuid);
         toggle_page('chat_form');
-        const thread_id = set_thread_id(current_uuid, match_uuid);
         init_chat_form(current_uuid, match_uuid);
         recall_chat(current_uuid, match_uuid, thread_id);
         message_input.focus();
@@ -380,8 +378,8 @@ function list_users(current_uuid) { // Populates SELECT form with matches
 // chat_form
 // ==============================
 
-const message_input = document.querySelector('#message_input');
-const send_button = document.querySelector('#send_button');
+const message_input = document.querySelector('#message_input'),
+    send_button = document.querySelector('#send_button');
 
 function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     back_button.style.display = 'flex';
@@ -434,16 +432,16 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat 
 
             chat_box.innerHTML = '';
             querySnapshot.forEach(function(doc) {
-                const content = (doc.id, ' => ', doc.data().content);
-                const from = (doc.id, ' => ', doc.data().from);
-                const time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
+                const content = (doc.id, ' => ', doc.data().content),
+                    from = (doc.id, ' => ', doc.data().from),
+                    time = (doc.id, ' => ', format_fs_tstamp(doc.data().when)),
 
-                const element = `
+                    element = `
                     <li class="message ${who_sent(from, current_uuid)}">
                         <p class="name">${content}</p>
                         <p class="time">${time}</p>
                     </li>
-                    `
+                    `;
                 chat_box.innerHTML += element;
             });
             scroll_to_bottom('tell');
@@ -466,16 +464,16 @@ function observe_chat(current_uuid, match_uuid, docRef) { // [!!!Does not stop l
 
                 chat_box.innerHTML = '';
                 querySnapshot.forEach(function(doc) {
-                    const content = (doc.id, ' => ', doc.data().content);
-                    const from = (doc.id, ' => ', doc.data().from);
-                    const time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
+                    const content = (doc.id, ' => ', doc.data().content),
+                        from = (doc.id, ' => ', doc.data().from),
+                        time = (doc.id, ' => ', format_fs_tstamp(doc.data().when)),
 
-                    const element = `
+                        element = `
                     <li class="message ${who_sent(from, current_uuid)}">
                         <p class="name">${content}</p>
                         <p class="time">${time}</p>
                     </li>
-                    `
+                    `;
                     chat_box.innerHTML += element;
                 });
                 play_tone();
@@ -528,26 +526,23 @@ function format_fs_tstamp(tstamp) { // Formats moment.js timestamp into cleaner 
 // profile_form
 // ==============================
 
-const stats = document.querySelectorAll('.stat');
-const stat_location_space = document.querySelector('#stat_location_space');
-
-const stat_name = document.querySelector('#stat_name');
-const stat_location = document.querySelector('#stat_location');
-const stat_school = document.querySelector('#stat_school');
-const stat_age = document.querySelector('#stat_age');
-const stat_looking_for = document.querySelector('#stat_looking_for');
-const stat_gender = document.querySelector('#stat_gender');
-const stat_pronouns = document.querySelector('#stat_pronouns');
-const stat_account_created = document.querySelector('#stat_account_created');
-
-const anthem_wrap = document.querySelector('#anthem_wrap');
-const stat_anthem_label = document.querySelector('#stat_anthem_label');
-const stat_anthem = document.querySelector('#stat_anthem');
-
-const modal_match_options = document.querySelector('#modal_match_options');
-const match_options_button = document.querySelector('#match_options_button');
-const report_user_button = document.querySelector('#report_user');
-const block_user_button = document.querySelector('#block_user');
+const stats = document.querySelectorAll('.stat'),
+    stat_location_space = document.querySelector('#stat_location_space'),
+    stat_name = document.querySelector('#stat_name'),
+    stat_location = document.querySelector('#stat_location'),
+    stat_school = document.querySelector('#stat_school'),
+    stat_age = document.querySelector('#stat_age'),
+    stat_looking_for = document.querySelector('#stat_looking_for'),
+    stat_gender = document.querySelector('#stat_gender'),
+    stat_pronouns = document.querySelector('#stat_pronouns'),
+    stat_account_created = document.querySelector('#stat_account_created'),
+    anthem_wrap = document.querySelector('#anthem_wrap'),
+    stat_anthem_label = document.querySelector('#stat_anthem_label'),
+    stat_anthem = document.querySelector('#stat_anthem'),
+    modal_match_options = document.querySelector('#modal_match_options'),
+    match_options_button = document.querySelector('#match_options_button'),
+    report_user_button = document.querySelector('#report_user'),
+    block_user_button = document.querySelector('#block_user');
 
 function init_profile_form(target, current_uuid) { // Initializes profile page
     title.innerText = '';
@@ -584,18 +579,18 @@ function init_profile_form(target, current_uuid) { // Initializes profile page
 
 function load_profile_stats(result) {
     // Required
-    const first_name = result.first_name;
-    const last_name = result.last_name;
-    const account_created = result.account_created;
+    const first_name = result.first_name,
+        last_name = result.last_name,
+        account_created = result.account_created,
 
-    // Optional
-    const age = result.age;
-    const gender = result.gender;
-    const pronouns = result.pronouns;
-    const location = result.location;
-    const school = result.school;
-    const looking_for = result.looking_for;
-    const anthem_id = result.anthem_id;
+        // Optional
+        age = result.age,
+        gender = result.gender,
+        pronouns = result.pronouns,
+        location = result.location,
+        school = result.school,
+        looking_for = result.looking_for,
+        anthem_id = result.anthem_id;
 
     // Check fields
     age == '' || age === undefined ? stat_age.dataset.status = 'empty' : stat_age.removeAttribute('data-status');
