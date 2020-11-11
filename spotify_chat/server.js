@@ -230,13 +230,14 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
     }
 
     // Render client script data
-    //	res.render(__dirname + "/chat.html", {
+    //	return res.render(__dirname + "/chat.html", {
     //		dev_mode: 'node',
     //		s_id: user_id,
     //		new_user: user_status
     //	});
 
-    res.redirect("/chat.html#" +
+    // Render client script data
+    return res.redirect("/chat.html#" +
         querystring.stringify({
             dev_mode: 'node',
             s_id: user_id,
