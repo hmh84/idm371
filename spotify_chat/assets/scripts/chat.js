@@ -2,8 +2,8 @@
 // General Functions
 // ==============================
 
-const docQ = document.querySelector.bind(document);
-const docQA = document.querySelectorAll.bind(document);
+const docQ = document.querySelector.bind(document),
+    docQA = document.querySelectorAll.bind(document);
 
 function timestamp() { // Returns the current timestamp, Usage: 'console.log(timestamp());'
     return firebase.firestore.Timestamp.fromDate(new Date());
@@ -584,24 +584,24 @@ function load_profile_stats(result) {
     // Required
     const first_name = result.first_name,
         last_name = result.last_name,
-        account_created = result.account_created,
+        account_created = result.account_created;
 
-        // Optional
-        age = result.age,
-        gender = result.gender,
-        pronouns = result.pronouns,
-        location = result.location,
-        school = result.school,
-        looking_for = result.looking_for,
-        anthem_id = result.anthem_id;
+    // Optional
+    let age = result.age || false,
+        gender = result.gender || false,
+        pronouns = result.pronouns || false,
+        location = result.location || false,
+        school = result.school || false,
+        looking_for = result.looking_for || false,
+        anthem_id = result.anthem_id || false;
 
     // Check fields
-    age == '' || age === undefined ? stat_age.dataset.status = 'empty' : stat_age.removeAttribute('data-status');
-    gender == '' || gender === undefined ? stat_gender.dataset.status = 'empty' : stat_gender.removeAttribute('data-status');
-    pronouns == '' || pronouns === undefined ? stat_pronouns.dataset.status = 'empty' : stat_pronouns.removeAttribute('data-status');
-    location == '' || location === undefined ? stat_location.dataset.status = 'empty' : stat_location.removeAttribute('data-status');
-    school == '' || school === undefined ? stat_school.dataset.status = 'empty' : stat_school.removeAttribute('data-status');
-    looking_for == '' || looking_for === undefined ? stat_looking_for.dataset.status = 'empty' : stat_looking_for.removeAttribute('data-status');
+    age ? stat_age.removeAttribute('data-status') : stat_age.dataset.status = 'empty';
+    gender ? stat_gender.removeAttribute('data-status') : stat_gender.dataset.status = 'empty';
+    pronouns ? stat_pronouns.removeAttribute('data-status') : stat_pronouns.dataset.status = 'empty';
+    location ? stat_location.removeAttribute('data-status') : stat_location.dataset.status = 'empty';
+    school ? stat_school.removeAttribute('data-status') : stat_school.dataset.status = 'empty';
+    looking_for ? stat_looking_for.removeAttribute('data-status') : stat_looking_for.dataset.status = 'empty';
 
     for (var i = 0, len = stats.length; i < len; i++) {
         if (stats[i].dataset.status == 'empty') {
@@ -620,15 +620,16 @@ function load_profile_stats(result) {
     // Optional
     stat_age.innerText = age;
     stat_gender.innerText = gender;
+    stat_pronouns.innerText = pronouns;
     stat_location.innerText = location;
     stat_school.innerText = school;
     stat_looking_for.innerText = looking_for;
 
-    if (anthem_id === '' || anthem_id === undefined) {
-        anthem_wrap.style.display = 'none';
-    } else {
+    if (anthem_id) {
         stat_anthem_label.innerText = `${first_name}'s Anthem`;
         stat_anthem.src = `https://open.spotify.com/embed/track/${anthem_id}`;
+    } else {
+        anthem_wrap.style.display = 'none';
     }
 }
 
