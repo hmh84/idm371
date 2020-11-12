@@ -89,6 +89,15 @@ function decipher_uuid(uuid) { // Turns UUID strings into first_name
         .catch(error => console.log(error));
 }
 
+function user_new(uuid) { // Checks if target user is new
+    const docRef = db.collection('users').doc(uuid);
+    docRef.get().then(function(doc) {
+        return doc.data().new_user;
+    }).catch(function(error) {
+        console.log(error);
+    });
+}
+
 function stop_players() { // Stops all iframe OR video players
     var videos = docQA('iframe, video');
     Array.prototype.forEach.call(videos, function(video) {
@@ -101,6 +110,10 @@ function stop_players() { // Stops all iframe OR video players
     });
 };
 
+function rm_events(element) {
+    $(element).off('click');
+}
+
 const checkbox_spans = docQA('.checkboxes span');
 checkbox_spans.forEach(span => { // Clicking on checkbox containers will select the checkbox input. There's also a CSS reference for pointer-events: none;
     span.addEventListener('click', () => {
@@ -109,7 +122,7 @@ checkbox_spans.forEach(span => { // Clicking on checkbox containers will select 
 });
 
 // ==============================
-// login_form
+// Init Shuffle App
 // ==============================
 
 const uuid_input = docQ('#uuid_input'),
@@ -118,34 +131,50 @@ const uuid_input = docQ('#uuid_input'),
     profile_button = docQ('#profile_button'),
     status = docQ('#status');
 
-function init() { // Initialize the login form, reset login status
+function init() {
     console.log('Initializing App');
-    user_exist(spotify_id); // Check if user exists
+    route_user(spotify_id);
 }
 
-function user_exist(uuid) { // Checks if target user exists
+function route_user(uuid) { // Check user validity then route to login or sign up
     const docRef = db.collection('users').doc(uuid);
-
     docRef.get().then(function(doc) {
-        if (doc.exists) {
-            if (user_new(uuid)) {
-                toggle_page('sign_up_form');
-            }
-        } else {
-            login_shuffle(uuid);
-        }
+        console.log('new? ' + doc.data().new_user);
+        doc.exists && doc.data().new_user ? toggle_page('sign_up_form') : login_shuffle(uuid);
     }).catch(function(error) {
         console.log('Error getting document:', error);
     });
 }
 
-function user_new(uuid) { // Checks if target user is new
-    const docRef = db.collection('users').doc(uuid);
+// ==============================
+// login_form
+// ==============================
+
+function init_login_form() {
+    stop_players();
+    match_input.innerText = '';
+    back_button.style.display = 'none';
+    nav_title.innerText = '';
+    chat_box.innerText = '';
+    status.innerText = 'Logged out';
+}
+
+function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
+    const current_uuid = uuid;
+
+    const docRef = db.collection('users').doc(current_uuid);
     docRef.get().then(function(doc) {
-        if (doc.data().new_user === true) {
-            toggle_page('sign_up_form');
+        if (doc.exists) {
+            decipher_uuid(current_uuid).then((name) => {
+                console.log(`Logged in as: '${name}'`);
+                status.innerText = `Logged in as: '${name}'`;
+            })
+
+            status.style.color = 'unset';
+            toggle_page('match_form');
         } else {
-            login_shuffle(uuid);
+            status.innerText = `'${current_uuid}' is not a user!`;
+            status.style.color = 'red';
         }
     }).catch(function(error) {
         console.log(error);
@@ -192,37 +221,6 @@ function user_blocked(uuid, current_uuid) { // Checks if target user is blocked 
         });
     }).catch(function(error) {
         console.log('Error getting document:', error);
-    });
-}
-
-function init_login_form() {
-    stop_players();
-    match_input.innerText = '';
-    back_button.style.display = 'none';
-    nav_title.innerText = '';
-    chat_box.innerText = '';
-    status.innerText = 'Logged out';
-}
-
-function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
-    const current_uuid = uuid;
-
-    const docRef = db.collection('users').doc(current_uuid);
-    docRef.get().then(function(doc) {
-        if (doc.exists) {
-            decipher_uuid(current_uuid).then((name) => {
-                console.log(`Logged in as: '${name}'`);
-                status.innerText = `Logged in as: '${name}'`;
-            })
-
-            status.style.color = 'unset';
-            toggle_page('match_form');
-        } else {
-            status.innerText = `'${current_uuid}' is not a user!`;
-            status.style.color = 'red';
-        }
-    }).catch(function(error) {
-        console.log(error);
     });
 }
 
@@ -328,6 +326,8 @@ function init_match_form(current_uuid) { // Initialize match chat selection form
 
 function load_profile_button(target, current_uuid) {
     profile_button.style.display = 'flex';
+
+    rm_events('#profile_button');
     $('#profile_button').one('click', function(e) {
         e.preventDefault();
         toggle_page('profile_form');
@@ -369,6 +369,7 @@ const message_input = docQ('#message_input'),
 function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     back_button.style.display = 'flex';
 
+    rm_events('#send_button');
     $('#send_button').one('click', function(e) {
         e.preventDefault();
         send_message(current_uuid, match_uuid);
@@ -539,11 +540,14 @@ function init_profile_form(target, current_uuid) { // Initializes profile page
     } else { // If it's the matches profile
         // Add match options button
         match_options_button.style.display = 'flex';
+
+        rm_events('#match_options_button');
         $('#match_options_button').one('click', function(e) {
             e.preventDefault();
             modal.style.display = 'flex';
             modal_match_options.style.display = 'flex';
         });
+        rm_events('#block_user_button');
         $('#block_user_button').one('click', function(e) {
             e.preventDefault();
             block_user(target, current_uuid);
@@ -647,13 +651,13 @@ init(); // First Function
 
 // #1. *Gender drop-down for profile setup
 // #2. *Pronoun drop-down for profile setup
+// #3. *Fixed double init issue
 
 // #Priority tasks
 
-// #1. Fix authorization issue on chat.html (Gabby)
 // #2. Merge search for anthem song (Gabby), cannot refresh page
 
-// Test if one time event still piles on
+// Test if one time event still piles on, it is...
 // #3. Ability to block users.
 // #4  Ability to delete account.
 // #5. Delete chat history on account deletion.

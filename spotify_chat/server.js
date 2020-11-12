@@ -209,19 +209,22 @@ app.get('/refresh_token', function(req, res) {
 // ==============================
 
 function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
-    const data = { // User fields to add
-        country: obj.country,
-        email: obj.email,
-        new_user: user_status
-    };
-
     if (user_status) { // New Users
+        const data = { // User fields to add
+            country: obj.country,
+            email: obj.email,
+            new_user: user_status
+        };
         docRef.set(data).then(function() { // Using .SET() method
             console.log(`Added ${user_id} to DB!`);
         }).catch(function(error) {
             console.error(error);
         });
     } else { // Returning Users
+        const data = { // User fields to add
+            country: obj.country,
+            email: obj.email,
+        };
         docRef.update(data).then(function() { // Using .UPDATE() method
             console.log(`Updated ${user_id} in DB!`);
         }).catch(function(error) {
@@ -229,14 +232,7 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
         });
     }
 
-    // Render client script data
-    //	return res.render(__dirname + "/chat.html", {
-    //		dev_mode: 'node',
-    //		s_id: user_id,
-    //		new_user: user_status
-    //	});
-
-    // Render client script data
+    // Redirect w/ hash params
     return res.redirect("/chat.html#" +
         querystring.stringify({
             dev_mode: 'node',
