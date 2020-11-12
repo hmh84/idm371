@@ -182,43 +182,9 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
 }
 
 function user_blocked(uuid, current_uuid) { // Checks if target user is blocked by current user
-    let p1_block = false;
-    let p2_block = false;
-
-    const p1_docRef = db.collection('users').doc(current_uuid).collection('blocked').doc(uuid);
-
-    p1_docRef.get().then(function(doc) {
-        if (doc.exists) {
-            console.log('BEFORE p1 = ' + p1_block);
-            p1_block = true;
-        } else {
-            console.log('BEFORE p1 = ' + p1_block);
-            p1_block = false;
-        }
-        // P2.....
-        const p2_docRef = db.collection('users').doc(uuid).collection('blocked').doc(current_uuid);
-
-        p2_docRef.get().then(function(doc) {
-            if (doc.exists) {
-                console.log('BEFORE p2 = ' + p2_block);
-                p2_block = true;
-            } else {
-                console.log('BEFORE p2 = ' + p2_block);
-                p2_block = false;
-            }
-            console.log('AFTER p1 = ' + p1_block);
-            console.log('AFTER p2 = ' + p2_block);
-
-            if (p1_block || p2_block) {
-                console.log('true');
-                return true;
-            } else if (!p1_block && !p2_block) {
-                console.log('false');
-                return false;
-            }
-        }).catch(function(error) {
-            console.log('Error getting document:', error);
-        });
+    const docRef = db.collection('users').doc(uuid).collection('blocked').doc(current_uuid);
+    docRef.get().then(function(doc) {
+        // do stuff
     }).catch(function(error) {
         console.log('Error getting document:', error);
     });
@@ -336,21 +302,16 @@ function load_profile_button(target, current_uuid) {
 }
 
 function list_users(current_uuid) { // Populates SELECT form with matches
-    const docRef = db.collection('users');
+    const docRef = db.collection('users').where('new_user', '==', false); // Where users are new
     docRef.get().then(function(doc) {
             match_input.innerHTML = '';
             doc.forEach(function(doc) {
-                const result = doc.data();
-                if (doc.id == current_uuid) { // Don't list your own user
-                } else if (!result.new_user) { // If finished setting up
-                    // if (!user_blocked(doc.id, current_uuid)) { // If there's a block between the users
+                if (!(doc.id === current_uuid)) { // Don't show your own profile
                     decipher_uuid(doc.id).then((name) => {
-                        const element = `
+                        match_input.innerHTML += `
                         <option value="${doc.id}">${name}</option>
                         `
-                        match_input.innerHTML += element;
                     });
-                    // }
                 }
             });
         })
