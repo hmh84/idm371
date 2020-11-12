@@ -1,4 +1,18 @@
 // ==============================
+// Get Login Data
+// ==============================
+
+var hashParams = {};
+var e, r = /([^&;=]+)=?([^&;]*)/g,
+    q = window.location.hash.substring(1);
+while (e = r.exec(q)) {
+    hashParams[e[1]] = decodeURIComponent(e[2]);
+}
+
+const spotify_id = hashParams.s_id;
+const new_user = hashParams.new_user;
+
+// ==============================
 // General Functions
 // ==============================
 
@@ -105,7 +119,6 @@ const uuid_input = docQ('#uuid_input'),
     status = docQ('#status');
 
 function init() { // Initialize the login form, reset login status
-    init_login_form();
     console.log('Initializing App');
     user_exist(spotify_id); // Check if user exists
 }
