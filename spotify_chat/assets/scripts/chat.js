@@ -25,6 +25,7 @@ function timestamp() { // Returns the current timestamp, Usage: 'console.log(tim
 
 function no() {
     // do nothing
+    // Used for naggy shorthand if statements
 }
 
 function toggle_page(new_form) { // Hides all forms except the form pass to 'new_form' argument
@@ -32,10 +33,9 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
         init_login_form();
         profile_button.style.display = 'none';
     } else if (new_form == 'sign_up_form') {
-        init_sign_up_form();
         profile_button.style.display = 'none';
-    } else if (new_form == 'match_form') {
-        init_match_form(spotify_id);
+    } else if (new_form == 'user_hub_form') {
+        init_user_hub_form(spotify_id);
         profile_button.style.display = 'flex';
     }
 
@@ -75,10 +75,10 @@ back_button.addEventListener('click', (e) => {
 })
 
 function load_back_button(this_form) { // Adds correct link to back button
-    if (this_form == 'sign_up_form' || this_form == 'match_form') {
+    if (this_form == 'sign_up_form' || this_form == 'user_hub_form') {
         back_button.dataset.value = 'login_form';
     } else if (this_form == 'chat_form' || this_form == 'profile_form') {
-        back_button.dataset.value = 'match_form';
+        back_button.dataset.value = 'user_hub_form';
     }
 }
 
@@ -139,7 +139,7 @@ function init() {
 function route_user(uuid) { // Check user validity then route to login or sign up
     const docRef = db.collection('users').doc(uuid);
     docRef.get().then(function(doc) {
-        doc.exists && doc.data().new_user ? toggle_page('sign_up_form') : login_shuffle(uuid);
+        doc.exists && doc.data().new_user ? init_sign_up_form(uuid) : login_shuffle(uuid);
     }).catch(function(error) {
         console.log('Error getting document:', error);
     });
@@ -170,7 +170,7 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
             })
 
             status.style.color = 'unset';
-            toggle_page('match_form');
+            toggle_page('user_hub_form');
         } else {
             status.innerText = `'${current_uuid}' is not a user!`;
             status.style.color = 'red';
@@ -191,13 +191,14 @@ const sign_up_form = docQ('#sign_up_form'),
     gender_input = docQ('#gender_input'),
     pronouns_input = docQ('#pronouns_input');
 
-function init_sign_up_form() { // Initialize the login form, show back button
+function init_sign_up_form(id_to_use) { // Initialize the login form, show back button
+    toggle_page('sign_up_form');
     back_button.style.display = 'unset';
     add_account_button.addEventListener('click', (e) => {
         e.preventDefault();
         // Check form validity
         if (docQ('#sign_up_form').checkValidity() === true) {
-            create_user(spotify_id);
+            create_user(id_to_use);
         } else {
             status.innerText = 'Form is incomplete.';
             status.style.color = 'red';
@@ -210,7 +211,7 @@ function init_sign_up_form() { // Initialize the login form, show back button
     });
 }
 
-function create_user() { // Create a user
+function create_user(id_to_use) { // Create a user
     // Generate data variable
     const data = {
         first_name: first_name_input.value,
@@ -227,28 +228,21 @@ function create_user() { // Create a user
     };
 
     // Push data to FireStore
-    function push_new_user_data(id_to_use) {
-        db.collection('users').doc(id_to_use).set(data).then(function() {
-            // alert(`This uuid = ${id_to_use}`);
-            console.log('Account Created!');
-            sign_up_form.reset(); // Clear input(s)
-            login_shuffle(spotify_id);
-        }).catch(function(error) {
-            console.error(error);
-        });
-    }
-    // Use API user id
-    const id_to_use = spotify_id;
-    push_new_user_data(id_to_use);
+    db.collection('users').doc(id_to_use).set(data).then(function() {
+        // alert(`This uuid = ${id_to_use}`);
+        console.log('Account Created!');
+        sign_up_form.reset(); // Clear input(s)
+        login_shuffle(id_to_use); // Auto-Login
+    }).catch(function(error) {
+        console.error(error);
+    });
 }
 
 function merge_checkboxes(category) { // [Reusable] Combines values of checkboxes by category
     const boxes = docQA(`.${category}`),
         checked = [];
     for (i = 0; boxes[i]; ++i) {
-        if (boxes[i].checked) {
-            checked.push(boxes[i].value);
-        }
+        boxes[i].checked && checked.push(boxes[i].value);
     }
 
     const checked_str = checked.join(', ');
@@ -256,13 +250,13 @@ function merge_checkboxes(category) { // [Reusable] Combines values of checkboxe
 }
 
 // ==============================
-// match_form
+// user_hub_form
 // ==============================
 
 const pick_match_button = docQ('#pick_match_button'),
-    match_form = docQ('#match_form');
+    user_hub_form = docQ('#user_hub_form');
 
-function init_match_form(current_uuid) { // Initialize match chat selection form
+function init_user_hub_form(current_uuid) { // Initialize match chat selection form
     back_button.style.display = 'none'; // While no logout
     stop_players();
     list_users(current_uuid);
@@ -316,13 +310,13 @@ function user_blocked(current_uuid, target) { // Checks if target user is blocke
     const docRef1 = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
     docRef1.get().then(function(doc) {;
         if (doc.exists && doc.data().blocked) {
-            rm_listed_user(target);
+            rm_bocked_users(target);
             return true;
         } else {
             const docRef2 = db.collection('users').doc(target).collection('blocked').doc(current_uuid);
             docRef2.get().then(function(doc) {
                 if (doc.exists && doc.data().blocked) {
-                    rm_listed_user(target);
+                    rm_bocked_users(target);
                     return true;
                 } else {
                     return false;
@@ -337,7 +331,7 @@ function user_blocked(current_uuid, target) { // Checks if target user is blocke
     });
 }
 
-function rm_listed_user(target) {
+function rm_bocked_users(target) { // Temp fix for removing blocked users from user list
     docQ(`option[value="${target}"]`).remove();
     console.log(`${target} is blocked, removing from list (THIS IS A TEMP FIX...)`);
 }
@@ -461,9 +455,7 @@ const message_tone = new Audio('assets/sounds/message-tone.mp3');
 function play_tone() { // Plays message tone when receiving a message from match
     const last_message = docQ('.message:last-of-type');
     if (last_message) {
-        if (last_message.classList.contains('from_them')) {
-            message_tone.play();
-        }
+        last_message.classList.contains('from_them') && message_tone.play(); // If last message is from them, play
     }
 }
 
@@ -575,19 +567,15 @@ function load_profile_stats(result) {
     looking_for ? stat_looking_for.removeAttribute('data-status') : stat_looking_for.dataset.status = 'empty';
 
     // Hide Empty Fields
-    for (var i = 0, len = stats.length; i < len; i++) {
-        if (stats[i].dataset.status == 'empty') {
-            stats[i].parentElement.style.display = 'none';
-        } else {
-            stats[i].parentElement.style.display = 'flex';
-        }
+    for (var i = 0, len = stats.length; i < len; i++) { // If stat has empty status, hide it, otherwise show it
+        stats[i].dataset.status == 'empty' ? stats[i].parentElement.style.display = 'none' : stats[i].parentElement.style.display = 'flex';
     };
 
     // Hide Anthem if Empty
-    if (anthem_id) {
+    if (anthem_id) { // Anthem is set
         stat_anthem_label.innerText = `${first_name}'s Anthem`;
         stat_anthem.src = `https://open.spotify.com/embed/track/${anthem_id}`;
-    } else {
+    } else { // Anthem isn't set
         anthem_wrap.style.display = 'none';
     }
 
@@ -631,29 +619,28 @@ init(); // First Function
 
 // Completed This Week
 
-// #1. *Gender drop-down for profile setup
-// #2. *Pronoun drop-down for profile setup
-// #3. *Fixed double init issue
+// #1. *Gender drop-down for profile setup.
+// #2. *Pronoun drop-down for profile setup.
+// #3. *Fixed double init issue.
+// #4. *Programmed in blocking users.
+// #5. *Blocker and blocked will not appear in their user lists.
 
-// #Priority tasks
+// #Priority tasks...
 
-// #2. Merge search for anthem song (Gabby), cannot refresh page
+// #2. Merge search for anthem song (Gabby), cannot refresh page.
 
 // Test if one time event still piles on, it is...
-// #3. Ability to block users.
-// #4  Ability to delete account.
-// #5. Delete chat history on account deletion.
+// #1.  Ability to delete account.
+// #2. Delete chat history on account deletion.
 
-// #6. Remove node_mode when gabby is done debugging
+// Do later...
 
-// Down the road
+// #1. Edit profile after creation.
 
-// #4. Edit profile after creation.
+// Scope Creep Tasks...
 
-// Scope Creep Tasks
-
-// #1. Guilty-Pleasure song
-// #2. Last active stat, query users only active in passed x days
-// #3. Embedded chat messages for links, music. (Try to get meta to appear)
-// #4. Offline chat storage
-// #5. Delete messages, appear as 'Message Deleted'
+// #1. Guilty-Pleasure song.
+// #2. Last active stat, query users only active in passed x days.
+// #3. Embedded chat messages for links, music. (Try to get meta to appear).
+// #4. Offline chat storage.
+// #5. Delete messages, appear as 'Message Deleted'.

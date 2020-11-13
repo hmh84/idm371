@@ -235,7 +235,6 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
     // Redirect w/ hash params
     return res.redirect("/chat.html#" +
         querystring.stringify({
-            dev_mode: 'node',
             s_id: user_id,
             new_user: user_status
         }));
