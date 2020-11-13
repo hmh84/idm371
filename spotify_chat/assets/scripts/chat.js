@@ -9,7 +9,7 @@ while (e = r.exec(q)) {
     hashParams[e[1]] = decodeURIComponent(e[2]);
 }
 
-const spotify_id = hashParams.s_id;
+const spotify_id = hashParams.user_id;
 const new_user = hashParams.new_user;
 
 // ==============================
@@ -28,7 +28,7 @@ function no() {
     // Used for naggy shorthand if statements
 }
 
-function toggle_page(new_form) { // Hides all forms except the form pass to 'new_form' argument
+function toggle_page(new_form) { // Hides all forms except the form pass to 'new_form' argument, lodes back button
     if (new_form == 'login_form') {
         init_login_form();
         profile_button.style.display = 'none';
@@ -108,7 +108,7 @@ function stop_players() { // Stops all iframe OR video players
             video.src = src;
         }
     });
-};
+}
 
 function rm_events(element) {
     $(element).off('click');
@@ -223,7 +223,7 @@ function create_user(id_to_use) { // Create a user
         school: school_input.value,
         anthem_id: anthem_id_input.value,
         looking_for: merge_checkboxes('lf_checkbox'),
-        new_user: false,
+        new_user: false, // Signifies completed profile
         account_created: timestamp()
     };
 
@@ -290,14 +290,14 @@ function list_users(current_uuid) { // Populates SELECT form with matches
     docRef.get().then(function(doc) {
             match_input.innerHTML = '';
             doc.forEach(function(doc) {
-                // if (!(doc.id === current_uuid) && (!user_blocked(current_uuid, doc.id))) { // NOT WORKING
+                // if (!(doc.id === current_uuid) && (!user_blocked(doc.id, current_uuid))) { // NOT WORKING
                 if (!(doc.id === current_uuid)) { // Don't show your own profile
                     decipher_uuid(doc.id).then((name) => {
                         match_input.innerHTML += `
                     <option value="${doc.id}">${name}</option>
                     `
                     });
-                    user_blocked(current_uuid, doc.id); // TEMP FIX
+                    user_blocked(doc.id, current_uuid); // TEMP FIX
                 }
             });
         })
@@ -306,7 +306,7 @@ function list_users(current_uuid) { // Populates SELECT form with matches
         })
 }
 
-function user_blocked(current_uuid, target) { // Checks if target user is blocked by current user
+function user_blocked(target, current_uuid) { // Checks if target user is blocked by current user
     const docRef1 = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
     docRef1.get().then(function(doc) {;
         if (doc.exists && doc.data().blocked) {
@@ -397,15 +397,14 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat 
             querySnapshot.forEach(function(doc) {
                 const content = (doc.id, ' => ', doc.data().content),
                     from = (doc.id, ' => ', doc.data().from),
-                    time = (doc.id, ' => ', format_fs_tstamp(doc.data().when)),
+                    time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
 
-                    element = `
+                chat_box.innerHTML += `
                     <li class="message ${who_sent(from, current_uuid)}">
                         <p class="name">${content}</p>
                         <p class="time">${time}</p>
                     </li>
                     `;
-                chat_box.innerHTML += element;
             });
             scroll_to_bottom('tell');
             observe_chat(current_uuid, match_uuid, docRef);
@@ -429,15 +428,14 @@ function observe_chat(current_uuid, match_uuid, docRef) { // [!!!Does not stop l
                 querySnapshot.forEach(function(doc) {
                     const content = (doc.id, ' => ', doc.data().content),
                         from = (doc.id, ' => ', doc.data().from),
-                        time = (doc.id, ' => ', format_fs_tstamp(doc.data().when)),
+                        time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
 
-                        element = `
+                    chat_box.innerHTML += `
                     <li class="message ${who_sent(from, current_uuid)}">
                         <p class="name">${content}</p>
                         <p class="time">${time}</p>
                     </li>
                     `;
-                    chat_box.innerHTML += element;
                 });
                 play_tone();
                 scroll_to_bottom('ask');
