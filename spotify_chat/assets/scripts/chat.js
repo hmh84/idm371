@@ -139,7 +139,6 @@ function init() {
 function route_user(uuid) { // Check user validity then route to login or sign up
     const docRef = db.collection('users').doc(uuid);
     docRef.get().then(function(doc) {
-        console.log('new? ' + doc.data().new_user);
         doc.exists && doc.data().new_user ? toggle_page('sign_up_form') : login_shuffle(uuid);
     }).catch(function(error) {
         console.log('Error getting document:', error);
@@ -178,15 +177,6 @@ function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
         }
     }).catch(function(error) {
         console.log(error);
-    });
-}
-
-function user_blocked(uuid, current_uuid) { // Checks if target user is blocked by current user
-    const docRef = db.collection('users').doc(uuid).collection('blocked').doc(current_uuid);
-    docRef.get().then(function(doc) {
-        // do stuff
-    }).catch(function(error) {
-        console.log('Error getting document:', error);
     });
 }
 
@@ -306,18 +296,50 @@ function list_users(current_uuid) { // Populates SELECT form with matches
     docRef.get().then(function(doc) {
             match_input.innerHTML = '';
             doc.forEach(function(doc) {
+                // if (!(doc.id === current_uuid) && (!user_blocked(current_uuid, doc.id))) { // NOT WORKING
                 if (!(doc.id === current_uuid)) { // Don't show your own profile
                     decipher_uuid(doc.id).then((name) => {
                         match_input.innerHTML += `
-                        <option value="${doc.id}">${name}</option>
-                        `
+                    <option value="${doc.id}">${name}</option>
+                    `
                     });
+                    user_blocked(current_uuid, doc.id); // TEMP FIX
                 }
             });
         })
         .catch(function(error) {
             console.log('Error getting documents: ', error);
         })
+}
+
+function user_blocked(current_uuid, target) { // Checks if target user is blocked by current user
+    const docRef1 = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
+    docRef1.get().then(function(doc) {;
+        if (doc.exists && doc.data().blocked) {
+            rm_listed_user(target);
+            return true;
+        } else {
+            const docRef2 = db.collection('users').doc(target).collection('blocked').doc(current_uuid);
+            docRef2.get().then(function(doc) {
+                if (doc.exists && doc.data().blocked) {
+                    rm_listed_user(target);
+                    return true;
+                } else {
+                    return false;
+                }
+            }).catch(function(error) {
+                console.log('Error getting document:', error);
+            });
+        }
+
+    }).catch(function(error) {
+        console.log('Error getting document:', error);
+    });
+}
+
+function rm_listed_user(target) {
+    docQ(`option[value="${target}"]`).remove();
+    console.log(`${target} is blocked, removing from list (THIS IS A TEMP FIX...)`);
 }
 
 // ==============================
@@ -337,7 +359,7 @@ function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     });
 
     // User profile button
-    load_profile_button(match_uuid);
+    load_profile_button(match_uuid, current_uuid);
 }
 
 function send_message(current_uuid, match_uuid) { // Sends a message from chat form message input
@@ -365,7 +387,7 @@ function send_message(current_uuid, match_uuid) { // Sends a message from chat f
 function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat history when entering chat with a match
     // Decipher match uuid
     decipher_uuid(match_uuid).then((name) => {
-        console.log(`Chatting with: ${name} \nThread_id: ${thread_id}`);
+        console.log(`Chatting with: ${name}`);
     });
 
     const docRef = db.collection('chats').doc('thread-' + thread_id).collection('messages');
@@ -585,9 +607,6 @@ function load_profile_stats(result) {
 }
 
 function block_user(target, current_uuid) {
-    console.log('5: ' + current_uuid);
-    console.log('b target= ' + target);
-    console.log('b current_uuid= ' + current_uuid);
     docRef = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
 
     const data = { // Create data
@@ -596,7 +615,9 @@ function block_user(target, current_uuid) {
 
     docRef.set(data).then(function() { // Push data to DB
         // do stuff after
-        console.log('Blocked User...');
+        decipher_uuid(target).then((name) => {
+            console.log(`Blocked ${name}...`);
+        })
     }).catch(function(error) {
         console.error(error);
     });
@@ -632,7 +653,7 @@ init(); // First Function
 // Scope Creep Tasks
 
 // #1. Guilty-Pleasure song
-
-// #2. Embedded chat messages for links, music. (Try to get meta to appear)
-// #3. Offline chat storage
-// #4. Delete messages, appear as 'Message Deleted'
+// #2. Last active stat, query users only active in passed x days
+// #3. Embedded chat messages for links, music. (Try to get meta to appear)
+// #4. Offline chat storage
+// #5. Delete messages, appear as 'Message Deleted'
