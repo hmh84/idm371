@@ -29,6 +29,7 @@ function no() {
 }
 
 function toggle_page(new_form) { // Hides all forms except the form pass to 'new_form' argument, lodes back button
+    toggle_modal('close');
     if (new_form == 'login_form') {
         init_login_form();
         profile_button.style.display = 'none';
@@ -55,18 +56,22 @@ const back_button = docQ('#back_button'),
     chat_box = docQ('#chat_box'),
     match_input = docQ('#match_input'),
     modal = docQ('#modal'),
-    modal_close_button = docQ('#modal_close_button');
+    all_modals = docQA('.modal_common'),
+    modal_close_button = docQA('.modal_close_button'),
+    modal_match_options = docQ('#modal_match_options'),
+    modal_profile_options = docQ('#modal_profile_options');
 
-modal_close_button.addEventListener('click', (e) => {
-    e.preventDefault();
-    modal.style.display = 'none';
-})
+modal_close_button.forEach(button => {
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggle_modal('close');
+    });
+});
 
 back_button.addEventListener('click', (e) => {
     e.preventDefault();
 
     match_options_button.style.display = 'none';
-    modal.style.display = 'none';
     stop_players();
     nav_title.innerText = '';
     chat_box.innerText = '';
@@ -81,6 +86,20 @@ function load_back_button(this_form) { // Adds correct link to back button
         back_button.dataset.value = 'user_hub_form';
     }
 }
+
+function toggle_modal(new_modal) {
+    // document.body.classList.add('noscroll');
+    modal.style.display = 'flex';
+    all_modals.forEach(modal => {
+        modal.style.display = 'none';
+    });
+    if (new_modal == 'close') {
+        modal.style.display = 'none';
+        // document.body.classList.remove('noscroll');
+    } else {
+        document.querySelector(`#${new_modal}`).style.display = 'flex';
+    }
+};
 
 function decipher_uuid(uuid) { // Turns UUID strings into first_name
     const docRef = db.collection('users').doc(uuid);
@@ -498,7 +517,6 @@ const stats = docQA('.stat'),
     anthem_wrap = docQ('#anthem_wrap'),
     stat_anthem_label = docQ('#stat_anthem_label'),
     stat_anthem = docQ('#stat_anthem'),
-    modal_match_options = docQ('#modal_match_options'),
     match_options_button = docQ('#match_options_button'),
     report_user_button = docQ('#report_user'),
     block_user_button = docQ('#block_user');
@@ -517,8 +535,7 @@ function init_profile_form(target, current_uuid) { // Initializes profile page
         rm_events('#match_options_button');
         $('#match_options_button').one('click', function(e) {
             e.preventDefault();
-            modal.style.display = 'flex';
-            modal_match_options.style.display = 'flex';
+            toggle_modal('modal_match_options');
         });
         rm_events('#block_user_button');
         $('#block_user_button').one('click', function(e) {
@@ -602,10 +619,9 @@ function block_user(target, current_uuid) {
     docRef.set(data).then(function() { // Push data to DB
         // do stuff after
         decipher_uuid(target).then((name) => {
-            console.log(`Blocked ${name}...`);
+            console.log(`Blocking ${name}...`);
         });
         toggle_page('user_hub_form'); // Back out
-        modal_close_button.click();
     }).catch(function(error) {
         console.error(error);
     });
