@@ -603,7 +603,9 @@ function block_user(target, current_uuid) {
         // do stuff after
         decipher_uuid(target).then((name) => {
             console.log(`Blocked ${name}...`);
-        })
+        });
+        toggle_page('user_hub_form'); // Back out
+        modal_close_button.click();
     }).catch(function(error) {
         console.error(error);
     });
