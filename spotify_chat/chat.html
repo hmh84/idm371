@@ -71,10 +71,7 @@
             <!-- ===== Login Form ===== -->
             <form class="prompt_form" id="login_form">
                 <h2>Welcome to Shuffle!</h2>
-                <input type="text" id="uuid_input" placeholder="Username" required>
-                <button class="green-btn" id="login_button">Login</button>
-                <h2>Don't have an account?</h2>
-                <button class="blue-btn" id="sign_up_button">Sign up</button>
+                <!-- Eventually login w/ Spotify goes here -->
             </form>
             <!-- ===== Sign Up Form ===== -->
             <form class="prompt_form" id="sign_up_form">
@@ -107,9 +104,9 @@
 
                 <h2>What are you looking for?</h2>
                 <div class="checkboxes">
-                    <span><input class="lf_checkbox" type="checkbox" value="Chat">Chat</span>
-                    <span><input class="lf_checkbox" type="checkbox" value="Relationships">Relationships</span>
-                    <span><input class="lf_checkbox" type="checkbox" value="Friends">Friends</span>
+                    <span><input data-category="looking_for" type="checkbox" value="Chat">Chat</span>
+                    <span><input data-category="looking_for" type="checkbox" value="Relationships">Relationships</span>
+                    <span><input data-category="looking_for" type="checkbox" value="Friends">Friends</span>
                 </div>
                 <h2>What's your anthem?</h2>
                 <input type="text" id="anthem_id_input" placeholder="Anthem ID">

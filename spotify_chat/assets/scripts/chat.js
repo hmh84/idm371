@@ -9,8 +9,8 @@ while (e = r.exec(q)) {
     hashParams[e[1]] = decodeURIComponent(e[2]);
 }
 
-const spotify_id = hashParams.user_id;
-const new_user = hashParams.new_user;
+const spotify_id = hashParams.user_id,
+    new_user = hashParams.new_user;
 
 // ==============================
 // General Functions
@@ -61,13 +61,6 @@ const back_button = docQ('#back_button'),
     modal_match_options = docQ('#modal_match_options'),
     modal_profile_options = docQ('#modal_profile_options');
 
-modal_close_button.forEach(button => {
-    button.addEventListener('click', (e) => {
-        e.preventDefault();
-        toggle_modal('close');
-    });
-});
-
 back_button.addEventListener('click', (e) => {
     e.preventDefault();
 
@@ -100,6 +93,13 @@ function toggle_modal(new_modal) {
         document.querySelector(`#${new_modal}`).style.display = 'flex';
     }
 };
+
+modal_close_button.forEach(button => {
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggle_modal('close');
+    });
+});
 
 function decipher_uuid(uuid) { // Turns UUID strings into first_name
     const docRef = db.collection('users').doc(uuid);
@@ -144,10 +144,7 @@ checkbox_spans.forEach(span => { // Clicking on checkbox containers will select 
 // Init Shuffle App
 // ==============================
 
-const uuid_input = docQ('#uuid_input'),
-    login_button = docQ('#login_button'),
-    sign_up_button = docQ('#sign_up_button'),
-    profile_button = docQ('#profile_button'),
+const profile_button = docQ('#profile_button'),
     status = docQ('#status');
 
 function init() {
@@ -241,7 +238,7 @@ function create_user(id_to_use) { // Create a user
         location: 'Philadelphia, PA',
         school: school_input.value,
         anthem_id: anthem_id_input.value,
-        looking_for: merge_checkboxes('lf_checkbox'),
+        looking_for: merge_checkboxes('looking_for'),
         new_user: false, // Signifies completed profile
         account_created: timestamp()
     };
@@ -257,15 +254,14 @@ function create_user(id_to_use) { // Create a user
     });
 }
 
-function merge_checkboxes(category) { // [Reusable] Combines values of checkboxes by category
-    const boxes = docQA(`.${category}`),
+function merge_checkboxes(category) { // [Reusable]
+    // Combines values of checkboxes by data-category value, returns a string
+    const boxes = docQA(`[data-category="${category}"]`),
         checked = [];
-    for (i = 0; boxes[i]; ++i) {
+    for (var i = 0; boxes[i]; ++i) {
         boxes[i].checked && checked.push(boxes[i].value);
     }
-
-    const checked_str = checked.join(', ');
-    return checked_str;
+    return checked.join(', '); // Return as string, separated by comma
 }
 
 // ==============================
