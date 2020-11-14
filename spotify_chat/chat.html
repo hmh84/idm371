@@ -51,7 +51,7 @@
             <button class="nav-end" id="profile_button">
                 <i class="fas fa-user" aria-hidden="true"></i>
             </button>
-            <button class="nav-end" id="match_options_button">
+            <button class="nav-end" id="profile_options_button">
                 <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
             </button>
         </nav>
@@ -61,11 +61,11 @@
                 <div class="modal_common" id="modal_match_options">
                     <button class="red-btn" id="block_user_button">Block</button>
                     <button class="red-btn" id="report_user_button">Report</button>
-                    <button class="green-btn" class="modal_close_button">Close</button>
+                    <button class="green-btn modal_close_button">Close</button>
                 </div>
                 <div class="modal_common" id="modal_profile_options">
-                    <button class="red-btn" id="delete_user_button">Delete Account</button>
-                    <button class="green-btn" class="modal_close_button">Close</button>
+                    <!-- Not sure what should go here yet -->
+                    <button class="green-btn modal_close_button">Close</button>
                 </div>
             </div>
             <!-- ===== Login Form ===== -->
@@ -115,11 +115,11 @@
             </form>
             <!-- ===== Pick who to chat with ===== -->
             <form class="prompt_form" id="user_hub_form">
-                <h2>This week's matches:</h2>
-                <select id="match_input" size="5">
+                <h2>Browse Profiles:</h2>
+                <select id="user_select_input" size="5">
                     <!-- Matches populated by DB... -->
                 </select>
-                <button class="green-btn" id="pick_match_button">Chat</button>
+                <button class="green-btn" id="pick_user_button">Chat</button>
             </form>
             <!-- ===== Chat ===== -->
             <form id="chat_form">
@@ -133,7 +133,7 @@
                 </div>
             </form>
             <!-- ===== Profile ===== -->
-            <form id="profile_form">
+            <form id="profile_view_form">
                 <div class="profile_section" id="profile_top">
                     <div id="me">
                         <i class="fas fa-user fa-3x" aria-hidden="true"></i>
@@ -195,6 +195,15 @@
                         </li>
                     </ul>
                 </div>
+            </form>
+            <!-- === Profile CMS Form === -->
+            <form class="prompt_form" id="profile_cms_form">
+                <h2>Blocked Users</h2>
+                <select id="unblock_user_input" size="5">
+                    <!-- Blocked users populated by DB... -->
+                </select>
+                <button class="green-btn" id="unblock_user_button">Unblock User</button>
+                <button class="red-btn" id="delete_user_button">Delete My Account</button>
             </form>
         </div>
     </main>

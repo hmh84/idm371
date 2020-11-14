@@ -227,7 +227,7 @@ button#send_button {
     display: none;
 }
 
-#profile_form {
+#profile_view_form {
     height: 100%;
 }
 
@@ -257,7 +257,7 @@ button#send_button {
 }
 
 #profile_btm {
-    padding: 1rem;
+    padding: 1rem 1rem 0 1rem;
 }
 
 .stat_li {
@@ -375,7 +375,11 @@ iframe {
     margin-bottom: 0;
 }
 
-#match_options_button {
+#user_select_input {
+    border-radius: 0;
+}
+
+#profile_options_button {
     display: none;
     /* Default */
 }

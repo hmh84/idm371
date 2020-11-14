@@ -38,6 +38,8 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
     } else if (new_form == 'user_hub_form') {
         init_user_hub_form(spotify_id);
         profile_button.style.display = 'flex';
+    } else if (new_form == 'profile_cms_form') {
+        init_profile_cms_form(spotify_id);
     }
 
     load_back_button(new_form);
@@ -54,7 +56,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
 const back_button = docQ('#back_button'),
     nav_title = docQ('#nav_title'),
     chat_box = docQ('#chat_box'),
-    match_input = docQ('#match_input'),
+    user_select_input = docQ('#user_select_input'),
     modal = docQ('#modal'),
     all_modals = docQA('.modal_common'),
     modal_close_button = docQA('.modal_close_button'),
@@ -63,19 +65,20 @@ const back_button = docQ('#back_button'),
 
 back_button.addEventListener('click', (e) => {
     e.preventDefault();
-
-    match_options_button.style.display = 'none';
     stop_players();
+
+    profile_options_button.style.display = 'none';
     nav_title.innerText = '';
     chat_box.innerText = '';
     status.style.color = 'unset';
+
     toggle_page(back_button.dataset.value);
 })
 
 function load_back_button(this_form) { // Adds correct link to back button
     if (this_form == 'sign_up_form' || this_form == 'user_hub_form') {
         back_button.dataset.value = 'login_form';
-    } else if (this_form == 'chat_form' || this_form == 'profile_form') {
+    } else if (this_form == 'chat_form' || this_form == 'profile_view_form') {
         back_button.dataset.value = 'user_hub_form';
     }
 }
@@ -90,7 +93,7 @@ function toggle_modal(new_modal) {
         modal.style.display = 'none';
         // document.body.classList.remove('noscroll');
     } else {
-        document.querySelector(`#${new_modal}`).style.display = 'flex';
+        docQ(`#${new_modal}`).style.display = 'flex';
     }
 };
 
@@ -167,16 +170,14 @@ function route_user(uuid) { // Check user validity then route to login or sign u
 
 function init_login_form() {
     stop_players();
-    match_input.innerText = '';
+    user_select_input.innerText = '';
     back_button.style.display = 'none';
     nav_title.innerText = '';
     chat_box.innerText = '';
     status.innerText = 'Logged out';
 }
 
-function login_shuffle(uuid) { // Logs user into shuffle. 1 param: (the uuid).
-    const current_uuid = uuid;
-
+function login_shuffle(current_uuid) { // Logs user into shuffle. 1 param: (the uuid).
     const docRef = db.collection('users').doc(current_uuid);
     docRef.get().then(function(doc) {
         if (doc.exists) {
@@ -245,9 +246,7 @@ function create_user(id_to_use) { // Create a user
 
     // Push data to FireStore
     db.collection('users').doc(id_to_use).set(data).then(function() {
-        // alert(`This uuid = ${id_to_use}`);
         console.log('Account Created!');
-        sign_up_form.reset(); // Clear input(s)
         login_shuffle(id_to_use); // Auto-Login
     }).catch(function(error) {
         console.error(error);
@@ -268,16 +267,17 @@ function merge_checkboxes(category) { // [Reusable]
 // user_hub_form
 // ==============================
 
-const pick_match_button = docQ('#pick_match_button'),
+const pick_user_button = docQ('#pick_user_button'),
     user_hub_form = docQ('#user_hub_form');
 
 function init_user_hub_form(current_uuid) { // Initialize match chat selection form
+    profile_options_button.style.display = 'none';
     back_button.style.display = 'none'; // While no logout
     stop_players();
     list_users(current_uuid);
-    pick_match_button.addEventListener('click', (e) => {
+    pick_user_button.addEventListener('click', (e) => {
         e.preventDefault();
-        const match_uuid = match_input.value,
+        const match_uuid = user_select_input.value,
             thread_id = set_thread_id(current_uuid, match_uuid);
         toggle_page('chat_form');
         init_chat_form(current_uuid, match_uuid);
@@ -295,20 +295,20 @@ function load_profile_button(target, current_uuid) {
     rm_events('#profile_button');
     $('#profile_button').one('click', function(e) {
         e.preventDefault();
-        toggle_page('profile_form');
-        init_profile_form(target, current_uuid);
+        toggle_page('profile_view_form');
+        init_profile_view_form(target, current_uuid);
     });
 }
 
 function list_users(current_uuid) { // Populates SELECT form with matches
     const docRef = db.collection('users').where('new_user', '==', false); // Where users are new
     docRef.get().then(function(doc) {
-            match_input.innerHTML = '';
+            user_select_input.innerHTML = '';
             doc.forEach(function(doc) {
                 // if (!(doc.id === current_uuid) && (!user_blocked(doc.id, current_uuid))) { // NOT WORKING
                 if (!(doc.id === current_uuid)) { // Don't show your own profile
                     decipher_uuid(doc.id).then((name) => {
-                        match_input.innerHTML += `
+                        user_select_input.innerHTML += `
                     <option value="${doc.id}">${name}</option>
                     `
                     });
@@ -322,16 +322,19 @@ function list_users(current_uuid) { // Populates SELECT form with matches
 }
 
 function user_blocked(target, current_uuid) { // Checks if target user is blocked by current user
+    unblock_user_input.innerText = ''; // Clear out blocked users from CMS
     const docRef1 = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
     docRef1.get().then(function(doc) {;
         if (doc.exists && doc.data().blocked) {
             rm_bocked_users(target);
+            add_blocked_user_to_cms(target);
             return true;
         } else {
             const docRef2 = db.collection('users').doc(target).collection('blocked').doc(current_uuid);
             docRef2.get().then(function(doc) {
                 if (doc.exists && doc.data().blocked) {
                     rm_bocked_users(target);
+                    add_blocked_user_to_cms(target);
                     return true;
                 } else {
                     return false;
@@ -380,7 +383,6 @@ function send_message(current_uuid, match_uuid) { // Sends a message from chat f
             when: timestamp()
         };
         db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function() {
-            chat_form.reset(); // Clear input(s)
             status.style.color = 'unset';
             status.innerText = 'Message Sent!';
             console.log('Message Sent!');
@@ -497,7 +499,7 @@ function format_fs_tstamp(tstamp) { // Formats moment.js timestamp into cleaner 
 }
 
 // ==============================
-// profile_form
+// profile_view_form
 // ==============================
 
 const stats = docQA('.stat'),
@@ -513,30 +515,38 @@ const stats = docQA('.stat'),
     anthem_wrap = docQ('#anthem_wrap'),
     stat_anthem_label = docQ('#stat_anthem_label'),
     stat_anthem = docQ('#stat_anthem'),
-    match_options_button = docQ('#match_options_button'),
+    profile_options_button = docQ('#profile_options_button'),
+    delete_user_button = docQ('#delete_user_button'),
+    blocked_users_button = docQ('#blocked_users_button'),
     report_user_button = docQ('#report_user'),
     block_user_button = docQ('#block_user');
 
-function init_profile_form(target, current_uuid) { // Initializes profile page
+function init_profile_view_form(target, current_uuid) { // Initializes profile page
     nav_title.innerText = '';
     profile_button.style.display = 'none';
     back_button.style.display = 'flex';
+    profile_options_button.style.display = 'flex';
+    rm_events('#profile_options_button');
 
     if (target === current_uuid) { // If it's current_uuid profile
         // Add edit button
+        profile_options_button.getElementsByTagName('i')[0].classList.remove('fa-ellipsis-h');
+        profile_options_button.getElementsByTagName('i')[0].classList.add('fa-pen');
+
+        profile_options_button.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggle_page('profile_cms_form');
+        })
     } else { // If it's the matches profile
         // Add match options button
-        match_options_button.style.display = 'flex';
-
-        rm_events('#match_options_button');
-        $('#match_options_button').one('click', function(e) {
+        profile_options_button.addEventListener('click', (e) => {
             e.preventDefault();
             toggle_modal('modal_match_options');
-        });
+        })
         rm_events('#block_user_button');
         $('#block_user_button').one('click', function(e) {
             e.preventDefault();
-            block_user(target, current_uuid);
+            toggle_user_block(target, current_uuid, true);
         });
     }
 
@@ -605,22 +615,75 @@ function load_profile_stats(result) {
     stat_looking_for.innerText = looking_for;
 }
 
-function block_user(target, current_uuid) {
+function toggle_user_block(target, current_uuid, command) {
     docRef = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
 
     const data = { // Create data
-        blocked: true,
+        blocked: command,
     };
 
     docRef.set(data).then(function() { // Push data to DB
         // do stuff after
         decipher_uuid(target).then((name) => {
-            console.log(`Blocking ${name}...`);
+            console.log(`Toggling block on ${name}...`);
         });
         toggle_page('user_hub_form'); // Back out
     }).catch(function(error) {
         console.error(error);
     });
+}
+
+// ==============================
+// profile_cms_form
+// ==============================
+
+const unblock_user_input = docQ('#unblock_user_input'),
+    unblock_user_button = docQ('#unblock_user_button');
+
+function init_profile_cms_form(current_uuid) {
+    unblock_user_button.addEventListener('click', (e) => { // Set up unblock button
+        e.preventDefault();
+        toggle_user_block(unblock_user_input.value, current_uuid, false); // Unblocks the user w/ false param
+    });
+    $('#delete_user_button').one('click', function(e) {
+        e.preventDefault();
+        delete_user(current_uuid);
+    });
+}
+
+function add_blocked_user_to_cms(target) { // Adds all blocked users unblock form
+    decipher_uuid(target).then((name) => {
+        unblock_user_input.innerHTML += `
+        <option value="${target}">${name}</option>
+        `;
+    });
+}
+
+function delete_user(current_uuid) {
+    // ===== Delete Blocked Documents =====
+    const docRef = db.collection('users').doc(current_uuid).collection('blocked');
+
+    docRef.get().then(function(doc) {
+            user_select_input.innerHTML = '';
+            doc.forEach(function(doc) {
+                docRef.doc(doc.id).delete();
+            });
+        })
+        .catch(function(error) {
+            console.log('Error getting documents: ', error);
+        })
+
+    // ===== Delete the User Document =====
+
+    db.collection('users').doc(current_uuid).delete();
+
+    // ===== Delete User Chat Threads =====
+
+    // Add participant 1 & 2 fields to each thread,
+    // -Query threads by participant
+    // --if 1 or 2 is you
+    // ---delete each message document in the thread
+    // ----Delete the thread document itself
 }
 
 init(); // First Function
@@ -635,13 +698,14 @@ init(); // First Function
 // #2. *Pronoun drop-down for profile setup.
 // #3. *Fixed double init issue.
 // #4. *Programmed in blocking users.
-// #5. *Blocker and blocked will not appear in their user lists.
+// #5. *Block and unblock users.
+// #6. *Blocker and blocked will not appear in their user lists.
 
 // #Priority tasks...
 
 // #2. Merge search for anthem song (Gabby), cannot refresh page.
 
-// Test if one time event still piles on, it is...
+// Review .one events and decide if that's a good idea or if to use the rm_events() function
 // #1.  Ability to delete account.
 // #2. Delete chat history on account deletion.
 
