@@ -293,7 +293,7 @@ function load_profile_button(target, current_uuid) {
     profile_button.style.display = 'flex';
 
     rm_events('#profile_button');
-    $('#profile_button').one('click', function(e) {
+    $('#profile_button').one('click', (e) => {
         e.preventDefault();
         toggle_page('profile_view_form');
         init_profile_view_form(target, current_uuid);
@@ -310,7 +310,7 @@ function list_users(current_uuid) { // Populates SELECT form with matches
                     decipher_uuid(doc.id).then((name) => {
                         user_select_input.innerHTML += `
                     <option value="${doc.id}">${name}</option>
-                    `
+                    `;
                     });
                     user_blocked(doc.id, current_uuid); // TEMP FIX
                 }
@@ -365,7 +365,7 @@ function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     back_button.style.display = 'flex';
 
     rm_events('#send_button');
-    $('#send_button').one('click', function(e) {
+    send_button.addEventListener('click', (e) => {
         e.preventDefault();
         send_message(current_uuid, match_uuid);
     });
@@ -386,6 +386,7 @@ function send_message(current_uuid, match_uuid) { // Sends a message from chat f
             status.style.color = 'unset';
             status.innerText = 'Message Sent!';
             console.log('Message Sent!');
+            message_input.value = '';
         }).catch(function(error) {
             console.error(error);
         });
@@ -544,7 +545,7 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
             toggle_modal('modal_match_options');
         })
         rm_events('#block_user_button');
-        $('#block_user_button').one('click', function(e) {
+        $('#block_user_button').one('click', (e) => {
             e.preventDefault();
             toggle_user_block(target, current_uuid, true);
         });
@@ -645,7 +646,7 @@ function init_profile_cms_form(current_uuid) {
         e.preventDefault();
         toggle_user_block(unblock_user_input.value, current_uuid, false); // Unblocks the user w/ false param
     });
-    $('#delete_user_button').one('click', function(e) {
+    $('#delete_user_button').one('click', (e) => {
         e.preventDefault();
         delete_user(current_uuid);
     });
