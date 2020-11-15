@@ -41,7 +41,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
     } else if (new_form == 'profile_cms_form') {
         init_profile_cms_form(spotify_id);
     }
-
+    
     load_back_button(new_form);
 
     const new_form_obj = docQ(`form#${new_form}`);
@@ -51,6 +51,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
         form.reset();
         form == new_form_obj ? form.style.display = 'flex' : form.style.display = 'none';
     });
+    console.log('after toggle_page stuff');
 }
 
 const back_button = docQ('#back_button'),
@@ -65,13 +66,12 @@ const back_button = docQ('#back_button'),
 
 back_button.addEventListener('click', (e) => {
     e.preventDefault();
-    stop_players();
+    //stop_players();
 
     profile_options_button.style.display = 'none';
     nav_title.innerText = '';
     chat_box.innerText = '';
     status.style.color = 'unset';
-
     toggle_page(back_button.dataset.value);
 })
 
@@ -169,7 +169,7 @@ function route_user(uuid) { // Check user validity then route to login or sign u
 // ==============================
 
 function init_login_form() {
-    stop_players();
+    //stop_players();
     user_select_input.innerText = '';
     back_button.style.display = 'none';
     nav_title.innerText = '';
@@ -273,7 +273,7 @@ const pick_user_button = docQ('#pick_user_button'),
 function init_user_hub_form(current_uuid) { // Initialize match chat selection form
     profile_options_button.style.display = 'none';
     back_button.style.display = 'none'; // While no logout
-    stop_players();
+    //stop_players(); //stop videos & iframes
     list_users(current_uuid);
     pick_user_button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -287,6 +287,7 @@ function init_user_hub_form(current_uuid) { // Initialize match chat selection f
 
     // User profile button
     load_profile_button(current_uuid, current_uuid);
+    console.log('does it init_user_hub_form before??');
 }
 
 function load_profile_button(target, current_uuid) {
@@ -366,8 +367,8 @@ function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
 
     rm_events('#send_button');
     send_button.addEventListener('click', (e) => {
-        e.preventDefault();
         send_message(current_uuid, match_uuid);
+	   message_input.value = '';
     });
 
     // User profile button
@@ -687,6 +688,7 @@ function delete_user(current_uuid) {
     // ----Delete the thread document itself
 }
 
+console.log('did we reload the whole js??');
 init(); // First Function
 
 // ==============================
