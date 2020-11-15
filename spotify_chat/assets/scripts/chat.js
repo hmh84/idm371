@@ -130,12 +130,11 @@ function stop_players() {
 }
 
 function rm_events(element, hard_rm) {
+    $(element).off('click');
     if (hard_rm) { // hard_rm should normally false.
         const old_e = docQ(element);
         const new_e = old_e.cloneNode(true);
         old_e.parentNode.replaceChild(new_e, old_e);
-    } else {
-        $(element).off('click');
     }
 }
 
@@ -709,20 +708,22 @@ init(); // First Function
 
 // #Priority tasks...
 
-// #2. Merge search for anthem song (Gabby), cannot refresh page.
+// #2. *Merge search for anthem song (Gabby), cannot refresh page.
 
-// Review .one events and decide if that's a good idea or if to use the rm_events() function
-// #1.  Ability to delete account.
-// #2. Delete chat history on account deletion.
+// #1. *Ability to delete account.
+// #2. *Delete chat history on account deletion.
+// #3. *Limit user hub and message queries.
+// ____User: Limit to active within 7 days, up to 100 users, button to view more.
+// ____Chats: Limit to 25 chats, (descending but CSS flex reverse), button to view more.
 
 // Do later...
 
-// #1. Edit profile after creation.
+// #1. *Edit profile after creation.
 
 // Scope Creep Tasks...
 
-// #1. Guilty-Pleasure song.
-// #2. Last active stat, query users only active in passed x days.
-// #3. Embedded chat messages for links, music. (Try to get meta to appear).
-// #4. Offline chat storage.
-// #5. Delete messages, appear as 'Message Deleted'.
+// #1. *Guilty-Pleasure song.
+// #2. *Last active stat, query users only active in passed x days.
+// #3. *Embedded chat messages for links, music. (Try to get meta to appear).
+// #4. *Offline chat storage.
+// #5. *Delete messages, appear as 'Message Deleted'.

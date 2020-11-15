@@ -44,14 +44,14 @@
     <h1 id="title">Shuffle Chat</h1>
     <main>
         <nav>
-            <button id="back_button">
+            <button type="button" id="back_button">
                 <i class="fa fa-chevron-left" aria-hidden="true"></i>
             </button>
             <h2 id="nav_title"></h2>
-            <button class="nav-end" id="profile_button">
+            <button type="button" class="nav-end" id="profile_button">
                 <i class="fas fa-user" aria-hidden="true"></i>
             </button>
-            <button class="nav-end" id="profile_options_button">
+            <button type="button" class="nav-end" id="profile_options_button">
                 <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
             </button>
         </nav>
@@ -59,13 +59,13 @@
             <!-- ===== Modals ===== -->
             <div id="modal">
                 <div class="modal_common" id="modal_match_options">
-                    <button class="red-btn" id="block_user_button">Block</button>
-                    <button class="red-btn" id="report_user_button">Report</button>
-                    <button class="green-btn modal_close_button">Close</button>
+                    <button type="button" class="red-btn" id="block_user_button">Block</button>
+                    <button type="button" class="red-btn" id="report_user_button">Report</button>
+                    <button type="button" class="green-btn modal_close_button">Close</button>
                 </div>
                 <div class="modal_common" id="modal_profile_options">
                     <!-- Not sure what should go here yet -->
-                    <button class="green-btn modal_close_button">Close</button>
+                    <button type="button" class="green-btn modal_close_button">Close</button>
                 </div>
             </div>
             <!-- ===== Login Form ===== -->
@@ -111,7 +111,7 @@
                 <h2>What's your anthem?</h2>
                 <input type="text" id="anthem_id_input" placeholder="Anthem ID">
 
-                <button class="green-btn" id="add_account_button">Complete Sign Up</button>
+                <button type="button" class="green-btn" id="add_account_button">Complete Sign Up</button>
             </form>
             <!-- ===== Pick who to chat with ===== -->
             <form class="prompt_form" id="user_hub_form">
@@ -119,7 +119,7 @@
                 <select id="user_select_input" size="5">
                     <!-- Matches populated by DB... -->
                 </select>
-                <button class="green-btn" id="pick_user_button">Chat</button>
+                <button type="button" class="green-btn" id="pick_user_button">Chat</button>
             </form>
             <!-- ===== Chat ===== -->
             <form id="chat_form">
@@ -128,7 +128,7 @@
                 </ul>
                 <div id="chat_controls">
                     <input type="text" id="message_input" placeholder="Message">
-                    <button class="green-btn" id="send_button">Send <i class="fa fa-paper-plane-o"
+                    <button type="button" class="green-btn" id="send_button">Send <i class="fa fa-paper-plane-o"
                             aria-hidden="true"></i></button>
                 </div>
             </form>
@@ -202,8 +202,8 @@
                 <select id="unblock_user_input" size="5">
                     <!-- Blocked users populated by DB... -->
                 </select>
-                <button class="green-btn" id="unblock_user_button">Unblock User</button>
-                <button class="red-btn" id="delete_user_button">Delete My Account</button>
+                <button type="button" class="green-btn" id="unblock_user_button">Unblock User</button>
+                <button type="button" class="red-btn" id="delete_user_button">Delete My Account</button>
             </form>
         </div>
     </main>
