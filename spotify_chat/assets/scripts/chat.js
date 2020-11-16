@@ -35,6 +35,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
         profile_button.style.display = 'none';
     } else if (new_form == 'sign_up_form') {
         profile_button.style.display = 'none';
+        // this init happens once only, therefore its in init()
     } else if (new_form == 'user_hub_form') {
         init_user_hub_form(spotify_id);
         profile_button.style.display = 'flex';
@@ -120,20 +121,21 @@ function user_new(uuid) { // Checks if target user is new
     });
 }
 
-function stop_players() { // Stops all iframe OR video players
-    var videos = docQA('iframe, video');
-    Array.prototype.forEach.call(videos, function(video) {
-        if (video.tagName.toLowerCase() === 'video') {
-            video.pause();
-        } else {
-            var src = video.src;
-            video.src = src;
-        }
-    });
+function stop_players() {
+    if (stat_anthem.src) {
+        console.log('found a source');
+        const src = stat_anthem.src;
+        stat_anthem.src = src;
+    }
 }
 
-function rm_events(element) {
+function rm_events(element, hard_rm) {
     $(element).off('click');
+    if (hard_rm) { // hard_rm should normally false.
+        const old_e = docQ(element);
+        const new_e = old_e.cloneNode(true);
+        old_e.parentNode.replaceChild(new_e, old_e);
+    }
 }
 
 const checkbox_spans = docQA('.checkboxes span');
@@ -209,7 +211,6 @@ const sign_up_form = docQ('#sign_up_form'),
     pronouns_input = docQ('#pronouns_input');
 
 function init_sign_up_form(id_to_use) { // Initialize the login form, show back button
-    toggle_page('sign_up_form');
     back_button.style.display = 'unset';
     add_account_button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -267,14 +268,17 @@ function merge_checkboxes(category) { // [Reusable]
 // user_hub_form
 // ==============================
 
-const pick_user_button = docQ('#pick_user_button'),
-    user_hub_form = docQ('#user_hub_form');
+const user_hub_form = docQ('#user_hub_form');
 
 function init_user_hub_form(current_uuid) { // Initialize match chat selection form
     profile_options_button.style.display = 'none';
     back_button.style.display = 'none'; // While no logout
     //stop_players(); //stop videos & iframes
     list_users(current_uuid);
+
+    rm_events('#pick_user_button', true);
+    const pick_user_button = docQ('#pick_user_button');
+
     pick_user_button.addEventListener('click', (e) => {
         e.preventDefault();
         const match_uuid = user_select_input.value,
@@ -282,8 +286,7 @@ function init_user_hub_form(current_uuid) { // Initialize match chat selection f
         toggle_page('chat_form');
         init_chat_form(current_uuid, match_uuid);
         recall_chat(current_uuid, match_uuid, thread_id);
-        message_input.focus();
-    })
+    });
 
     // User profile button
     load_profile_button(current_uuid, current_uuid);
@@ -293,7 +296,7 @@ function init_user_hub_form(current_uuid) { // Initialize match chat selection f
 function load_profile_button(target, current_uuid) {
     profile_button.style.display = 'flex';
 
-    rm_events('#profile_button');
+    rm_events('#profile_button', false);
     $('#profile_button').one('click', (e) => {
         e.preventDefault();
         toggle_page('profile_view_form');
@@ -365,11 +368,12 @@ const message_input = docQ('#message_input'),
 function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     back_button.style.display = 'flex';
 
-    rm_events('#send_button');
+    rm_events('#send_button', false);
     send_button.addEventListener('click', (e) => {
         send_message(current_uuid, match_uuid);
 	   message_input.value = '';
     });
+    message_input.focus();
 
     // User profile button
     load_profile_button(match_uuid, current_uuid);
@@ -528,7 +532,7 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
     profile_button.style.display = 'none';
     back_button.style.display = 'flex';
     profile_options_button.style.display = 'flex';
-    rm_events('#profile_options_button');
+    rm_events('#profile_options_button', false);
 
     if (target === current_uuid) { // If it's current_uuid profile
         // Add edit button
@@ -545,7 +549,7 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
             e.preventDefault();
             toggle_modal('modal_match_options');
         })
-        rm_events('#block_user_button');
+        rm_events('#block_user_button', false);
         $('#block_user_button').one('click', (e) => {
             e.preventDefault();
             toggle_user_block(target, current_uuid, true);
@@ -706,20 +710,22 @@ init(); // First Function
 
 // #Priority tasks...
 
-// #2. Merge search for anthem song (Gabby), cannot refresh page.
+// #2. *Merge search for anthem song (Gabby), cannot refresh page.
 
-// Review .one events and decide if that's a good idea or if to use the rm_events() function
-// #1.  Ability to delete account.
-// #2. Delete chat history on account deletion.
+// #1. *Ability to delete account.
+// #2. *Delete chat history on account deletion.
+// #3. *Limit user hub and message queries.
+// ____User: Limit to active within 7 days, up to 100 users, button to view more.
+// ____Chats: Limit to 25 chats, (descending but CSS flex reverse), button to view more.
 
 // Do later...
 
-// #1. Edit profile after creation.
+// #1. *Edit profile after creation.
 
 // Scope Creep Tasks...
 
-// #1. Guilty-Pleasure song.
-// #2. Last active stat, query users only active in passed x days.
-// #3. Embedded chat messages for links, music. (Try to get meta to appear).
-// #4. Offline chat storage.
-// #5. Delete messages, appear as 'Message Deleted'.
+// #1. *Guilty-Pleasure song.
+// #2. *Last active stat, query users only active in passed x days.
+// #3. *Embedded chat messages for links, music. (Try to get meta to appear).
+// #4. *Offline chat storage.
+// #5. *Delete messages, appear as 'Message Deleted'.
