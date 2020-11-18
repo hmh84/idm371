@@ -1,22 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Results</title>
     <meta charset="UTF-8">
-    <meta name="description" content="" />
-    <meta name="keywords" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<div class="wrap">
-<form action="/search" method="POST" class="search">
-	<input name="searchinput" type="text" />
-	<button type="submit">Search the Spotify API</button>
-</form>
-<div>
-<h3>Song title: <%= name %></h3>
-<p>Song ID: <%= id %></p>
-</div>
-</div>
+    <div class="wrap">
+        <form action="/search" method="POST" class="search">
+            <input name="searchinput" type="text" />
+            <button type="submit">Search the Spotify API</button>
+        </form>
+        <div>
+            <div class="result_list">
+                <% tracks.forEach((track) => { if (track.id) { %>
+                    <div class="result_block">
+                        <img src="<%= track.thumb %>" alt="Track Thumb">
+                        <div class="result_content">
+                            <p>
+                                <%= track.id %>
+                            </p>
+                            <p>
+                                <%= track.title %>
+                            </p>
+                            <p>
+                                <%= track.artist %>
+                            </p>
+                        </div>
+                    </div>
+                    <% }}) %>
+            </div>
+        </div>
+    </div>
 </body>
+
+<style>
+    * {
+        margin: 0;
+    }
+    
+    .result_list {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .result_block {
+        display: flex;
+        flex-direction: row;
+        height: fit-content;
+        width: 35rem;
+        background-color: whitesmoke;
+        margin: 1rem 0;
+    }
+    
+    .result_block img {
+        width: fit-content;
+        height: fit-content;
+    }
+    
+    .result_content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
 </html>
