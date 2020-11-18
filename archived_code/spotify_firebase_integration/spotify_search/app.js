@@ -12,7 +12,7 @@ function search(criteria, callback) {
     var headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer BQDzUOBHuX1rN5uelTukBGt0hQMuAWrlakBGmVsG0Ivxbci0UYa6-1NW2IbhNSNw5nTfVXRkDhrAdRFiWBueCdYauTfkxpoIfV-DLTVI_4Maq6YT7ljmCejLmm2V7MwrtAXxEsg597uziZa0jqtB5b6_zNihb-T-MAg'
+        'Authorization': 'Bearer token_goes_here'
     };
     var options = {
         url: 'https://api.spotify.com/v1/search?q=' + query + '&type=track&limit=10',
