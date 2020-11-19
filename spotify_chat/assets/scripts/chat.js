@@ -441,31 +441,11 @@ function recall_chat_history(current_uuid, match_uuid, thread_id) { // Gets enti
 
     const docRef = db.collection('chats').doc('thread-' + thread_id).collection('messages');
 
-    // docRef.onCreate(event => {
-    //     console.log('=== onCreate ===');
-    // });
-
     docRef.orderBy('when', 'asc') // Index Collection ID: 'chats'
         .get()
         .then(function (querySnapshot) {
             // Decipher ID
-            decipher_uuid(match_uuid).then((name) => {
-                nav_title.innerText = name;
-            });
-
-            chat_box.innerHTML = '';
-            querySnapshot.forEach(function (doc) {
-                const content = (doc.id, ' => ', doc.data().content),
-                    from = (doc.id, ' => ', doc.data().from),
-                    time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
-
-                chat_box.innerHTML += `
-                    <li class="message ${who_sent(from, current_uuid)}">
-                        <p class="name">${content}</p>
-                        <p class="time">${time}</p>
-                    </li>
-                    `;
-            });
+            dl_message(querySnapshot, current_uuid, match_uuid);
             scroll_to_bottom('tell');
             observe_chat(current_uuid, match_uuid, docRef);
         })
@@ -474,37 +454,44 @@ function recall_chat_history(current_uuid, match_uuid, thread_id) { // Gets enti
         });
 }
 
+let subscriptions = [];
+
 function observe_chat(current_uuid, match_uuid, docRef) { // [!!!Does not stop listening per instance!!!] Sets up event listener for the thread you and your match are on
-    docRef.onSnapshot(docSnapshot => { // Observer
+    var sub = docRef.onSnapshot(docSnapshot => { // Observer
         docRef.orderBy('when', 'asc') // Index Collection ID: 'chats'
             .get()
             .then(function (querySnapshot) {
-                // Decipher uuid
-                decipher_uuid(match_uuid).then((name) => {
-                    nav_title.innerText = name;
-                });
-
-                chat_box.innerHTML = '';
-                querySnapshot.forEach(function (doc) {
-                    const content = (doc.id, ' => ', doc.data().content),
-                        from = (doc.id, ' => ', doc.data().from),
-                        time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
-
-                    chat_box.innerHTML += `
-                    <li class="message ${who_sent(from, current_uuid)}">
-                        <p class="name">${content}</p>
-                        <p class="time">${time}</p>
-                    </li>
-                    `;
-                });
+                dl_message(querySnapshot, current_uuid, match_uuid);
                 play_tone();
                 scroll_to_bottom('ask');
             })
             .catch(function (error) {
                 console.log('Error getting documents: ', error);
             });
+        subscriptions.push(sub);
     }, err => {
         console.log(`Encountered error: ${err}`);
+    });
+}
+
+function dl_message(querySnapshot, current_uuid, match_uuid) { // Reusable function for downloading a single message
+    // Decipher uuid
+    decipher_uuid(match_uuid).then((name) => {
+        nav_title.innerText = name;
+    });
+
+    chat_box.innerHTML = '';
+    querySnapshot.forEach(function (doc) {
+        const content = (doc.id, ' => ', doc.data().content),
+            from = (doc.id, ' => ', doc.data().from),
+            time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
+
+        chat_box.innerHTML += `
+    <li class="message ${who_sent(from, current_uuid)}">
+        <p class="name">${content}</p>
+        <p class="time">${time}</p>
+    </li>
+    `;
     });
 }
 
@@ -549,6 +536,12 @@ function who_sent(from, current_uuid) { // Determines who sent the message, retu
 
 function format_fs_tstamp(tstamp) { // Formats moment.js timestamp into cleaner format
     return moment(tstamp.toDate()).format("M/D/YY • h:mm a");
+}
+
+function ubsub_all() {
+    subscriptions.forEach(sub => {
+        sub();
+    });
 }
 
 // ==============================
