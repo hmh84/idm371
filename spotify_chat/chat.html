@@ -7,9 +7,11 @@
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-storage.js" defer></script>
     <script src="assets/scripts/firebase-config.js" defer></script>
     <!-- Other Libraries -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous" defer></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" defer></script>
     <script src="https://kit.fontawesome.com/a57c47fadc.js" crossorigin="anonymous" defer></script>
     <!-- Our Own Scripts -->
@@ -84,7 +86,8 @@
 
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
-                    <option value="Gender-Queer">Gender-Queer</option>
+                    <option value="Trans-Male">Transgender Male</option>
+                    <option value="Trans-Female">Transgender Female</option>
                     <option value="Non-Binary">Non-Binary</option>
                     <option value="">Prefer not to say</option>
                 </select>
@@ -134,9 +137,14 @@
             </form>
             <!-- ===== Profile ===== -->
             <form id="profile_view_form">
+                <!-- Top Half -->
                 <div class="profile_section" id="profile_top">
                     <div id="me">
-                        <i class="fas fa-user fa-3x" aria-hidden="true"></i>
+                        <i id="profile_pic_placeholder" class="fas fa-user fa-3x" aria-hidden="true"></i>
+                        <span class="stat_wrap">
+                            <img class="stat" id="stat_pp">
+                            <!-- Source Populated by DB... -->
+                        </span>
                         <span class="stat_wrap">
                             <h2 class="stat" id="stat_name">
                                 <!-- Populated by DB... -->
@@ -161,6 +169,7 @@
                             allow="encrypted-media"></iframe>
                     </span>
                 </div>
+                <!-- Bottom Half -->
                 <div class="profile_section" id="profile_btm">
                     <ul id="profile_stats">
                         <li class="stat_wrap stat_li">
@@ -189,7 +198,7 @@
                         </li>
                         <li class="stat_wrap stat_li">
                             <div class="stat_left">Join Date:</div>
-                            <div class="stat" id="stat_account_created">
+                            <div class="stat" id="stat_join_date">
                                 <!-- Populated by DB... -->
                             </div>
                         </li>
@@ -198,11 +207,21 @@
             </form>
             <!-- === Profile CMS Form === -->
             <form class="prompt_form" id="profile_cms_form">
-                <h2>Blocked Users</h2>
-                <select id="unblock_user_input" size="5">
-                    <!-- Blocked users populated by DB... -->
-                </select>
-                <button type="button" class="green-btn" id="unblock_user_button">Unblock User</button>
+                <h2>Profile Picture:</h2>
+                <div class="pp_thumb_wrap">
+                    <img id="pp_thumb" alt="Pic 1">
+                    <div class="row">
+                        <input id="pp_input" type="file" accept="image/x-png,image/jpeg">
+                        <button id="pp_upload" class="green-btn">Upload</button>
+                    </div>
+                </div>
+                <div id="blocked_users_wrap">
+                    <h2>Blocked Users</h2>
+                    <select id="unblock_user_input" size="5">
+                        <!-- Blocked users populated by DB... -->
+                    </select>
+                    <button disabled type="button" class="green-btn" id="unblock_user_button">Unblock User</button>
+                </div>
                 <button type="button" class="red-btn" id="delete_user_button">Delete My Account</button>
             </form>
         </div>

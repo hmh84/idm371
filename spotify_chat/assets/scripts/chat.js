@@ -71,7 +71,7 @@ back_button.addEventListener('click', (e) => {
     profile_options_button.style.display = 'none';
     nav_title.innerText = '';
     chat_box.innerText = '';
-    status.style.color = 'unset';
+    broadcast('', 'unset'); // Reset status
 
     toggle_page(back_button.dataset.value);
 })
@@ -81,6 +81,8 @@ function load_back_button(this_form) { // Adds correct link to back button
         back_button.dataset.value = 'login_form';
     } else if (this_form == 'chat_form' || this_form == 'profile_view_form') {
         back_button.dataset.value = 'user_hub_form';
+    } else if (this_form == 'profile_cms_form') {
+        back_button.dataset.value = 'profile_view_form';
     }
 }
 
@@ -114,9 +116,9 @@ function decipher_uuid(uuid) { // Turns UUID strings into first_name
 
 function user_new(uuid) { // Checks if target user is new
     const docRef = db.collection('users').doc(uuid);
-    docRef.get().then(function(doc) {
+    docRef.get().then(function (doc) {
         return doc.data().new_user;
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.log(error);
     });
 }
@@ -131,6 +133,8 @@ function stop_players() {
 
 function rm_events(element, hard_rm) {
     $(element).off('click');
+    $(element).unbind('click');
+    $(element).unbind('change');
     if (hard_rm) { // hard_rm should normally false.
         const old_e = docQ(element);
         const new_e = old_e.cloneNode(true);
@@ -144,6 +148,14 @@ checkbox_spans.forEach(span => { // Clicking on checkbox containers will select 
         span.getElementsByTagName('input')[0].click();
     });
 });
+
+function broadcast(message, color) { // Sends a feedback message to the user
+    status.innerText = message;
+    status.style.color = color;
+    setTimeout(function () {
+        status.innerText = '';
+    }, 5000);
+}
 
 // ==============================
 // Init Shuffle App
@@ -159,9 +171,9 @@ function init() {
 
 function route_user(uuid) { // Check user validity then route to login or sign up
     const docRef = db.collection('users').doc(uuid);
-    docRef.get().then(function(doc) {
+    docRef.get().then(function (doc) {
         doc.exists && doc.data().new_user ? init_sign_up_form(uuid) : login_shuffle(uuid);
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.log('Error getting document:', error);
     });
 }
@@ -176,25 +188,24 @@ function init_login_form() {
     back_button.style.display = 'none';
     nav_title.innerText = '';
     chat_box.innerText = '';
-    status.innerText = 'Logged out';
+    broadcast('Logged out', 'unset');
 }
 
 function login_shuffle(current_uuid) { // Logs user into shuffle. 1 param: (the uuid).
+    console.log('login_shuffle');
     const docRef = db.collection('users').doc(current_uuid);
-    docRef.get().then(function(doc) {
+    docRef.get().then(function (doc) {
         if (doc.exists) {
             decipher_uuid(current_uuid).then((name) => {
                 console.log(`Logged in as: '${name}'`);
-                status.innerText = `Logged in as: '${name}'`;
+                broadcast(`Logged in as: '${name}'`, 'unset');
             })
 
-            status.style.color = 'unset';
             toggle_page('user_hub_form');
         } else {
-            status.innerText = `'${current_uuid}' is not a user!`;
-            status.style.color = 'red';
+            broadcast(`'${current_uuid}' is not a user!`, 'var(--red)');
         }
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.log(error);
     });
 }
@@ -211,6 +222,8 @@ const sign_up_form = docQ('#sign_up_form'),
     pronouns_input = docQ('#pronouns_input');
 
 function init_sign_up_form(id_to_use) { // Initialize the login form, show back button
+    console.log('init_sign_up_form');
+    toggle_page('sign_up_form');
     back_button.style.display = 'unset';
     add_account_button.addEventListener('click', (e) => {
         e.preventDefault();
@@ -218,8 +231,7 @@ function init_sign_up_form(id_to_use) { // Initialize the login form, show back 
         if (docQ('#sign_up_form').checkValidity() === true) {
             create_user(id_to_use);
         } else {
-            status.innerText = 'Form is incomplete.';
-            status.style.color = 'red';
+            broadcast('Form is incomplete.', 'var(--red)');
         }
     })
     philly_collages.forEach(collage => {
@@ -242,14 +254,14 @@ function create_user(id_to_use) { // Create a user
         anthem_id: anthem_id_input.value,
         looking_for: merge_checkboxes('looking_for'),
         new_user: false, // Signifies completed profile
-        account_created: timestamp()
+        join_date: timestamp()
     };
 
     // Push data to FireStore
-    db.collection('users').doc(id_to_use).set(data).then(function() {
+    db.collection('users').doc(id_to_use).set(data).then(function () {
         console.log('Account Created!');
         login_shuffle(id_to_use); // Auto-Login
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.error(error);
     });
 }
@@ -305,21 +317,21 @@ function load_profile_button(target, current_uuid) {
 
 function list_users(current_uuid) { // Populates SELECT form with matches
     const docRef = db.collection('users').where('new_user', '==', false); // Where users are new
-    docRef.get().then(function(doc) {
-            user_select_input.innerHTML = '';
-            doc.forEach(function(doc) {
-                // if (!(doc.id === current_uuid) && (!user_blocked(doc.id, current_uuid))) { // NOT WORKING
-                if (!(doc.id === current_uuid)) { // Don't show your own profile
-                    decipher_uuid(doc.id).then((name) => {
-                        user_select_input.innerHTML += `
+    docRef.get().then(function (doc) {
+        user_select_input.innerHTML = '';
+        doc.forEach(function (doc) {
+            // if (!(doc.id === current_uuid) && (!user_blocked(doc.id, current_uuid))) { // NOT WORKING
+            if (!(doc.id === current_uuid)) { // Don't show your own profile
+                decipher_uuid(doc.id).then((name) => {
+                    user_select_input.innerHTML += `
                     <option value="${doc.id}">${name}</option>
                     `;
-                    });
-                    user_blocked(doc.id, current_uuid); // TEMP FIX
-                }
-            });
-        })
-        .catch(function(error) {
+                });
+                user_blocked(doc.id, current_uuid); // TEMP FIX
+            }
+        });
+    })
+        .catch(function (error) {
             console.log('Error getting documents: ', error);
         })
 }
@@ -327,27 +339,28 @@ function list_users(current_uuid) { // Populates SELECT form with matches
 function user_blocked(target, current_uuid) { // Checks if target user is blocked by current user
     unblock_user_input.innerText = ''; // Clear out blocked users from CMS
     const docRef1 = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
-    docRef1.get().then(function(doc) {;
-        if (doc.exists && doc.data().blocked) {
+    docRef1.get().then(function (doc) {
+        if (doc.exists && doc.data().blocked) { // Found a block on query 1
             rm_bocked_users(target);
             add_blocked_user_to_cms(target);
+            blocked_users_wrap.style.display = 'flex';
             return true;
         } else {
             const docRef2 = db.collection('users').doc(target).collection('blocked').doc(current_uuid);
-            docRef2.get().then(function(doc) {
-                if (doc.exists && doc.data().blocked) {
+            docRef2.get().then(function (doc) {
+                if (doc.exists && doc.data().blocked) { // Found a block on query 2
                     rm_bocked_users(target);
                     add_blocked_user_to_cms(target);
                     return true;
-                } else {
+                } else { // No blocked users
                     return false;
                 }
-            }).catch(function(error) {
+            }).catch(function (error) {
                 console.log('Error getting document:', error);
             });
         }
 
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.log('Error getting document:', error);
     });
 }
@@ -367,10 +380,12 @@ const message_input = docQ('#message_input'),
 function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     back_button.style.display = 'flex';
 
+    const thread_id = set_thread_id(current_uuid, match_uuid);
+
     rm_events('#send_button', false);
     send_button.addEventListener('click', (e) => {
         e.preventDefault();
-        send_message(current_uuid, match_uuid);
+        send_message(current_uuid, match_uuid, thread_id);
     });
     message_input.focus();
 
@@ -378,7 +393,7 @@ function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     load_profile_button(match_uuid, current_uuid);
 }
 
-function send_message(current_uuid, match_uuid) { // Sends a message from chat form message input
+function send_message(current_uuid, match_uuid, thread_id) { // Sends a message from chat form message input
     if (message_input.value) {
         const data = {
             content: message_input.value,
@@ -386,17 +401,14 @@ function send_message(current_uuid, match_uuid) { // Sends a message from chat f
             to: match_uuid,
             when: timestamp()
         };
-        db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function() {
-            status.style.color = 'unset';
-            status.innerText = 'Message Sent!';
-            console.log('Message Sent!');
+        db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function () {
+            broadcast('Message Sent!', 'var(--green)');
             message_input.value = '';
-        }).catch(function(error) {
+        }).catch(function (error) {
             console.error(error);
         });
     } else {
-        status.innerText = 'Type a message.';
-        status.style.color = 'red';
+        broadcast('Type a message to send.', 'var(--red)');
     }
 }
 
@@ -409,14 +421,14 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat 
     const docRef = db.collection('chats').doc('thread-' + thread_id).collection('messages');
     docRef.orderBy('when', 'asc') // Index Collection ID: 'chats'
         .get()
-        .then(function(querySnapshot) {
+        .then(function (querySnapshot) {
             // Decipher ID
             decipher_uuid(match_uuid).then((name) => {
                 nav_title.innerText = name;
             });
 
             chat_box.innerHTML = '';
-            querySnapshot.forEach(function(doc) {
+            querySnapshot.forEach(function (doc) {
                 const content = (doc.id, ' => ', doc.data().content),
                     from = (doc.id, ' => ', doc.data().from),
                     time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
@@ -431,7 +443,7 @@ function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat 
             scroll_to_bottom('tell');
             observe_chat(current_uuid, match_uuid, docRef);
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.log('Error getting documents: ', error);
         });
 }
@@ -440,14 +452,14 @@ function observe_chat(current_uuid, match_uuid, docRef) { // [!!!Does not stop l
     docRef.onSnapshot(docSnapshot => { // Observer
         docRef.orderBy('when', 'asc') // Index Collection ID: 'chats'
             .get()
-            .then(function(querySnapshot) {
+            .then(function (querySnapshot) {
                 // Decipher uuid
                 decipher_uuid(match_uuid).then((name) => {
                     nav_title.innerText = name;
                 });
 
                 chat_box.innerHTML = '';
-                querySnapshot.forEach(function(doc) {
+                querySnapshot.forEach(function (doc) {
                     const content = (doc.id, ' => ', doc.data().content),
                         from = (doc.id, ' => ', doc.data().from),
                         time = (doc.id, ' => ', format_fs_tstamp(doc.data().when));
@@ -462,7 +474,7 @@ function observe_chat(current_uuid, match_uuid, docRef) { // [!!!Does not stop l
                 play_tone();
                 scroll_to_bottom('ask');
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.log('Error getting documents: ', error);
             });
     }, err => {
@@ -489,8 +501,18 @@ function scroll_to_bottom(command) { // Scroll to the bottom if scroll height is
     }
 }
 
-function set_thread_id(uuid1, uuid2) { // Determines what the thread_id will be based on current_uuid and match_uuid
+function set_thread_id(uuid1, uuid2) {
+    // Determines what the thread_id will be based on current_uuid and match_uuid
+    let thread_id;
     uuid1 > uuid2 ? thread_id = uuid1 + '-' + uuid2 : thread_id = uuid2 + '-' + uuid1;
+    // Set thread participant fields
+    const data = {
+        uuid1: uuid1,
+        uuid2: uuid2
+    };
+    db.collection('chats').doc('thread-' + thread_id).set(data).then(function () { }).catch(function (error) {
+        console.error(error);
+    });
     return thread_id;
 }
 
@@ -516,7 +538,7 @@ const stats = docQA('.stat'),
     stat_looking_for = docQ('#stat_looking_for'),
     stat_gender = docQ('#stat_gender'),
     stat_pronouns = docQ('#stat_pronouns'),
-    stat_account_created = docQ('#stat_account_created'),
+    stat_join_date = docQ('#stat_join_date'),
     anthem_wrap = docQ('#anthem_wrap'),
     stat_anthem_label = docQ('#stat_anthem_label'),
     stat_anthem = docQ('#stat_anthem'),
@@ -532,18 +554,22 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
     back_button.style.display = 'flex';
     profile_options_button.style.display = 'flex';
     rm_events('#profile_options_button', false);
+    // get_profile_pics(target);
 
     if (target === current_uuid) { // If it's current_uuid profile
         // Add edit button
         profile_options_button.getElementsByTagName('i')[0].classList.remove('fa-ellipsis-h');
         profile_options_button.getElementsByTagName('i')[0].classList.add('fa-pen');
 
-        profile_options_button.addEventListener('click', (e) => {
+        rm_events('#profile_options_button', false);
+        $('#profile_options_button').one('click', function (e) {
             e.preventDefault();
             toggle_page('profile_cms_form');
-        })
+        });
     } else { // If it's the matches profile
         // Add match options button
+        profile_options_button.getElementsByTagName('i')[0].classList.add('fa-ellipsis-h');
+        profile_options_button.getElementsByTagName('i')[0].classList.remove('fa-pen');
         profile_options_button.addEventListener('click', (e) => {
             e.preventDefault();
             toggle_modal('modal_match_options');
@@ -558,11 +584,11 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
     // Display data
     const docRef = db.collection('users').doc(target);
     docRef.get()
-        .then(function(doc) {
+        .then(function (doc) {
             const result = doc.data(); // Make doc.data() a variable for convenience
             load_profile_stats(result);
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.log('Error getting documents: ', error);
         })
 }
@@ -573,43 +599,32 @@ function load_profile_stats(result) {
     // Required Stats
     const first_name = result.first_name,
         last_name = result.last_name,
-        account_created = result.account_created;
+        join_date = result.join_date;
 
     // Optional Stats
-    let age = result.age || false,
+    const age = result.age || false,
         gender = result.gender || false,
         pronouns = result.pronouns || false,
         location = result.location || false,
         school = result.school || false,
         looking_for = result.looking_for || false,
-        anthem_id = result.anthem_id || false;
+        anthem_id = result.anthem_id || false,
+        pp = result.pp || false;
 
-    // Find & Classify Empty Fields
-    age ? stat_age.removeAttribute('data-status') : stat_age.dataset.status = 'empty';
-    gender ? stat_gender.removeAttribute('data-status') : stat_gender.dataset.status = 'empty';
-    pronouns ? stat_pronouns.removeAttribute('data-status') : stat_pronouns.dataset.status = 'empty';
-    location ? stat_location.removeAttribute('data-status') : stat_location.dataset.status = 'empty';
-    school ? stat_school.removeAttribute('data-status') : stat_school.dataset.status = 'empty';
-    looking_for ? stat_looking_for.removeAttribute('data-status') : stat_looking_for.dataset.status = 'empty';
+    // ===== Hide Empty Fields =====
 
-    // Hide Empty Fields
-    for (var i = 0, len = stats.length; i < len; i++) { // If stat has empty status, hide it, otherwise show it
-        stats[i].dataset.status == 'empty' ? stats[i].parentElement.style.display = 'none' : stats[i].parentElement.style.display = 'flex';
-    };
+    stat_age.parentElement.hidden = !age;
+    stat_gender.parentElement.hidden = !gender;
+    stat_pronouns.parentElement.hidden = !pronouns;
+    stat_location.parentElement.hidden = !location;
+    stat_school.parentElement.hidden = !school;
+    stat_looking_for.parentElement.hidden = !looking_for;
 
-    // Hide Anthem if Empty
-    if (anthem_id) { // Anthem is set
-        stat_anthem_label.innerText = `${first_name}'s Anthem`;
-        stat_anthem.src = `https://open.spotify.com/embed/track/${anthem_id}`;
-    } else { // Anthem isn't set
-        anthem_wrap.style.display = 'none';
-    }
-
-    // === Inject Field Content ===
+    // ===== Inject Field Content =====
 
     // Required
     stat_name.innerText = first_name + ' ' + last_name;
-    stat_account_created.innerText = moment(account_created.toDate()).format('M/D/YY');
+    stat_join_date.innerText = moment(join_date.toDate()).format('M/D/YY');
 
     // Optional
     stat_age.innerText = age;
@@ -618,6 +633,25 @@ function load_profile_stats(result) {
     stat_location.innerText = location;
     stat_school.innerText = school;
     stat_looking_for.innerText = looking_for;
+
+    // ===== Custom Field Handlers =====
+
+    // Handler for Anthems
+    if (anthem_id) { // Anthem is set
+        stat_anthem_label.innerText = `${first_name}'s Anthem`;
+        stat_anthem.src = `https://open.spotify.com/embed/track/${anthem_id}`;
+    } else { // Anthem isn't set
+        anthem_wrap.style.display = 'none';
+    }
+
+    // Handler for Profile Pics
+    if (pp) {
+        profile_pic_placeholder.style.display = 'none';
+        stat_pp.src = pp; // Insert source
+    } else {
+        profile_pic_placeholder.style.display = 'block';
+    }
+
 }
 
 function toggle_user_block(target, current_uuid, command) {
@@ -627,25 +661,63 @@ function toggle_user_block(target, current_uuid, command) {
         blocked: command,
     };
 
-    docRef.set(data).then(function() { // Push data to DB
+    docRef.set(data).then(function () { // Push data to DB
         // do stuff after
         decipher_uuid(target).then((name) => {
             console.log(`Toggling block on ${name}...`);
         });
         toggle_page('user_hub_form'); // Back out
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.error(error);
     });
 }
+
+const stat_pp = docQ('#stat_pp'),
+    profile_pic_placeholder = docQ('#profile_pic_placeholder');
+
+// function get_profile_pics(target) {
+//     const imgRef = storageRef.child(`profile_pics/${target}/1.jpeg`);
+
+//     imgRef.getDownloadURL().then(function (url) {
+//         profile_pic_placeholder.style.display = 'none';
+//         stat_pp.src = url; // Insert source
+//     }).catch(function (error) {
+//         // A full list of error codes is available at
+//         // https://firebase.google.com/docs/storage/web/handle-errors
+//         switch (error.code) {
+//             case 'storage/object-not-found':
+//                 console.log('Pic not found, not necessarily a bad thing');
+//                 stat_pp.style.display = 'none';
+//                 profile_pic_placeholder.style.display = 'block';
+//                 break;
+
+//             case 'storage/unauthorized':
+//                 console.error('Permission to this user denied');
+//                 break;
+
+//             case 'storage/canceled':
+//                 console.error('User canceled the upload');
+//                 break;
+
+//             case 'storage/unknown':
+//                 console.error('Unknown error occurred, inspect the server response');
+//                 break;
+//         }
+//     });
+// }
 
 // ==============================
 // profile_cms_form
 // ==============================
 
 const unblock_user_input = docQ('#unblock_user_input'),
-    unblock_user_button = docQ('#unblock_user_button');
+    unblock_user_button = docQ('#unblock_user_button'),
+    blocked_users_wrap = docQ('#blocked_users_wrap');
 
 function init_profile_cms_form(current_uuid) {
+    nav_title.innerText = 'Edit Profile';
+    profile_options_button.style.display = 'none';
+
     unblock_user_button.addEventListener('click', (e) => { // Set up unblock button
         e.preventDefault();
         toggle_user_block(unblock_user_input.value, current_uuid, false); // Unblocks the user w/ false param
@@ -654,9 +726,71 @@ function init_profile_cms_form(current_uuid) {
         e.preventDefault();
         delete_user(current_uuid);
     });
+    prep_photo_input(current_uuid);
+}
+
+const pp_input = docQ('#pp_input'),
+    pp_thumb = docQ('#pp_thumb'),
+    pp_upload = docQ('#pp_upload');
+
+function prep_photo_input(current_uuid) { // Prepares the input and upload functions for a profile pic
+    rm_events('#pp_input', false);
+    rm_events('#pp_upload', false);
+
+    upload_unready(); // Do this first
+
+    function upload_unready() {
+        pp_thumb.src = '';
+        docQ('#pp_upload').setAttribute('disabled', true);
+    }
+    function upload_ready() {
+        docQ('#pp_upload').removeAttribute('disabled');
+    }
+
+    let files = [];
+
+    $('#pp_input').on('change', function (e) {
+        e.preventDefault();
+        // Do stuff
+        console.log('input change');
+        files = e.target.files;
+        if (typeof files[0] === 'object') { // File attached
+            // If there's a file
+            var reader = new FileReader();
+            reader.onload = function () {
+                pp_thumb.src = reader.result;
+                reader = null;
+            }
+            reader.readAsDataURL(files[0]);
+            upload_ready(); // Styles
+        } else { // No file attached
+            upload_unready(); // Styles
+        }
+    });
+
+    $('#pp_upload').on('click', function (e) {
+        e.preventDefault();
+        // Upload the file
+        var upload_task = firebase.storage().ref(`profile_pics/${current_uuid}/1.jpeg`).put(files[0]);
+        upload_task.snapshot.ref.getDownloadURL().then(function (url) {
+            // Set the file reference in the user
+            const docRef = db.collection('users').doc(current_uuid);
+            const data = { // Create data
+                pp: url,
+            };
+            docRef.update(data).then(function () { // Push data to DB
+                // do stuff after
+                broadcast('Upload complete', 'var(--green)');
+                upload_unready() // Styles
+            }).catch(function (error) {
+                console.error(error);
+            });
+        });
+    });
 }
 
 function add_blocked_user_to_cms(target) { // Adds all blocked users unblock form
+    blocked_users_wrap.style.display = 'flex';
     decipher_uuid(target).then((name) => {
         unblock_user_input.innerHTML += `
         <option value="${target}">${name}</option>
@@ -664,31 +798,68 @@ function add_blocked_user_to_cms(target) { // Adds all blocked users unblock for
     });
 }
 
-function delete_user(current_uuid) {
-    // ===== Delete Blocked Documents =====
-    const docRef = db.collection('users').doc(current_uuid).collection('blocked');
+unblock_user_input.addEventListener('change', () => { // Only enable unblock button while option is selected
+    unblock_user_button.disabled = !unblock_user_input.value;
+});
 
-    docRef.get().then(function(doc) {
-            user_select_input.innerHTML = '';
-            doc.forEach(function(doc) {
-                docRef.doc(doc.id).delete();
-            });
-        })
-        .catch(function(error) {
+function delete_user(current_uuid) {
+
+    // ===== 1. Delete Blocked Documents =====
+
+    var docRef = db.collection('users').doc(current_uuid).collection('blocked');
+
+    docRef.get().then(function (doc) {
+        user_select_input.innerHTML = '';
+        doc.forEach(function (doc) {
+            docRef.doc(doc.id).delete();
+        });
+
+        // ===== 2. Delete User Chat Threads =====
+
+        var docRef = db.collection('chats');
+
+        for (var i = 1; i <= 2; i++) { // 2 because there's only ever 2 participants in one thread
+            docRef.where(`uuid${i}`, '==', current_uuid).get().then(function (doc) {
+                doc.forEach(function (doc) {
+                    var thread_id = doc.id;
+                    console.log(thread_id);
+                    docRef.doc(thread_id).delete();
+                    // Recursive message delete
+                    docRef.doc(thread_id).collection('messages').get().then(function (doc) {
+                        doc.forEach(function (doc) {
+                            docRef.doc(thread_id).collection('messages').doc(doc.id).delete();
+                        });
+                    })
+                        .catch(function (error) {
+                            console.log('Error getting documents: ', error);
+                        })
+                    // End of recursive
+                });
+
+                // ===== 3. Delete User Profile Pics =====
+
+                const folderRef = storageRef.child(`profile_pics/${current_uuid}/1.jpeg`);
+
+                // Delete the file
+                folderRef.delete().then(function () {
+
+                    // ===== 4. Delete the User Document Itself =====
+
+                    db.collection('users').doc(current_uuid).delete();
+
+                    window.location.replace('index.html'); // Exit page
+                }).catch(function (error) {
+                    console.error(error.code);
+                });
+            })
+                .catch(function (error) {
+                    console.log('Error getting documents: ', error);
+                })
+        }
+    })
+        .catch(function (error) {
             console.log('Error getting documents: ', error);
         })
-
-    // ===== Delete the User Document =====
-
-    db.collection('users').doc(current_uuid).delete();
-
-    // ===== Delete User Chat Threads =====
-
-    // Add participant 1 & 2 fields to each thread,
-    // -Query threads by participant
-    // --if 1 or 2 is you
-    // ---delete each message document in the thread
-    // ----Delete the thread document itself
 }
 
 init(); // First Function
@@ -699,31 +870,25 @@ init(); // First Function
 
 // Completed This Week
 
-// #1. *Gender drop-down for profile setup.
-// #2. *Pronoun drop-down for profile setup.
-// #3. *Fixed double init issue.
-// #4. *Programmed in blocking users.
-// #5. *Block and unblock users.
-// #6. *Blocker and blocked will not appear in their user lists.
+// #1. *Query multiple songs in search
+// #2. *Recursively delete all thread messages from users on account deletion
 
 // #Priority tasks...
 
-// #2. *Merge search for anthem song (Gabby), cannot refresh page.
-
-// #1. *Ability to delete account.
-// #2. *Delete chat history on account deletion.
-// #3. *Limit user hub and message queries.
-// ____User: Limit to active within 7 days, up to 100 users, button to view more.
-// ____Chats: Limit to 25 chats, (descending but CSS flex reverse), button to view more.
+// #1. *Guilty-Pleasure song.
+// #2. *Add user photos (on setup page).
+// #3. *Add user bio's.
 
 // Do later...
 
-// #1. *Edit profile after creation.
+// #1. *Fully edit profile after creation.
 
 // Scope Creep Tasks...
 
-// #1. *Guilty-Pleasure song.
 // #2. *Last active stat, query users only active in passed x days.
 // #3. *Embedded chat messages for links, music. (Try to get meta to appear).
 // #4. *Offline chat storage.
 // #5. *Delete messages, appear as 'Message Deleted'.
+// #3. *Limit user hub and message queries.
+// ____User: Limit to active within 7 days, up to 100 users, button to view more.
+// ____Chats: Limit to 25 chats, (descending query but CSS flex reverse), button to view older.

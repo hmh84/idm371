@@ -1,24 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
 * {
-    font-family: 'Open Sans', sans-serif;
-    /* color: #7e7e7e; */
+	font-family: "Open Sans", sans-serif;
+	/* color: #7e7e7e; */
 }
 
 :root {
-    --green: #4ba507;
-    --red: #c50606;
-    --blue: #0089ff;
+	--green: #4ba507;
+	--red: #c50606;
+	--blue: #0089ff;
 }
 
 html {
-    scroll-behavior: smooth;
+	scroll-behavior: smooth;
 }
 
 html,
 body,
 main {
-    width: 100%;
-    height: 100%;
+	width: 100%;
+	height: 100%;
 }
 
 body,
@@ -27,365 +27,401 @@ nav,
 #content_area,
 form,
 #chat_box {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 body {
-    background-color: #ebebeb;
+	background-color: #ebebeb;
+}
+
+[hidden] {
+	display: none !important;
 }
 
 #title {
-    margin: 2rem 0;
+	margin: 2rem 0;
 }
 
 main {
-    background-color: #f6f6f6;
-    width: 100%;
-    height: 100%;
-    max-height: 812px;
-    max-width: 375px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    border: .5rem solid #ddd;
-    border-radius: 1.75rem;
-    overflow: hidden;
+	background-color: #f6f6f6;
+	width: 100%;
+	height: 100%;
+	max-height: 812px;
+	max-width: 375px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	border: 0.5rem solid #ddd;
+	border-radius: 1.75rem;
+	overflow: hidden;
 }
 
 nav {
-    flex-direction: row;
-    justify-content: space-between;
-    background-color: #ebebeb;
-    width: 100%;
-    height: 10%;
-    padding: 0 1rem;
+	flex-direction: row;
+	justify-content: space-between;
+	background-color: #ebebeb;
+	width: 100%;
+	height: 10%;
+	padding: 0 1rem;
 }
 
 nav button {
-    /* margin: 0 .5rem 0 0; */
+	/* margin: 0 .5rem 0 0; */
 }
 
 .nav_end {
-    width: 42px;
-    pointer-events: none;
+	width: 42px;
+	pointer-events: none;
 }
 
 #nav_title {
-    font-size: 1.25rem;
-    margin-left: calc(50% -26px);
+	font-size: 1.25rem;
+	margin-left: calc(50% -26px);
 }
 
 #content_area {
-    width: 100%;
-    height: 90%;
+	width: 100%;
+	height: 90%;
 }
 
 form {
-    display: none;
-    width: 100%;
+	display: none;
+	width: 100%;
 }
 
 select {
-    width: 100%;
-    padding: 1.5rem;
-    height: 50%;
+	width: 100%;
+	padding: 1.5rem;
+	height: 50%;
 }
 
 select option {
-    margin: 0 !important;
-    height: 20%;
-    display: flex;
-    align-items: center;
+	margin: 0 !important;
+	height: 20%;
+	display: flex;
+	align-items: center;
 }
 
 .prompt_form * {
-    margin: .5rem 0;
+	margin: 0.5rem 0;
 }
 
 .prompt_form {
-    height: 100%;
+	height: 100%;
 }
 
 button,
 input {
-    background-color: white;
-    padding: .75rem 1rem;
-    border-radius: .25rem;
-    box-shadow: -2px 2px 4px #c5c5c5;
+	background-color: white;
+	padding: 0.75rem 1rem;
+	border-radius: 0.25rem;
+	box-shadow: -2px 2px 4px #c5c5c5;
 }
 
 button {
-    background-color: #7e7e7e;
-    color: white;
+	background-color: #7e7e7e;
+	color: white;
+}
+
+button[disabled] {
+	background-color: #7e7e7e !important;
 }
 
 form button {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
 }
 
 button.green-btn {
-    background-color: var(--green);
+	background-color: var(--green);
 }
 
 button.red-btn {
-    background-color: var(--red);
+	background-color: var(--red);
 }
 
 button.blue-btn {
-    background-color: var(--blue);
+	background-color: var(--blue);
 }
 
 #back_button {
-    display: none;
+	display: none;
 }
-
 
 /* Chat Form */
 
 #chat_form {
-    height: 100%;
+	height: 100%;
 }
 
 #chat_box {
-    width: 100%;
-    height: 92%;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    justify-content: flex-start;
-    padding: 1rem;
+	width: 100%;
+	height: 92%;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	justify-content: flex-start;
+	padding: 1rem;
 }
 
 .from_me {
-    align-self: flex-end;
-    border-radius: .5rem .5rem 0 .5rem;
-    background-color: black;
-    color: white;
+	align-self: flex-end;
+	border-radius: 0.5rem 0.5rem 0 0.5rem;
+	background-color: black;
+	color: white;
 }
 
 .from_them {
-    align-self: flex-start;
-    border-radius: .5rem .5rem .5rem 0;
-    background-color: white;
-    color: black;
+	align-self: flex-start;
+	border-radius: 0.5rem 0.5rem 0.5rem 0;
+	background-color: white;
+	color: black;
 }
 
 #chat_controls {
-    display: flex;
-    flex-direction: row;
-    align-self: flex-end;
-    justify-content: space-between;
-    width: 100%;
-    height: 8%;
+	display: flex;
+	flex-direction: row;
+	align-self: flex-end;
+	justify-content: space-between;
+	width: 100%;
+	height: 8%;
 }
 
 #chat_controls * {
-    box-shadow: none;
-    border-radius: 0;
+	box-shadow: none;
+	border-radius: 0;
 }
 
 input#message_input {
-    border: .5rem 0 0 .5rem !important;
-    width: 70%;
-    padding-left: 1.25rem;
-    overflow-y: hidden;
+	border: 0.5rem 0 0 0.5rem !important;
+	width: 70%;
+	padding-left: 1.25rem;
+	overflow-y: hidden;
 }
 
 button#send_button {
-    width: 30%;
+	width: 30%;
 }
 
 .message {
-    padding: 1rem;
-    box-shadow: -2px 2px 4px #c5c5c5;
-    margin-bottom: .5rem;
-    max-width: 80%;
+	padding: 1rem;
+	box-shadow: -2px 2px 4px #c5c5c5;
+	margin-bottom: 0.5rem;
+	max-width: 80%;
 }
 
 .time {
-    font-size: 12px;
-    margin-top: .2rem;
-    font-style: italic;
+	font-size: 12px;
+	margin-top: 0.2rem;
+	font-style: italic;
 }
 
 .message:last-of-type {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 #status {
-    margin: 2rem 0;
+	margin: 2rem 0;
 }
-
 
 /* Profile */
 
 #profile_button {
-    display: none;
+	display: none;
 }
 
 #profile_view_form {
-    height: 100%;
+	height: 100%;
 }
 
 .profile_section {
-    width: 100%;
-    height: 50%;
-    display: flex;
-    flex-direction: column;
+	width: 100%;
+	height: 50%;
+	display: flex;
+	flex-direction: column;
 }
 
 #profile_stats {
-    overflow-y: scroll;
+	overflow-y: scroll;
 }
 
 #profile_top {
-    background-color: #ebebeb;
-    justify-content: space-between;
-    align-items: center;
+	background-color: #ebebeb;
+	justify-content: space-between;
+	align-items: center;
 }
 
 #profile_top * {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    margin: .25rem 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	margin: 0.25rem 0;
 }
 
 #profile_btm {
-    padding: 1rem 1rem 0 1rem;
+	padding: 1rem 1rem 0 1rem;
 }
 
 .stat_li {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: .5rem;
-    justify-content: space-between;
-    padding: .75rem;
-    /* background-color: #ebebeb; */
-    border-bottom: 1px #ebebeb solid;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	justify-content: space-between;
+	padding: 0.75rem;
+	/* background-color: #ebebeb; */
+	border-bottom: 1px #ebebeb solid;
 }
 
 .stat_li:last-of-type {
-    margin-bottom: 0;
-    border: none;
+	margin-bottom: 0;
+	border: none;
 }
 
+#stat_pp {
+	width: 35%;
+}
+
+.pp_thumb_wrap {
+	background-color: white;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.pp_thumb_wrap img,
+#pp_input {
+	width: 50%;
+}
+
+#pp_input {
+	background-color: #00000000 !important;
+	box-shadow: none;
+	height: fit-content;
+}
+
+#pp_upload {
+	margin: auto;
+}
+
+#blocked_users_wrap {
+	display: none;
+	flex-direction: column;
+	width: 100%;
+	align-items: center;
+}
 
 /* Checkbox on form */
 
 .checkboxes {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    padding: 0 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	padding: 0 2rem;
 }
 
 .checkboxes span {
-    background-color: white;
-    padding: 0 .5rem;
-    border-radius: .25rem;
-    box-shadow: -2px 2px 4px #c5c5c5;
-    width: 201px;
+	background-color: white;
+	padding: 0 0.5rem;
+	border-radius: 0.25rem;
+	box-shadow: -2px 2px 4px #c5c5c5;
+	width: 201px;
 }
 
 .lf_checkbox {
-    margin-right: .5rem;
-    pointer-events: none;
+	margin-right: 0.5rem;
+	pointer-events: none;
 }
-
 
 /* Player */
 
 #anthem_wrap {
-    margin: 0 !important;
-    width: 100%;
-    align-items: flex-start;
+	margin: 0 !important;
+	width: 100%;
+	align-items: flex-start;
 }
 
 iframe {
-    height: 5rem;
-    border-radius: 1rem 1rem 0 0;
-    width: 100%;
-    margin: 0 !important;
+	height: 5rem;
+	border-radius: 1rem 1rem 0 0;
+	width: 100%;
+	margin: 0 !important;
 }
 
 #stat_anthem_label {
-    font-weight: bold;
-    margin-left: 1rem;
+	font-weight: bold;
+	margin-left: 1rem;
 }
 
 #sign_up_form {
-    overflow-y: scroll;
-    justify-content: flex-start;
+	overflow-y: scroll;
+	justify-content: flex-start;
 }
 
 #sign_up_form select {
-    border-radius: .25rem;
-    padding: 9px .75rem;
-    width: 201px;
-    box-shadow: -2px 2px 4px #c5c5c5;
+	border-radius: 0.25rem;
+	padding: 9px 0.75rem;
+	width: 201px;
+	box-shadow: -2px 2px 4px #c5c5c5;
 }
 
 #school_input option {
-    padding: 1rem 0;
+	padding: 1rem 0;
 }
 
 .row {
-    display: flex;
-    flex-direction: row !important;
+	display: flex;
+	flex-direction: row !important;
 }
-
 
 /* Modals */
 
 #modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    justify-content: center;
-    align-items: center;
-    background-color: #00000095;
-    width: 100vw;
-    height: 100vh;
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	justify-content: center;
+	align-items: center;
+	background-color: #00000095;
+	width: 100vw;
+	height: 100vh;
 }
 
 .modal_common {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    padding: 1rem;
-    border-radius: .5rem;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	background-color: white;
+	padding: 1rem;
+	border-radius: 0.5rem;
 }
 
-.modal_common>* {
-    margin-bottom: .5rem;
-    width: 100%;
+.modal_common > * {
+	margin-bottom: 0.5rem;
+	width: 100%;
 }
 
-.modal_common>*:last-of-type {
-    margin-bottom: 0;
+.modal_common > *:last-of-type {
+	margin-bottom: 0;
 }
 
 #user_select_input {
-    border-radius: 0;
+	border-radius: 0;
 }
 
 #profile_options_button {
-    display: none;
-    /* Default */
+	display: none;
+	/* Default */
 }
 
 #modal_match_options {
-    display: none;
-    /* Default */
-    width: 20rem;
+	display: none;
+	/* Default */
+	width: 20rem;
 }
