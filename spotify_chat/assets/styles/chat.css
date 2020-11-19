@@ -326,6 +326,10 @@ button#send_button {
 	border: none;
 }
 
+.stat_vertical {
+	flex-direction: column;
+}
+
 .stat_vertical .stat_label {
 	margin-bottom: 1rem;
 }

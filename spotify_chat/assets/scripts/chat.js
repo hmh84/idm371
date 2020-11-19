@@ -315,7 +315,7 @@ function list_users(current_uuid) { // Populates SELECT form with matches
                 decipher_uuid(doc.id).then((name) => {
                     const pp = doc.data().pp || false;
                     browse_profiles_wrap.innerHTML += `
-                        <div class="user" value="${doc.id}">
+                        <div class="user">
                             <p class="user_name">${name}</p>
                         </div>
                         `;
@@ -397,7 +397,7 @@ function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
     const thread_id = set_thread_id(current_uuid, match_uuid);
 
     rm_events('#send_button', false);
-    send_button.addEventListener('click', (e) => {
+    $('#send_button').on('click', function (e) {
         e.preventDefault();
         send_message(current_uuid, match_uuid, thread_id);
     });
@@ -865,14 +865,15 @@ init(); // First Function
 // #2. *Recursively delete all thread messages from users on account deletion
 // #3. *Changed user browse page to mobile UI
 // #4. *Ability to add profile picture
+// #5. *AAdd bio on profile setup
 
 // #Priority tasks...
 
 // #1. *Fix 1st user no event listener?.
+// #1. *Fix profile options modal from appearing after nav backwards on own profile.
 
-// #1. *Guilty-Pleasure song.
 // #2. *Add user photos (on setup page).
-// #3. *Add user bio's.
+// #1. *Guilty-Pleasure song.
 // #4. *Optimize the chat recall & observer.
 
 // Do later...
