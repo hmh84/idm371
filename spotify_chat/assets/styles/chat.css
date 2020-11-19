@@ -1,13 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
 * {
 	font-family: "Open Sans", sans-serif;
-	/* color: #7e7e7e; */
 }
 
 :root {
 	--green: #4ba507;
 	--red: #c50606;
 	--blue: #0089ff;
+	--dark-grey: #4c4c4c;
+	--grey: #9e9e9e;
 }
 
 html {
@@ -110,6 +111,7 @@ select option {
 
 .prompt_form {
 	height: 100%;
+	justify-content: flex-start;
 }
 
 button,
@@ -121,12 +123,12 @@ input {
 }
 
 button {
-	background-color: #7e7e7e;
+	background-color: var(--dark-grey);
 	color: white;
 }
 
 button[disabled] {
-	background-color: #7e7e7e !important;
+	background-color: var(--grey) !important;
 }
 
 form button {
@@ -150,6 +152,36 @@ button.blue-btn {
 
 #back_button {
 	display: none;
+}
+
+/* Profile Hub */
+
+#browse_profiles_wrap {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.user {
+	display: flex;
+	flex-direction: row-reverse;
+	height: 4rem;
+	align-items: center;
+	justify-content: flex-end;
+	width: 100%;
+	background-color: white;
+	cursor: pointer;
+}
+
+.user_thumb,
+.pp_placeholder {
+	height: 100%;
+	width: 4rem;
+	margin: 0 1rem 0 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--grey);
 }
 
 /* Chat Form */
@@ -283,7 +315,8 @@ button#send_button {
 }
 
 #stat_pp {
-	width: 35%;
+	width: clamp(40%, 40%, 40%);
+	border-radius: 0.5rem;
 }
 
 .pp_thumb_wrap {
@@ -291,6 +324,7 @@ button#send_button {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	width: 100%;
 }
 
 .pp_thumb_wrap img,
@@ -298,14 +332,14 @@ button#send_button {
 	width: 50%;
 }
 
+#pp_change_button {
+	padding: 0 1rem;
+}
+
 #pp_input {
 	background-color: #00000000 !important;
 	box-shadow: none;
 	height: fit-content;
-}
-
-#pp_upload {
-	margin: auto;
 }
 
 #blocked_users_wrap {
@@ -377,6 +411,8 @@ iframe {
 .row {
 	display: flex;
 	flex-direction: row !important;
+	width: 100%;
+	justify-content: space-evenly;
 }
 
 /* Modals */
@@ -409,10 +445,6 @@ iframe {
 
 .modal_common > *:last-of-type {
 	margin-bottom: 0;
-}
-
-#user_select_input {
-	border-radius: 0;
 }
 
 #profile_options_button {

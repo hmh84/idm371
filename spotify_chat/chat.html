@@ -119,10 +119,9 @@
             <!-- ===== Pick who to chat with ===== -->
             <form class="prompt_form" id="user_hub_form">
                 <h2>Browse Profiles:</h2>
-                <select id="user_select_input" size="5">
-                    <!-- Matches populated by DB... -->
-                </select>
-                <button type="button" class="green-btn" id="pick_user_button">Chat</button>
+                <div id="browse_profiles_wrap">
+                    <!-- Profiles populated by DB... -->
+                </div>
             </form>
             <!-- ===== Chat ===== -->
             <form id="chat_form">
@@ -207,11 +206,14 @@
             </form>
             <!-- === Profile CMS Form === -->
             <form class="prompt_form" id="profile_cms_form">
-                <h2>Profile Picture:</h2>
+                <h2>Edit Profile Picture:</h2>
                 <div class="pp_thumb_wrap">
                     <img id="pp_thumb" alt="Pic 1">
                     <div class="row">
-                        <input id="pp_input" type="file" accept="image/x-png,image/jpeg">
+                        <button id="pp_change_button">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                        </button>
+                        <input hidden id="pp_input" type="file" accept="image/x-png,image/jpeg">
                         <button id="pp_upload" class="green-btn">Upload</button>
                     </div>
                 </div>

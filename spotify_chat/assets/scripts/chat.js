@@ -39,6 +39,8 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
     } else if (new_form == 'user_hub_form') {
         init_user_hub_form(spotify_id);
         profile_button.style.display = 'flex';
+    } else if (new_form == 'profile_view_form') {
+        init_profile_view_form(spotify_id);
     } else if (new_form == 'profile_cms_form') {
         init_profile_cms_form(spotify_id);
     }
@@ -57,7 +59,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
 const back_button = docQ('#back_button'),
     nav_title = docQ('#nav_title'),
     chat_box = docQ('#chat_box'),
-    user_select_input = docQ('#user_select_input'),
+    browse_profiles_wrap = docQ('#browse_profiles_wrap'),
     modal = docQ('#modal'),
     all_modals = docQA('.modal_common'),
     modal_close_button = docQA('.modal_close_button'),
@@ -125,7 +127,6 @@ function user_new(uuid) { // Checks if target user is new
 
 function stop_players() {
     if (stat_anthem.src) {
-        console.log('found a source');
         const src = stat_anthem.src;
         stat_anthem.src = src;
     }
@@ -184,7 +185,7 @@ function route_user(uuid) { // Check user validity then route to login or sign u
 
 function init_login_form() {
     stop_players();
-    user_select_input.innerText = '';
+    browse_profiles_wrap.innerText = '';
     back_button.style.display = 'none';
     nav_title.innerText = '';
     chat_box.innerText = '';
@@ -192,12 +193,10 @@ function init_login_form() {
 }
 
 function login_shuffle(current_uuid) { // Logs user into shuffle. 1 param: (the uuid).
-    console.log('login_shuffle');
     const docRef = db.collection('users').doc(current_uuid);
     docRef.get().then(function (doc) {
         if (doc.exists) {
             decipher_uuid(current_uuid).then((name) => {
-                console.log(`Logged in as: '${name}'`);
                 broadcast(`Logged in as: '${name}'`, 'unset');
             })
 
@@ -222,7 +221,6 @@ const sign_up_form = docQ('#sign_up_form'),
     pronouns_input = docQ('#pronouns_input');
 
 function init_sign_up_form(id_to_use) { // Initialize the login form, show back button
-    console.log('init_sign_up_form');
     toggle_page('sign_up_form');
     back_button.style.display = 'unset';
     add_account_button.addEventListener('click', (e) => {
@@ -288,18 +286,6 @@ function init_user_hub_form(current_uuid) { // Initialize match chat selection f
     stop_players();
     list_users(current_uuid);
 
-    rm_events('#pick_user_button', true);
-    const pick_user_button = docQ('#pick_user_button');
-
-    pick_user_button.addEventListener('click', (e) => {
-        e.preventDefault();
-        const match_uuid = user_select_input.value,
-            thread_id = set_thread_id(current_uuid, match_uuid);
-        toggle_page('chat_form');
-        init_chat_form(current_uuid, match_uuid);
-        recall_chat(current_uuid, match_uuid, thread_id);
-    });
-
     // User profile button
     load_profile_button(current_uuid, current_uuid);
 }
@@ -318,14 +304,39 @@ function load_profile_button(target, current_uuid) {
 function list_users(current_uuid) { // Populates SELECT form with matches
     const docRef = db.collection('users').where('new_user', '==', false); // Where users are new
     docRef.get().then(function (doc) {
-        user_select_input.innerHTML = '';
+        browse_profiles_wrap.innerHTML = '';
         doc.forEach(function (doc) {
+            const result = doc.data();
             // if (!(doc.id === current_uuid) && (!user_blocked(doc.id, current_uuid))) { // NOT WORKING
             if (!(doc.id === current_uuid)) { // Don't show your own profile
                 decipher_uuid(doc.id).then((name) => {
-                    user_select_input.innerHTML += `
-                    <option value="${doc.id}">${name}</option>
-                    `;
+                    const pp = doc.data().pp || false;
+                    browse_profiles_wrap.innerHTML += `
+                        <div class="user" value="${doc.id}">
+                            <p class="user_name">${name}</p>
+                        </div>
+                        `;
+
+                    const this_user = docQ('.user:last-of-type');
+                    if (pp) { // If profile pic exists add it do the .user element
+                        this_user.innerHTML += `
+                            <img src="${result.pp}" class="user_thumb">
+                        `;
+                        pp_thumb.src = result.pp; // Set profile cms thumb
+                    } else { // If no profile pic add placeholder
+                        this_user.innerHTML += `
+                            <div class="pp_placeholder">
+                                <i class="fas fa-user fa-2x" aria-hidden="true"></i>
+                            </div>
+                        `;
+                    }
+                    this_user.addEventListener('click', () => {
+                        const match_uuid = doc.id,
+                            thread_id = set_thread_id(current_uuid, match_uuid);
+                        toggle_page('chat_form');
+                        init_chat_form(current_uuid, match_uuid);
+                        recall_chat(current_uuid, match_uuid, thread_id);
+                    });
                 });
                 user_blocked(doc.id, current_uuid); // TEMP FIX
             }
@@ -415,7 +426,7 @@ function send_message(current_uuid, match_uuid, thread_id) { // Sends a message 
 function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat history when entering chat with a match
     // Decipher match uuid
     decipher_uuid(match_uuid).then((name) => {
-        console.log(`Chatting with: ${name}`);
+        broadcast(`Chatting with: ${name}`, 'unset');
     });
 
     const docRef = db.collection('chats').doc('thread-' + thread_id).collection('messages');
@@ -554,7 +565,6 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
     back_button.style.display = 'flex';
     profile_options_button.style.display = 'flex';
     rm_events('#profile_options_button', false);
-    // get_profile_pics(target);
 
     if (target === current_uuid) { // If it's current_uuid profile
         // Add edit button
@@ -586,14 +596,14 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
     docRef.get()
         .then(function (doc) {
             const result = doc.data(); // Make doc.data() a variable for convenience
-            load_profile_stats(result);
+            display_profile_stats(result);
         })
         .catch(function (error) {
             console.log('Error getting documents: ', error);
         })
 }
 
-function load_profile_stats(result) {
+function display_profile_stats(result) {
     // === Get Field Contents ===
 
     // Required Stats
@@ -651,7 +661,6 @@ function load_profile_stats(result) {
     } else {
         profile_pic_placeholder.style.display = 'block';
     }
-
 }
 
 function toggle_user_block(target, current_uuid, command) {
@@ -674,37 +683,6 @@ function toggle_user_block(target, current_uuid, command) {
 
 const stat_pp = docQ('#stat_pp'),
     profile_pic_placeholder = docQ('#profile_pic_placeholder');
-
-// function get_profile_pics(target) {
-//     const imgRef = storageRef.child(`profile_pics/${target}/1.jpeg`);
-
-//     imgRef.getDownloadURL().then(function (url) {
-//         profile_pic_placeholder.style.display = 'none';
-//         stat_pp.src = url; // Insert source
-//     }).catch(function (error) {
-//         // A full list of error codes is available at
-//         // https://firebase.google.com/docs/storage/web/handle-errors
-//         switch (error.code) {
-//             case 'storage/object-not-found':
-//                 console.log('Pic not found, not necessarily a bad thing');
-//                 stat_pp.style.display = 'none';
-//                 profile_pic_placeholder.style.display = 'block';
-//                 break;
-
-//             case 'storage/unauthorized':
-//                 console.error('Permission to this user denied');
-//                 break;
-
-//             case 'storage/canceled':
-//                 console.error('User canceled the upload');
-//                 break;
-
-//             case 'storage/unknown':
-//                 console.error('Unknown error occurred, inspect the server response');
-//                 break;
-//         }
-//     });
-// }
 
 // ==============================
 // profile_cms_form
@@ -731,7 +709,13 @@ function init_profile_cms_form(current_uuid) {
 
 const pp_input = docQ('#pp_input'),
     pp_thumb = docQ('#pp_thumb'),
-    pp_upload = docQ('#pp_upload');
+    pp_upload = docQ('#pp_upload'),
+    pp_change_button = docQ('#pp_change_button');
+
+pp_change_button.addEventListener('click', (e) => {
+    e.preventDefault();
+    pp_input.click();
+})
 
 function prep_photo_input(current_uuid) { // Prepares the input and upload functions for a profile pic
     rm_events('#pp_input', false);
@@ -741,9 +725,11 @@ function prep_photo_input(current_uuid) { // Prepares the input and upload funct
 
     function upload_unready() {
         pp_thumb.src = '';
+        pp_thumb.hidden = true;
         docQ('#pp_upload').setAttribute('disabled', true);
     }
     function upload_ready() {
+        pp_thumb.hidden = false;
         docQ('#pp_upload').removeAttribute('disabled');
     }
 
@@ -752,7 +738,6 @@ function prep_photo_input(current_uuid) { // Prepares the input and upload funct
     $('#pp_input').on('change', function (e) {
         e.preventDefault();
         // Do stuff
-        console.log('input change');
         files = e.target.files;
         if (typeof files[0] === 'object') { // File attached
             // If there's a file
@@ -798,7 +783,7 @@ function add_blocked_user_to_cms(target) { // Adds all blocked users unblock for
     });
 }
 
-unblock_user_input.addEventListener('change', () => { // Only enable unblock button while option is selected
+unblock_user_input.addEventListener('change', () => { // Only enable button while option is selected
     unblock_user_button.disabled = !unblock_user_input.value;
 });
 
@@ -809,7 +794,7 @@ function delete_user(current_uuid) {
     var docRef = db.collection('users').doc(current_uuid).collection('blocked');
 
     docRef.get().then(function (doc) {
-        user_select_input.innerHTML = '';
+        browse_profiles_wrap.innerHTML = '';
         doc.forEach(function (doc) {
             docRef.doc(doc.id).delete();
         });
@@ -822,7 +807,6 @@ function delete_user(current_uuid) {
             docRef.where(`uuid${i}`, '==', current_uuid).get().then(function (doc) {
                 doc.forEach(function (doc) {
                     var thread_id = doc.id;
-                    console.log(thread_id);
                     docRef.doc(thread_id).delete();
                     // Recursive message delete
                     docRef.doc(thread_id).collection('messages').get().then(function (doc) {
@@ -872,6 +856,8 @@ init(); // First Function
 
 // #1. *Query multiple songs in search
 // #2. *Recursively delete all thread messages from users on account deletion
+// #3. *Changed user browse page to mobile UI
+// #4. *Ability to add profile picture
 
 // #Priority tasks...
 
