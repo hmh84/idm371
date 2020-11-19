@@ -40,7 +40,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
         init_user_hub_form(spotify_id);
         profile_button.style.display = 'flex';
     } else if (new_form == 'profile_view_form') {
-        init_profile_view_form(spotify_id);
+        profile_options_button.style.display = 'flex';
     } else if (new_form == 'profile_cms_form') {
         init_profile_cms_form(spotify_id);
     }
@@ -70,7 +70,6 @@ back_button.addEventListener('click', (e) => {
     e.preventDefault();
     stop_players();
 
-    profile_options_button.style.display = 'none';
     nav_title.innerText = '';
     chat_box.innerText = '';
     broadcast('', 'unset'); // Reset status
@@ -569,10 +568,10 @@ const stats = docQA('.stat'),
     block_user_button = docQ('#block_user');
 
 function init_profile_view_form(target, current_uuid) { // Initializes profile page
+    console.log('init_profile_view_form');
     nav_title.innerText = 'My Profile';
     profile_button.style.display = 'none';
     back_button.style.display = 'flex';
-    profile_options_button.style.display = 'flex';
     rm_events('#profile_options_button', false);
 
     if (target === current_uuid) { // If it's current_uuid profile
@@ -587,8 +586,8 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
         });
     } else { // If it's the matches profile
         // Add match options button
-        profile_options_button.getElementsByTagName('i')[0].classList.add('fa-ellipsis-h');
         profile_options_button.getElementsByTagName('i')[0].classList.remove('fa-pen');
+        profile_options_button.getElementsByTagName('i')[0].classList.add('fa-ellipsis-h');
 
         rm_events('#profile_options_button', false);
         $('#profile_options_button').on('click', (e) => {
@@ -804,8 +803,6 @@ unblock_user_input.addEventListener('change', () => { // Only enable button whil
 });
 
 function delete_user(current_uuid) {
-    console.log('delete_user', current_uuid);
-
     // ===== 1. Delete Blocked Documents =====
 
     var docRef = db.collection('users').doc(current_uuid).collection('blocked');
@@ -814,7 +811,6 @@ function delete_user(current_uuid) {
         browse_profiles_wrap.innerHTML = '';
         doc.forEach(function (doc) {
             docRef.doc(doc.id).delete();
-            console.log('#1');
         });
 
         // ===== 2. Delete User Chat Threads =====
@@ -824,13 +820,11 @@ function delete_user(current_uuid) {
         for (var i = 1; i <= 2; i++) { // 2 because there's only ever 2 participants in one thread
             docRef.where(`uuid${i}`, '==', current_uuid).get().then(function (doc) {
                 doc.forEach(function (doc) {
-                    console.log('#2A');
                     var thread_id = doc.id;
                     docRef.doc(thread_id).delete();
                     // Recursive message delete
                     docRef.doc(thread_id).collection('messages').get().then(function (doc) {
                         doc.forEach(function (doc) {
-                            console.log('#2B');
                             docRef.doc(thread_id).collection('messages').doc(doc.id).delete();
                         });
                     })
@@ -856,7 +850,6 @@ function delete_user(current_uuid) {
                         console.log(error);
                     });
 
-
                 function deleteFile(pathToFile, fileName) {
                     const ref = firebase.storage().ref(pathToFile);
                     const childRef = ref.child(fileName);
@@ -876,7 +869,6 @@ function delete_user(current_uuid) {
     setTimeout(function () {
         // I am delayed
         db.collection('users').doc(current_uuid).delete();
-        console.log('#4');
 
         // window.location.replace('index.html'); // Exit page
     }, 1500);
@@ -894,7 +886,7 @@ init(); // First Function
 // #2. *Recursively delete all thread messages from users on account deletion
 // #3. *Changed user browse page to mobile UI
 // #4. *Ability to add profile picture
-// #5. *AAdd bio on profile setup
+// #5. *Add bio on profile setup
 
 // #Priority tasks...
 
@@ -904,6 +896,7 @@ init(); // First Function
 // #2. *Add user photos (on setup page).
 // #1. *Guilty-Pleasure song.
 // #4. *Optimize the chat recall & observer.
+// #4. *End observer sub on chat back-out
 
 // Do later...
 
