@@ -115,11 +115,18 @@ select option {
 }
 
 button,
-input {
+input,
+textarea {
 	background-color: white;
 	padding: 0.75rem 1rem;
 	border-radius: 0.25rem;
 	box-shadow: -2px 2px 4px #c5c5c5;
+}
+
+textarea {
+	width: clamp(201px, 201px, 201px) !important;
+	height: fit-content !important;
+	min-height: 150px !important;
 }
 
 button {
@@ -256,7 +263,10 @@ button#send_button {
 }
 
 #status {
-	margin: 2rem 0;
+	margin: 2rem auto;
+	height: 1.5rem;
+	width: 100%;
+	text-align: center;
 }
 
 /* Profile */
@@ -297,7 +307,7 @@ button#send_button {
 }
 
 #profile_btm {
-	padding: 1rem 1rem 0 1rem;
+	padding: 1rem;
 }
 
 .stat_li {
@@ -314,6 +324,10 @@ button#send_button {
 .stat_li:last-of-type {
 	margin-bottom: 0;
 	border: none;
+}
+
+.stat_vertical .stat_label {
+	margin-bottom: 1rem;
 }
 
 #stat_pp {
@@ -404,6 +418,7 @@ iframe {
 	padding: 9px 0.75rem;
 	width: 201px;
 	box-shadow: -2px 2px 4px #c5c5c5;
+	background-color: white;
 }
 
 #school_input option {

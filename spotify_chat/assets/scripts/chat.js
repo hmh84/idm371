@@ -218,7 +218,8 @@ const sign_up_form = docQ('#sign_up_form'),
     school_input = docQ('#school_input'),
     anthem_id_input = docQ('#anthem_id_input'),
     gender_input = docQ('#gender_input'),
-    pronouns_input = docQ('#pronouns_input');
+    pronouns_input = docQ('#pronouns_input'),
+    bio_input = docQ('#bio_input');
 
 function init_sign_up_form(id_to_use) { // Initialize the login form, show back button
     toggle_page('sign_up_form');
@@ -251,6 +252,7 @@ function create_user(id_to_use) { // Create a user
         school: school_input.value,
         anthem_id: anthem_id_input.value,
         looking_for: merge_checkboxes('looking_for'),
+        bio: bio_input.value,
         new_user: false, // Signifies completed profile
         join_date: timestamp()
     };
@@ -550,6 +552,7 @@ const stats = docQA('.stat'),
     stat_looking_for = docQ('#stat_looking_for'),
     stat_gender = docQ('#stat_gender'),
     stat_pronouns = docQ('#stat_pronouns'),
+    stat_bio = docQ('#stat_bio'),
     stat_join_date = docQ('#stat_join_date'),
     anthem_wrap = docQ('#anthem_wrap'),
     stat_anthem_label = docQ('#stat_anthem_label'),
@@ -617,6 +620,7 @@ function display_profile_stats(result) {
         gender = result.gender || false,
         pronouns = result.pronouns || false,
         location = result.location || false,
+        bio = result.bio || false,
         school = result.school || false,
         looking_for = result.looking_for || false,
         anthem_id = result.anthem_id || false,
@@ -627,6 +631,7 @@ function display_profile_stats(result) {
     stat_age.parentElement.hidden = !age;
     stat_gender.parentElement.hidden = !gender;
     stat_pronouns.parentElement.hidden = !pronouns;
+    stat_bio.parentElement.hidden = !bio;
     stat_location.parentElement.hidden = !location;
     stat_school.parentElement.hidden = !school;
     stat_looking_for.parentElement.hidden = !looking_for;
@@ -641,6 +646,7 @@ function display_profile_stats(result) {
     stat_age.innerText = age;
     stat_gender.innerText = gender;
     stat_pronouns.innerText = pronouns;
+    stat_bio.innerText = bio;
     stat_location.innerText = location;
     stat_school.innerText = school;
     stat_looking_for.innerText = looking_for;
