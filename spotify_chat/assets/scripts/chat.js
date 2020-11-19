@@ -281,6 +281,7 @@ function merge_checkboxes(category) { // [Reusable]
 const user_hub_form = docQ('#user_hub_form');
 
 function init_user_hub_form(current_uuid) { // Initialize match chat selection form
+    nav_title.innerText = 'Browse Users';
     profile_options_button.style.display = 'none';
     back_button.style.display = 'none'; // While no logout
     stop_players();
@@ -560,7 +561,7 @@ const stats = docQA('.stat'),
     block_user_button = docQ('#block_user');
 
 function init_profile_view_form(target, current_uuid) { // Initializes profile page
-    nav_title.innerText = '';
+    nav_title.innerText = 'My Profile';
     profile_button.style.display = 'none';
     back_button.style.display = 'flex';
     profile_options_button.style.display = 'flex';
@@ -861,9 +862,12 @@ init(); // First Function
 
 // #Priority tasks...
 
+// #1. *Fix 1st user no event listener?.
+
 // #1. *Guilty-Pleasure song.
 // #2. *Add user photos (on setup page).
 // #3. *Add user bio's.
+// #4. *Optimize the chat recall & observer.
 
 // Do later...
 

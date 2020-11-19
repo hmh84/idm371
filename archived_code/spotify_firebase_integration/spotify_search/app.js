@@ -21,11 +21,11 @@ function search(criteria, callback) {
     request(options, callback);
 }
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/index.html'));
 });
 
-app.post("/search", function(req, res) { //for future send the token stored in the browser as part of the request
+app.post("/search", function (req, res) { //for future send the token stored in the browser as part of the request
     var criteria = req.body.searchinput;
     search(criteria, (error, response, body) => {
         if (error) {
