@@ -228,7 +228,8 @@ const sign_up_form = docQ('#sign_up_form'),
 function init_sign_up_form(id_to_use) { // Initialize the login form, show back button
     toggle_page('sign_up_form');
     back_button.style.display = 'unset';
-    add_account_button.addEventListener('click', (e) => {
+    rm_events('#add_account_button', false);
+    $('#add_account_button').on('click', (e) => {
         e.preventDefault();
         // Check form validity
         if (docQ('#sign_up_form').checkValidity() === true) {
@@ -580,7 +581,7 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
         profile_options_button.getElementsByTagName('i')[0].classList.add('fa-pen');
 
         rm_events('#profile_options_button', false);
-        $('#profile_options_button').one('click', function (e) {
+        $('#profile_options_button').on('click', function (e) {
             e.preventDefault();
             toggle_page('profile_cms_form');
         });
@@ -588,7 +589,9 @@ function init_profile_view_form(target, current_uuid) { // Initializes profile p
         // Add match options button
         profile_options_button.getElementsByTagName('i')[0].classList.add('fa-ellipsis-h');
         profile_options_button.getElementsByTagName('i')[0].classList.remove('fa-pen');
-        profile_options_button.addEventListener('click', (e) => {
+
+        rm_events('#profile_options_button', false);
+        $('#profile_options_button').on('click', (e) => {
             e.preventDefault();
             toggle_modal('modal_match_options');
         })
@@ -707,11 +710,13 @@ function init_profile_cms_form(current_uuid) {
     nav_title.innerText = 'Edit Profile';
     profile_options_button.style.display = 'none';
 
-    unblock_user_button.addEventListener('click', (e) => { // Set up unblock button
+    rm_events('#unblock_user_button', false);
+    $('#unblock_user_button').on('click', (e) => { // Set up unblock button
         e.preventDefault();
         toggle_user_block(unblock_user_input.value, current_uuid, false); // Unblocks the user w/ false param
     });
-    $('#delete_user_button').one('click', (e) => {
+    rm_events('#delete_user_button', false);
+    $('#delete_user_button').on('click', (e) => {
         e.preventDefault();
         delete_user(current_uuid);
     });
@@ -799,6 +804,7 @@ unblock_user_input.addEventListener('change', () => { // Only enable button whil
 });
 
 function delete_user(current_uuid) {
+    console.log('delete_user', current_uuid);
 
     // ===== 1. Delete Blocked Documents =====
 
@@ -808,6 +814,7 @@ function delete_user(current_uuid) {
         browse_profiles_wrap.innerHTML = '';
         doc.forEach(function (doc) {
             docRef.doc(doc.id).delete();
+            console.log('#1');
         });
 
         // ===== 2. Delete User Chat Threads =====
@@ -817,11 +824,13 @@ function delete_user(current_uuid) {
         for (var i = 1; i <= 2; i++) { // 2 because there's only ever 2 participants in one thread
             docRef.where(`uuid${i}`, '==', current_uuid).get().then(function (doc) {
                 doc.forEach(function (doc) {
+                    console.log('#2A');
                     var thread_id = doc.id;
                     docRef.doc(thread_id).delete();
                     // Recursive message delete
                     docRef.doc(thread_id).collection('messages').get().then(function (doc) {
                         doc.forEach(function (doc) {
+                            console.log('#2B');
                             docRef.doc(thread_id).collection('messages').doc(doc.id).delete();
                         });
                     })
@@ -833,19 +842,26 @@ function delete_user(current_uuid) {
 
                 // ===== 3. Delete User Profile Pics =====
 
-                const folderRef = storageRef.child(`profile_pics/${current_uuid}/1.jpeg`);
+                const ref = firebase.storage().ref(`profile_pics/${current_uuid}`);
+                ref.listAll()
+                    .then(dir => {
+                        dir.items.forEach(fileRef => {
+                            deleteFile(ref.fullPath, fileRef.name);
+                        });
+                        dir.prefixes.forEach(folderRef => {
+                            deleteFolderContents(folderRef.fullPath);
+                        })
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
 
-                // Delete the file
-                folderRef.delete().then(function () {
 
-                    // ===== 4. Delete the User Document Itself =====
-
-                    db.collection('users').doc(current_uuid).delete();
-
-                    window.location.replace('index.html'); // Exit page
-                }).catch(function (error) {
-                    console.error(error.code);
-                });
+                function deleteFile(pathToFile, fileName) {
+                    const ref = firebase.storage().ref(pathToFile);
+                    const childRef = ref.child(fileName);
+                    childRef.delete();
+                }
             })
                 .catch(function (error) {
                     console.log('Error getting documents: ', error);
@@ -855,6 +871,15 @@ function delete_user(current_uuid) {
         .catch(function (error) {
             console.log('Error getting documents: ', error);
         })
+    // ===== 4. Delete the User Document Itself =====
+
+    setTimeout(function () {
+        // I am delayed
+        db.collection('users').doc(current_uuid).delete();
+        console.log('#4');
+
+        // window.location.replace('index.html'); // Exit page
+    }, 1500);
 }
 
 init(); // First Function
