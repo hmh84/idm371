@@ -131,12 +131,15 @@ function stop_players() {
     }
 }
 
-function rm_events(element, hard_rm) {
-    $(element).off('click');
+function rm_events(object, hard_rm) {
+    // hard_rm param should be false for JQuery events, true for Vanilla JS events
+    // Always try using false first, if event duplicates, try a JQuery event, if still duping, try true
+    $(object).off('click');
     $(element).unbind('click');
-    $(element).unbind('change');
-    if (hard_rm) { // hard_rm should normally false.
-        const old_e = docQ(element);
+    $(object).unbind('change');
+    if (hard_rm) { // If hard_rm === true
+        // This physically replaces the object to force remove all events
+        const old_e = docQ(object);
         const new_e = old_e.cloneNode(true);
         old_e.parentNode.replaceChild(new_e, old_e);
     }
@@ -891,7 +894,6 @@ init(); // First Function
 // #Priority tasks...
 
 // #1. *Fix 1st user no event listener?.
-// #1. *Fix profile options modal from appearing after nav backwards on own profile.
 
 // #2. *Add user photos (on setup page).
 // #1. *Guilty-Pleasure song.
