@@ -135,7 +135,7 @@ function rm_events(object, hard_rm) {
     // hard_rm param should be false for JQuery events, true for Vanilla JS events
     // Always try using false first, if event duplicates, try a JQuery event, if still duping, try true
     $(object).off('click');
-    $(element).unbind('click');
+    $(object).unbind('click');
     $(object).unbind('change');
     if (hard_rm) { // If hard_rm === true
         // This physically replaces the object to force remove all events
@@ -345,7 +345,7 @@ function list_users(current_uuid) { // Populates SELECT form with matches
                             thread_id = set_thread_id(current_uuid, match_uuid);
                         toggle_page('chat_form');
                         init_chat_form(current_uuid, match_uuid);
-                        recall_chat(current_uuid, match_uuid, thread_id);
+                        recall_chat_history(current_uuid, match_uuid, thread_id);
                     });
                 });
                 user_blocked(doc.id, current_uuid); // TEMP FIX
@@ -433,13 +433,18 @@ function send_message(current_uuid, match_uuid, thread_id) { // Sends a message 
     }
 }
 
-function recall_chat(current_uuid, match_uuid, thread_id) { // Gets entire chat history when entering chat with a match
+function recall_chat_history(current_uuid, match_uuid, thread_id) { // Gets entire chat history when entering chat with a match
     // Decipher match uuid
     decipher_uuid(match_uuid).then((name) => {
         broadcast(`Chatting with: ${name}`, 'unset');
     });
 
     const docRef = db.collection('chats').doc('thread-' + thread_id).collection('messages');
+
+    // docRef.onCreate(event => {
+    //     console.log('=== onCreate ===');
+    // });
+
     docRef.orderBy('when', 'asc') // Index Collection ID: 'chats'
         .get()
         .then(function (querySnapshot) {
