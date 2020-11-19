@@ -267,6 +267,8 @@ button#send_button {
 	height: 1.5rem;
 	width: 100%;
 	text-align: center;
+	transition: all 0.25s ease-in-out;
+	-webkit-transition: all 0.25s ease-in-out;
 }
 
 /* Profile */

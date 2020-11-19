@@ -153,8 +153,12 @@ checkbox_spans.forEach(span => { // Clicking on checkbox containers will select 
 function broadcast(message, color) { // Sends a feedback message to the user
     status.innerText = message;
     status.style.color = color;
-    setTimeout(function () {
-        status.innerText = '';
+    status.style.opacity = '1';
+    setTimeout(function () { // Show for 5000ms (5s)
+        status.style.opacity = '0';
+        setTimeout(function () { // Clear message text after 500ms (0.5s)
+            status.innerText = '';
+        }, 500);
     }, 5000);
 }
 
