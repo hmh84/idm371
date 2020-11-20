@@ -57,3 +57,4 @@ app.post("/search", function (req, res) { //for future send the token stored in 
 });
 
 app.listen('8000');
+console.log('Started server on localhost:8000');
