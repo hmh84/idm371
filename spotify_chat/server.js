@@ -149,12 +149,13 @@ app.get('/callback', function(req, res) {
                     getDialogue(body).then(result => {
                         const obj = result;
                         const user_id = body.id; // Set current user id
+				    console.log(access_token);
 
                         // Now check if user exists already...
                         const docRef = db.collection('users').doc(user_id);
                         docRef.get().then(function(doc) {
                             doc.exists ? user_status = false : user_status = true; // Get new user status
-                            redirect_to_shuffle(res, docRef, obj, user_id, user_status); // Send data to redirect
+                            redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_token, refresh_token); // Send data to redirect
                         }).catch(function(error) {
                             console.log(error);
                         });
@@ -208,7 +209,7 @@ app.get('/refresh_token', function(req, res) {
 // REDIRECT TO SHUFFLE (chat.html)
 // ==============================
 
-function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
+function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_token, refresh_token) {
     if (user_status) { // New Users
         const data = { // User fields to add
             country: obj.country,
@@ -236,7 +237,9 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
     return res.redirect("/chat.html#" +
         querystring.stringify({
             user_id: user_id,
-            new_user: user_status
+            new_user: user_status,
+	       access_token: access_token,
+            refresh_token: refresh_token
         }));
 }
 
