@@ -10,7 +10,11 @@ while (e = r.exec(q)) {
 }
 
 const spotify_id = hashParams.user_id,
-    new_user = hashParams.new_user;
+    new_user = hashParams.new_user,
+    access_token = hashParams.access_token,
+    refresh_token = hashParams.refresh_token;
+
+console.log(access_token);
 
 // ==============================
 // General Functions
@@ -43,6 +47,9 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
         profile_options_button.style.display = 'flex';
     } else if (new_form == 'profile_cms_form') {
         init_profile_cms_form(spotify_id);
+    } else if (new_form == 'add_anthem') {
+        profile_button.style.display = 'none';
+	   //init_anthem_form(); 
     }
 
     load_back_button(new_form);
@@ -54,6 +61,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
         form.reset();
         form == new_form_obj ? form.style.display = 'flex' : form.style.display = 'none';
     });
+    
 }
 
 const back_button = docQ('#back_button'),
@@ -84,6 +92,8 @@ function load_back_button(this_form) { // Adds correct link to back button
         back_button.dataset.value = 'user_hub_form';
     } else if (this_form == 'profile_cms_form') {
         back_button.dataset.value = 'profile_view_form';
+    } else if (this_form == 'add_anthem') {
+        back_button.dataset.value = 'none';
     }
 }
 
@@ -237,7 +247,8 @@ function init_sign_up_form(id_to_use) { // Initialize the login form, show back 
         if (docQ('#sign_up_form').checkValidity() === true) {
             create_user(id_to_use);
         } else {
-            broadcast('Form is incomplete.', 'var(--red)');
+		  create_user(id_to_use); //TEMPORARILY DISABLED CHECK FOR SEARCH DEV
+            //broadcast('Form is incomplete.', 'var(--red)');
         }
     })
     philly_collages.forEach(collage => {
@@ -267,7 +278,8 @@ function create_user(id_to_use) { // Create a user
     // Push data to FireStore
     db.collection('users').doc(id_to_use).set(data).then(function () {
         console.log('Account Created!');
-        login_shuffle(id_to_use); // Auto-Login
+	   add_anthem(id_to_use);
+        //
     }).catch(function (error) {
         console.error(error);
     });
@@ -281,6 +293,18 @@ function merge_checkboxes(category) { // [Reusable]
         boxes[i].checked && checked.push(boxes[i].value);
     }
     return checked.join(', '); // Return as string, separated by comma
+}
+
+// ==============================
+// add anthem page
+// ==============================
+
+function add_anthem(id_to_use) {
+	toggle_page('add_anthem');
+	document.getElementById("access_token_for_anthem").value = access_token;
+	console.log(access_token);
+	console.log(document.getElementById("access_token_for_anthem"));
+	//login_shuffle(id_to_use); // Auto-Login
 }
 
 // ==============================
