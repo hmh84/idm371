@@ -290,6 +290,7 @@ function merge_checkboxes(category) { // [Reusable]
 const user_hub_form = docQ('#user_hub_form');
 
 function init_user_hub_form(current_uuid) { // Initialize match chat selection form
+    unsub_all();
     nav_title.innerText = 'Browse Users';
     profile_options_button.style.display = 'none';
     back_button.style.display = 'none'; // While no logout
@@ -362,7 +363,7 @@ function user_blocked(target, current_uuid) { // Checks if target user is blocke
     const docRef1 = db.collection('users').doc(current_uuid).collection('blocked').doc(target);
     docRef1.get().then(function (doc) {
         if (doc.exists && doc.data().blocked) { // Found a block on query 1
-            rm_bocked_users(target);
+            rm_bocked_user();
             add_blocked_user_to_cms(target);
             blocked_users_wrap.style.display = 'flex';
             return true;
@@ -370,7 +371,7 @@ function user_blocked(target, current_uuid) { // Checks if target user is blocke
             const docRef2 = db.collection('users').doc(target).collection('blocked').doc(current_uuid);
             docRef2.get().then(function (doc) {
                 if (doc.exists && doc.data().blocked) { // Found a block on query 2
-                    rm_bocked_users(target);
+                    rm_bocked_user();
                     add_blocked_user_to_cms(target);
                     return true;
                 } else { // No blocked users
@@ -386,9 +387,9 @@ function user_blocked(target, current_uuid) { // Checks if target user is blocke
     });
 }
 
-function rm_bocked_users(target) { // Temp fix for removing blocked users from user list
-    docQ(`option[value="${target}"]`).remove();
-    console.log(`${target} is blocked, removing from list (THIS IS A TEMP FIX...)`);
+function rm_bocked_user() { // Temp fix for removing blocked users from user list
+    docQ('.user:last-of-type').remove();
+    console.log('Last user is blocked, removing from list (THIS IS A TEMP FIX...)');
 }
 
 // ==============================
@@ -538,7 +539,7 @@ function format_fs_tstamp(tstamp) { // Formats moment.js timestamp into cleaner 
     return moment(tstamp.toDate()).format("M/D/YY • h:mm a");
 }
 
-function ubsub_all() {
+function unsub_all() {
     subscriptions.forEach(sub => {
         sub();
     });
