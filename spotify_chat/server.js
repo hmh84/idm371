@@ -12,6 +12,7 @@ const request = require('request'); // "Request" library
 const cors = require('cors');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 const config = require('../secret/config');
 
@@ -68,7 +69,8 @@ function getDialogue(thebody) {
 const app = express();
 app.use(express.static(__dirname + '/'))
     .use(cors())
-    .use(cookieParser());
+    .use(cookieParser())
+    .use(express.urlencoded());
 app.engine('html', require('ejs').renderFile);
 
 
@@ -149,12 +151,13 @@ app.get('/callback', function(req, res) {
                     getDialogue(body).then(result => {
                         const obj = result;
                         const user_id = body.id; // Set current user id
+				    console.log(access_token);
 
                         // Now check if user exists already...
                         const docRef = db.collection('users').doc(user_id);
                         docRef.get().then(function(doc) {
                             doc.exists ? user_status = false : user_status = true; // Get new user status
-                            redirect_to_shuffle(res, docRef, obj, user_id, user_status); // Send data to redirect
+                            redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_token, refresh_token); // Send data to redirect
                         }).catch(function(error) {
                             console.log(error);
                         });
@@ -208,7 +211,7 @@ app.get('/refresh_token', function(req, res) {
 // REDIRECT TO SHUFFLE (chat.html)
 // ==============================
 
-function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
+function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_token, refresh_token) {
     if (user_status) { // New Users
         const data = { // User fields to add
             country: obj.country,
@@ -236,9 +239,63 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status) {
     return res.redirect("/chat.html#" +
         querystring.stringify({
             user_id: user_id,
-            new_user: user_status
+            new_user: user_status,
+	       access_token: access_token,
+            refresh_token: refresh_token
         }));
 }
+
+// ==============================
+// GET SEARCH RESULT
+// ==============================
+
+function search(criteria, token, callback) {
+    let query = criteria;
+    let bearerstring = 'Bearer ' + token;
+    console.log(bearerstring);
+    let headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': bearerstring
+    };
+    let options = {
+        url: 'https://api.spotify.com/v1/search?q=' + query + '&type=track&limit=10',
+        headers: headers
+    };
+    request(options, callback);
+}
+
+app.post("/search", function (req, res) { //for future send the token stored in the browser as part of the request
+    let criteria = req.body.searchinput;
+    let token = req.body.access_token;
+    search(criteria, token, (error, response, body) => {
+        if (error) {
+            console.log('?? error');
+            return;
+        } else if (response.statusCode != 200) {
+            console.log('?? statuscode');
+            console.log(response.statusCode);
+            return;
+        } else {
+            obj = JSON.parse(body);
+            items = obj.tracks.items; // Makes the obj items an array
+
+            let tracks = [];
+            let i = -1;
+            items.forEach(item => { // Loop thru each result and push the info we want into the tracks array
+                i++;
+                tracks.push(i, {
+                    'id': item.id,
+                    'title': item.name,
+                    'artist': item.artists[0].name,
+                    'thumb': item.album.images[2].url,
+                });
+                // console.log(tracks[i]); // Logs each track object result
+            });
+            res.render(__dirname + "/search-results.html", { tracks: tracks });
+        }
+    });
+});
 
 // ==============================
 // START NODE SERVER
