@@ -908,20 +908,28 @@ init(); // First Function
 
 // Completed This Week
 
-// #1. *Query multiple songs in search
-// #2. *Recursively delete all thread messages from users on account deletion
-// #3. *Changed user browse page to mobile UI
-// #4. *Ability to add profile picture
-// #5. *Add bio on profile setup
+// #1. *
 
 // #Priority tasks...
 
 // #1. *Fix 1st user no event listener?.
 
+// Add previously chatted with page
+// - Re-purpose existing browse page with this one
+// - Needs most recent message preview
+// Browse user page
+// - Copy User Hub except it needs...
+//      The anthem, anthem is getting re-named "favorite song"
+//      Age
+//      Vertical layout, large profile picture
+
+// Add nav bar [Profile | Home "Shuffle" | Recent Chats]
+// Add vices setup cms
+// Vices yes, no, do not show properties
+
 // #2. *Add user photos (on setup page).
 // #1. *Guilty-Pleasure song.
 // #4. *Optimize the chat recall & observer.
-// #4. *End observer sub on chat back-out
 
 // Do later...
 
