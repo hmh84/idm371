@@ -9,12 +9,10 @@ while (e = r.exec(q)) {
     hashParams[e[1]] = decodeURIComponent(e[2]);
 }
 
-const spotify_id = hashParams.user_id,
+let spotify_id = hashParams.user_id,
     new_user = hashParams.new_user,
     access_token = hashParams.access_token,
     refresh_token = hashParams.refresh_token;
-
-console.log(access_token);
 
 // ==============================
 // General Functions
@@ -47,9 +45,6 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
         profile_options_button.style.display = 'flex';
     } else if (new_form == 'profile_cms_form') {
         init_profile_cms_form(spotify_id);
-    } else if (new_form == 'add_anthem') {
-        profile_button.style.display = 'none';
-        //init_anthem_form(); 
     }
 
     load_back_button(new_form);
@@ -268,7 +263,7 @@ function create_user(id_to_use) { // Create a user
         pronouns: pronouns_input.value,
         location: 'Philadelphia, PA',
         school: school_input.value,
-        anthem_id: anthem_id_input.value,
+        anthem_id: $('span', document.querySelector('selected_anthem'))[0].innerHTML,
         looking_for: merge_checkboxes('looking_for'),
         bio: bio_input.value,
         new_user: false, // Signifies completed profile
@@ -296,16 +291,81 @@ function merge_checkboxes(category) { // [Reusable]
 }
 
 // ==============================
-// add anthem page
+// search_anthem
 // ==============================
 
-function add_anthem(id_to_use) {
-    toggle_page('add_anthem');
-    document.getElementById("access_token_for_anthem").value = access_token;
-    console.log(access_token);
-    console.log(document.getElementById("access_token_for_anthem"));
-    //login_shuffle(id_to_use); // Auto-Login
-}
+document.getElementById('search_anthem').addEventListener('click', function () {
+
+    let query = document.getElementById('anthem_id_input').value; //what the user searches for
+    let search_results = document.getElementById('search_results');
+    search_results.innerHTML = ''; //clear out previous results
+
+    $.ajax({  //send info to server - GET request
+        url: '/search',
+        data: {
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'query': query
+        }
+    }).done(function (data) { //receive info, populate html, add event listeners to tracks to add as anthem
+
+        //add tracks to page in search results
+        let i = 1;
+        while (i < 17) {
+            let track_id = data[i].id,
+                track_name = data[i].name,
+                track_thumb = data[i].thumb,
+                track_title = data[i].title,
+                track_artist = data[i].artist,
+                track_album = data[i].album;
+
+            search_results.innerHTML += `
+                <div class="track">\
+                    <img src='+ track_thumb + ' id="track_thumbnail">\
+                    <div class="track_info">\
+                        <h3 class="track_title">'+ track_title + '</h3>\
+                        <h5 class="track_artist">'+ track_artist + ' - ' + track_album + '</h5>\
+                        <span class="track_id" style="display:none">'+ track_id + '</span>\
+                    </div>\
+                </div>
+            `;
+            i += 2;
+        }
+
+        //add event listeners to tracks on page
+        let tracks = document.getElementsByClassName("track");
+        for (let j = 0; j < tracks.length; j++) {
+            tracks[j].addEventListener('click', add_anthem, false);
+        }
+    });
+}, false);
+
+// ==============================
+// select_anthem
+// ==============================
+
+function add_anthem() {
+    let tracks = document.getElementsByClassName("track");
+    for (let j = 0; j < tracks.length; j++) {
+        tracks[j].classList.remove('selected_anthem');
+    }
+    this.classList.add('selected_anthem');
+    console.log('updated anthem');
+};
+
+//WORKING EXAMPLE: USE AJAX - GET REFRESH TOKEN - IGNORE FOR NOW - todo
+//document.getElementById('search_anthem').addEventListener('click', function() {
+//
+//$.ajax({
+//  url: '/refresh_token',
+//  data: {
+//	 'refresh_token': refresh_token
+//  }
+//}).done(function(data) {
+//  access_token_refresh = data.access_token;
+//  console.log(access_token_refresh);
+//});
+//}, false);
 
 // ==============================
 // user_hub_form
