@@ -117,15 +117,15 @@
                 <textarea id="bio_input" placeholder="Write a quick bio for yourself" maxlength="75"></textarea>
                 <button type="button" class="green-btn" id="add_account_button">Complete Sign Up</button>
             </form>
-            
-           <!-- ===== Search for an anthem ===== -->
-           <form class="prompt_form" id="add_anthem" action="/search" method="POST">
-		   <input name="searchinput" id="anthem_search" type="text"/>
-		   <input name="access_token" id="access_token_for_anthem" style="display:none">
-		   <button type="submit" class="green-btn">Search the Spotify API</button>
-		   <button type="button" id="go_to_login" class="green-btn">Go to login</button>
-		 </form>
-            
+
+            <!-- ===== Search for an anthem ===== -->
+            <form class="prompt_form" id="add_anthem" action="/search" method="POST">
+                <input name="searchinput" id="anthem_search" type="text" />
+                <input name="access_token" id="access_token_for_anthem" style="display:none">
+                <button type="submit" class="green-btn">Search the Spotify API</button>
+                <button type="button" id="go_to_login" class="green-btn">Go to login</button>
+            </form>
+
             <!-- ===== Pick who to chat with ===== -->
             <form class="prompt_form" id="user_hub_form">
                 <div id="browse_profiles_wrap">
@@ -245,4 +245,5 @@
     </main>
     <h2 id="status"></h2>
 </body>
+
 </html>

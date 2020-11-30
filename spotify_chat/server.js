@@ -37,7 +37,7 @@ const db = admin.firestore();
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
-const generateRandomString = function(length) {
+const generateRandomString = function (length) {
     var text = '';
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -54,7 +54,7 @@ const stateKey = 'spotify_auth_state';
 //this function sends it as a promise
 function getDialogue(thebody) {
     //return a promise since we'll imitating an API call
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         resolve({
             "country": thebody.country,
             "email": thebody.email
@@ -77,7 +77,7 @@ app.engine('html', require('ejs').renderFile);
 //STEP 4: SEND REQUEST FOR INFO TO SPOTIFY
 //@Spotify heres my creds, send user pls
 //when the user hits a button with href=/login, this happens
-app.get('/login', function(req, res) {
+app.get('/login', function (req, res) {
 
     var state = generateRandomString(16);
     res.cookie(stateKey, state);
@@ -96,7 +96,7 @@ app.get('/login', function(req, res) {
 
 //STEP 5: GET INFO BACK FROM SPOTIFY
 //double check its them though
-app.get('/callback', function(req, res) {
+app.get('/callback', function (req, res) {
 
     // your application requests refresh and access tokens
     // after checking the state parameter
@@ -130,7 +130,7 @@ app.get('/callback', function(req, res) {
         };
 
         //handle the response
-        request.post(authOptions, function(error, response, body) {
+        request.post(authOptions, function (error, response, body) {
             if (!error && response.statusCode === 200) {
 
                 var access_token = body.access_token,
@@ -146,19 +146,19 @@ app.get('/callback', function(req, res) {
                 //body is what we want to send
                 // use the access token to access the Spotify Web API
                 //STEP 6: SEND INFO FROM RESPONSE BACK TO FIRESTORE DB
-                request.get(options, function(error, response, body) {
+                request.get(options, function (error, response, body) {
                     // console.log(body);
                     getDialogue(body).then(result => {
                         const obj = result;
                         const user_id = body.id; // Set current user id
-				    console.log(access_token);
+                        console.log(access_token);
 
                         // Now check if user exists already...
                         const docRef = db.collection('users').doc(user_id);
-                        docRef.get().then(function(doc) {
+                        docRef.get().then(function (doc) {
                             doc.exists ? user_status = false : user_status = true; // Get new user status
                             redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_token, refresh_token); // Send data to redirect
-                        }).catch(function(error) {
+                        }).catch(function (error) {
                             console.log(error);
                         });
 
@@ -183,7 +183,7 @@ app.get('/callback', function(req, res) {
 });
 
 //this is how the demo shows requesting a refresh token
-app.get('/refresh_token', function(req, res) {
+app.get('/refresh_token', function (req, res) {
 
     // requesting access token from refresh token
     var refresh_token = req.query.refresh_token;
@@ -197,7 +197,7 @@ app.get('/refresh_token', function(req, res) {
         json: true
     };
 
-    request.post(authOptions, function(error, response, body) {
+    request.post(authOptions, function (error, response, body) {
         if (!error && response.statusCode === 200) {
             var access_token = body.access_token;
             res.send({
@@ -218,9 +218,9 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_toke
             email: obj.email,
             new_user: user_status
         };
-        docRef.set(data).then(function() { // Using .SET() method
+        docRef.set(data).then(function () { // Using .SET() method
             console.log(`Added ${user_id} to DB!`);
-        }).catch(function(error) {
+        }).catch(function (error) {
             console.error(error);
         });
     } else { // Returning Users
@@ -228,9 +228,9 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_toke
             country: obj.country,
             email: obj.email,
         };
-        docRef.update(data).then(function() { // Using .UPDATE() method
+        docRef.update(data).then(function () { // Using .UPDATE() method
             console.log(`Updated ${user_id} in DB!`);
-        }).catch(function(error) {
+        }).catch(function (error) {
             console.error(error);
         });
     }
@@ -240,7 +240,7 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_toke
         querystring.stringify({
             user_id: user_id,
             new_user: user_status,
-	       access_token: access_token,
+            access_token: access_token,
             refresh_token: refresh_token
         }));
 }
