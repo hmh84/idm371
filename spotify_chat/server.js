@@ -147,11 +147,9 @@ app.get('/callback', function(req, res) {
                 // use the access token to access the Spotify Web API
                 //STEP 6: SEND INFO FROM RESPONSE BACK TO FIRESTORE DB
                 request.get(options, function(error, response, body) {
-                    // console.log(body);
                     getDialogue(body).then(result => {
                         const obj = result;
                         const user_id = body.id; // Set current user id
-				    console.log(access_token);
 
                         // Now check if user exists already...
                         const docRef = db.collection('users').doc(user_id);
@@ -227,6 +225,7 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_toke
         const data = { // User fields to add
             country: obj.country,
             email: obj.email,
+			   new_user: 'true' //TEMP HACK FOR DEV - DELETE THIS LINE
         };
         docRef.update(data).then(function() { // Using .UPDATE() method
             console.log(`Updated ${user_id} in DB!`);
@@ -246,13 +245,12 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_toke
 }
 
 // ==============================
-// GET SEARCH RESULT
+// GET SEARCH RESULT FOR SONG
 // ==============================
 
 function search(criteria, token, callback) {
     let query = criteria;
     let bearerstring = 'Bearer ' + token;
-    console.log(bearerstring);
     let headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -265,10 +263,12 @@ function search(criteria, token, callback) {
     request(options, callback);
 }
 
-app.post("/search", function (req, res) { //for future send the token stored in the browser as part of the request
-    let criteria = req.body.searchinput;
-    let token = req.body.access_token;
-    search(criteria, token, (error, response, body) => {
+app.get('/search', function(req, res) {
+	
+  let criteria = req.query.query,
+  token = req.query.access_token;
+	
+  search(criteria, token, (error, response, body) => {
         if (error) {
             console.log('?? error');
             return;
@@ -289,12 +289,39 @@ app.post("/search", function (req, res) { //for future send the token stored in 
                     'title': item.name,
                     'artist': item.artists[0].name,
                     'thumb': item.album.images[2].url,
+						  'album': item.album.name
                 });
-                // console.log(tracks[i]); // Logs each track object result
             });
-            res.render(__dirname + "/search-results.html", { tracks: tracks });
+            res.send(tracks);
         }
-    });
+    });	
+});
+
+// ==============================
+// GET REFRESH TOKEN
+// ==============================
+
+app.get('/refresh_token', function(req, res) {
+
+  // requesting access token from refresh token
+  var authOptions = {
+    url: 'https://accounts.spotify.com/api/token',
+    headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
+    form: {
+      grant_type: 'refresh_token',
+      refresh_token: refresh_token
+    },
+    json: true
+  };
+
+  request.post(authOptions, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+      var access_token = body.access_token;
+      res.send({
+        'access_token': access_token
+      });
+    }
+  });
 });
 
 // ==============================

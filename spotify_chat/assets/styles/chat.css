@@ -480,3 +480,37 @@ iframe {
 	/* Default */
 	width: 20rem;
 }
+
+#search_results {
+	padding: 0 1rem;
+	margin: 0;
+}
+
+.track {
+	display: grid;
+	grid-template-columns: 30fr 70fr;
+	justify-items: start;
+	justify-content: start;
+	border-bottom: 1px solid dimgrey;
+	padding: 0.5rem 0;
+	margin: 0;
+	cursor: grab;
+}
+
+.track img, .track_info {
+	margin: 0;
+}
+
+.track h3 {
+	margin: 0;
+	color: darkmagenta;
+}
+
+.track h5 {
+	font-size: 0.75rem;
+	color: dimgrey;
+}
+
+.selected_anthem {
+	background-color: lightgrey;
+}
