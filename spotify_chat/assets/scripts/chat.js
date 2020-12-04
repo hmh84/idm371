@@ -263,18 +263,17 @@ function create_user(id_to_use) { // Create a user
         pronouns: pronouns_input.value,
         location: 'Philadelphia, PA',
         school: school_input.value,
-        anthem_id: track_id.dataset.anthem,
+        anthem_id: anthem_id_input.dataset.anthem,
         looking_for: merge_checkboxes('looking_for'),
         bio: bio_input.value,
         new_user: false, // Signifies completed profile
-        join_date: timestamp()
+        join_date: timestamp(),
     };
 
     // Push data to FireStore
     db.collection('users').doc(id_to_use).set(data).then(function () {
         console.log('Account Created!');
-        add_anthem(id_to_use);
-        //
+        login_shuffle(id_to_use);
     }).catch(function (error) {
         console.error(error);
     });
