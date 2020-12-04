@@ -320,13 +320,13 @@ document.getElementById('search_anthem').addEventListener('click', function () {
                 track_album = data[i].album;
 
             search_results.innerHTML += `
-                <div class="track">\
-                    <img src='+ track_thumb + ' id="track_thumbnail">\
-                    <div class="track_info">\
-                        <h3 class="track_title">'+ track_title + '</h3>\
-                        <h5 class="track_artist">'+ track_artist + ' - ' + track_album + '</h5>\
-                        <span class="track_id" style="display:none">'+ track_id + '</span>\
-                    </div>\
+                <div class="track">
+                    <img src="${track_thumb}" id="track_thumbnail">
+                    <div class="track_info">
+                        <h3 class="track_title">${track_title}</h3>
+                        <h5 class="track_artist">${track_artist} - ${track_album}</h5>
+                        <span class="track_id" style="display:none">${track_id}</span>
+                    </div>
                 </div>
             `;
             i += 2;
