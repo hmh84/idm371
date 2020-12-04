@@ -263,7 +263,7 @@ function create_user(id_to_use) { // Create a user
         pronouns: pronouns_input.value,
         location: 'Philadelphia, PA',
         school: school_input.value,
-        anthem_id: $('span', document.querySelector('selected_anthem'))[0].innerHTML,
+        anthem_id: track_id.dataset.anthem,
         looking_for: merge_checkboxes('looking_for'),
         bio: bio_input.value,
         new_user: false, // Signifies completed profile
@@ -294,10 +294,12 @@ function merge_checkboxes(category) { // [Reusable]
 // search_anthem
 // ==============================
 
-document.getElementById('search_anthem').addEventListener('click', function () {
+const search_anthem_button = docQ('#search_anthem_button');
 
-    let query = document.getElementById('anthem_id_input').value; //what the user searches for
-    let search_results = document.getElementById('search_results');
+search_anthem_button.addEventListener('click', () => {
+    const query = anthem_id_input.value, //what the user searches for
+        search_results = docQ('#search_results');
+
     search_results.innerHTML = ''; //clear out previous results
 
     $.ajax({  //send info to server - GET request
@@ -307,51 +309,45 @@ document.getElementById('search_anthem').addEventListener('click', function () {
             'refresh_token': refresh_token,
             'query': query
         }
-    }).done(function (data) { //receive info, populate html, add event listeners to tracks to add as anthem
+    }).done(function (results) { //receive info, populate html, add event listeners to tracks to add as anthem
+        // Add tracks to page in search results
+        results.forEach(result => {
+            if (result.id) { // Skip the empty results (Idk why Spotify returns those...)
+                const id = result.id,
+                    thumb = result.thumb,
+                    title = result.title,
+                    artist = result.artist,
+                    album = result.album;
 
-        //add tracks to page in search results
-        let i = 1;
-        while (i < 17) {
-            let track_id = data[i].id,
-                track_name = data[i].name,
-                track_thumb = data[i].thumb,
-                track_title = data[i].title,
-                track_artist = data[i].artist,
-                track_album = data[i].album;
+                const track_element = document.createElement('div'); // Create a div element (Better to do it this way for adding event listener later)
+                track_element.classList.add('track'); // Add the class 'track'
 
-            search_results.innerHTML += `
-                <div class="track">
-                    <img src="${track_thumb}" id="track_thumbnail">
+                // Then add the content
+                track_element.innerHTML += `
+                    <img src="${thumb}" id="track_thumbnail">
                     <div class="track_info">
-                        <h3 class="track_title">${track_title}</h3>
-                        <h5 class="track_artist">${track_artist} - ${track_album}</h5>
-                        <span class="track_id" style="display:none">${track_id}</span>
+                        <h3 class="track_title">${title}</h3>
+                        <h5 class="track_artist">${artist} - ${album}</h5>
                     </div>
-                </div>
-            `;
-            i += 2;
-        }
+                `;
 
-        //add event listeners to tracks on page
-        let tracks = document.getElementsByClassName("track");
-        for (let j = 0; j < tracks.length; j++) {
-            tracks[j].addEventListener('click', add_anthem, false);
-        }
+                // Add the track element to the DOM
+                search_results.appendChild(track_element);
+                // Add an event listener to it
+                track_element.addEventListener('click', () => {
+                    // Add a data attribute called anthem to the anthem id input for when user completes sign up
+                    anthem_id_input.dataset.anthem = id;
+                    search_results.innerHTML = ''; //clear out previous results
+                    broadcast('Anthem Added!', 'var(--green)');
+                });
+            }
+        });
     });
 }, false);
 
 // ==============================
 // select_anthem
 // ==============================
-
-function add_anthem() {
-    let tracks = document.getElementsByClassName("track");
-    for (let j = 0; j < tracks.length; j++) {
-        tracks[j].classList.remove('selected_anthem');
-    }
-    this.classList.add('selected_anthem');
-    console.log('updated anthem');
-};
 
 //WORKING EXAMPLE: USE AJAX - GET REFRESH TOKEN - IGNORE FOR NOW - todo
 //document.getElementById('search_anthem').addEventListener('click', function() {
@@ -405,27 +401,28 @@ function list_users(current_uuid) { // Populates SELECT form with matches
             // if (!(doc.id === current_uuid) && (!user_blocked(doc.id, current_uuid))) { // NOT WORKING
             if (!(doc.id === current_uuid)) { // Don't show your own profile
                 decipher_uuid(doc.id).then((name) => {
-                    const pp = doc.data().pp || false;
-                    browse_profiles_wrap.innerHTML += `
-                        <div class="user">
+                    const pp = doc.data().pp || false,
+                        user_element = document.createElement('div');
+                    user_element.classList.add('user');
+                    browse_profiles_wrap.appendChild(user_element);
+
+                    user_element.innerHTML += `
                             <p class="user_name">${name}</p>
-                        </div>
                         `;
 
-                    const this_user = docQ('.user:last-of-type');
                     if (pp) { // If profile pic exists add it do the .user element
-                        this_user.innerHTML += `
+                        user_element.innerHTML += `
                             <img src="${result.pp}" class="user_thumb">
                         `;
                         pp_thumb.src = result.pp; // Set profile cms thumb
                     } else { // If no profile pic add placeholder
-                        this_user.innerHTML += `
+                        user_element.innerHTML += `
                             <div class="pp_placeholder">
                                 <i class="fas fa-user fa-2x" aria-hidden="true"></i>
                             </div>
                         `;
                     }
-                    this_user.addEventListener('click', () => {
+                    user_element.addEventListener('click', () => {
                         const match_uuid = doc.id,
                             thread_id = set_thread_id(current_uuid, match_uuid);
                         toggle_page('chat_form');
