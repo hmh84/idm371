@@ -257,7 +257,7 @@ function search(criteria, token, callback) {
         'Authorization': bearerstring
     };
     let options = {
-        url: 'https://api.spotify.com/v1/search?q=' + query + '&type=track&limit=10',
+        url: `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
         headers: headers
     };
     request(options, callback);
