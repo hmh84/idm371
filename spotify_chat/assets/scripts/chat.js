@@ -38,8 +38,8 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
     } else if (new_form == 'sign_up_form') {
         profile_button.style.display = 'none';
         // this init happens once only, therefore its in init()
-    } else if (new_form == 'user_hub_form') {
-        init_user_hub_form(spotify_id);
+    } else if (new_form == 'browse_users_form') {
+        init_browse_users_form(spotify_id);
         profile_button.style.display = 'flex';
     } else if (new_form == 'profile_view_form') {
         profile_options_button.style.display = 'flex';
@@ -62,7 +62,7 @@ function toggle_page(new_form) { // Hides all forms except the form pass to 'new
 const back_button = docQ('#back_button'),
     nav_title = docQ('#nav_title'),
     chat_box = docQ('#chat_box'),
-    browse_profiles_wrap = docQ('#browse_profiles_wrap'),
+    browse_profiles_list = docQ('#browse_profiles_list'),
     modal = docQ('#modal'),
     all_modals = docQA('.modal_common'),
     modal_close_button = docQA('.modal_close_button'),
@@ -81,10 +81,10 @@ back_button.addEventListener('click', (e) => {
 })
 
 function load_back_button(this_form) { // Adds correct link to back button
-    if (this_form == 'sign_up_form' || this_form == 'user_hub_form') {
+    if (this_form == 'sign_up_form' || this_form == 'browse_users_form') {
         back_button.dataset.value = 'login_form';
     } else if (this_form == 'chat_form' || this_form == 'profile_view_form') {
-        back_button.dataset.value = 'user_hub_form';
+        back_button.dataset.value = 'browse_users_form';
     } else if (this_form == 'profile_cms_form') {
         back_button.dataset.value = 'profile_view_form';
     } else if (this_form == 'add_anthem') {
@@ -179,6 +179,7 @@ const profile_button = docQ('#profile_button'),
 function init() {
     console.log('Initializing App');
     route_user(spotify_id);
+    init_nav(spotify_id);
 }
 
 function route_user(uuid) { // Check user validity then route to login or sign up
@@ -190,13 +191,31 @@ function route_user(uuid) { // Check user validity then route to login or sign u
     });
 }
 
+const nav_profile_button = docQ('#nav_profile_button'),
+    nav_chat_button = docQ('#nav_chat_button'),
+    nav_browse_button = docQ('#nav_browse_button');
+
+function init_nav(current_uuid) {
+    nav_profile_button.addEventListener('click', () => {
+        toggle_page('profile_view_form');
+        init_profile_view_form(current_uuid, current_uuid);
+    });
+    nav_chat_button.addEventListener('click', () => {
+        toggle_page('recent_chat_form');
+        init_recent_chat_form(current_uuid);
+    });
+    nav_browse_button.addEventListener('click', () => {
+        toggle_page('browse_users_form');
+    });
+}
+
 // ==============================
 // login_form
 // ==============================
 
 function init_login_form() {
     stop_players();
-    browse_profiles_wrap.innerText = '';
+    browse_profiles_list.innerText = '';
     back_button.style.display = 'none';
     nav_title.innerText = '';
     chat_box.innerText = '';
@@ -211,7 +230,7 @@ function login_shuffle(current_uuid) { // Logs user into shuffle. 1 param: (the 
                 broadcast(`Logged in as: '${name}'`, 'unset');
             })
 
-            toggle_page('user_hub_form');
+            toggle_page('browse_users_form');
         } else {
             broadcast(`'${current_uuid}' is not a user!`, 'var(--red)');
         }
@@ -363,12 +382,12 @@ search_anthem_button.addEventListener('click', () => {
 //}, false);
 
 // ==============================
-// user_hub_form
+// browse_users_form
 // ==============================
 
-const user_hub_form = docQ('#user_hub_form');
+const browse_users_form = docQ('#browse_users_form');
 
-function init_user_hub_form(current_uuid) { // Initialize match chat selection form
+function init_browse_users_form(current_uuid) { // Initialize match chat selection form
     unsub_all();
     nav_title.innerText = 'Browse Users';
     profile_options_button.style.display = 'none';
@@ -394,33 +413,28 @@ function load_profile_button(target, current_uuid) {
 function list_users(current_uuid) { // Populates SELECT form with matches
     const docRef = db.collection('users').where('new_user', '==', false); // Where users are new
     docRef.get().then(function (doc) {
-        browse_profiles_wrap.innerHTML = '';
+        browse_profiles_list.innerHTML = '';
         doc.forEach(function (doc) {
             const result = doc.data();
             // if (!(doc.id === current_uuid) && (!user_blocked(doc.id, current_uuid))) { // NOT WORKING
             if (!(doc.id === current_uuid)) { // Don't show your own profile
                 decipher_uuid(doc.id).then((name) => {
-                    const pp = doc.data().pp || false,
+                    const pp = result.pp || 'assets/graphics/placeholder.png',
                         user_element = document.createElement('div');
                     user_element.classList.add('user');
-                    browse_profiles_wrap.appendChild(user_element);
+                    browse_profiles_list.appendChild(user_element);
 
                     user_element.innerHTML += `
+                        <div class="user_top" style="background-image: url(${pp})">
                             <p class="user_name">${name}</p>
-                        `;
+                            <p class="user_age">${result.age}</p>
+                        </div>
+                        <div class="user_btm">
+                            ${result.anthem_id && '<p class="anthem_label">' + name + "'s Favorite Song</p>"}
+                            <iframe ${result.anthem_id ? 'src=' + 'https://open.spotify.com/embed/track/' + result.anthem_id : 'style="display: none;"'} id="stat_anthem" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        </div>
+                    `;
 
-                    if (pp) { // If profile pic exists add it do the .user element
-                        user_element.innerHTML += `
-                            <img src="${result.pp}" class="user_thumb">
-                        `;
-                        pp_thumb.src = result.pp; // Set profile cms thumb
-                    } else { // If no profile pic add placeholder
-                        user_element.innerHTML += `
-                            <div class="pp_placeholder">
-                                <i class="fas fa-user fa-2x" aria-hidden="true"></i>
-                            </div>
-                        `;
-                    }
                     user_element.addEventListener('click', () => {
                         const match_uuid = doc.id,
                             thread_id = set_thread_id(current_uuid, match_uuid);
@@ -470,6 +484,64 @@ function user_blocked(target, current_uuid) { // Checks if target user is blocke
 function rm_bocked_user() { // Temp fix for removing blocked users from user list
     docQ('.user:last-of-type').remove();
     console.log('Last user is blocked, removing from list (THIS IS A TEMP FIX...)');
+}
+
+// ==============================
+// recent_chat_form
+// ==============================
+
+function theID(x) {
+    console.log('first class: ' + ('uuid' + x))
+    return 'uuid' + x;
+}
+
+const recent_chat_list = docQ('#recent_chat_list');
+
+function init_recent_chat_form(current_uuid) {
+    nav_title.innerText = 'Recent Chats';
+    recent_chat_list.innerHTML = '';
+    const docRef = db.collection('chats');
+    for (i = 1; i < 3; i++) {
+        docRef.where(`uuid${i}`, '==', current_uuid)
+            .orderBy('last_activity', 'desc')
+            .get().then(function (doc) {
+                doc.forEach(function (doc) {
+                    const thread_array = (doc.id).split('-');
+                    var match_uuid;
+                    thread_array[1] === current_uuid ? match_uuid = thread_array[2] : match_uuid = thread_array[1];
+                    decipher_uuid(match_uuid).then((name) => {
+                        // Year int converter
+
+                        db.collection('users').doc(match_uuid).get()
+                            .then(function (doc) {
+                                const result = doc.data(),
+                                    pp = result.pp || 'assets/graphics/placeholder.png',
+                                    user_element = document.createElement('div');
+
+                                user_element.classList.add('user');
+                                recent_chat_list.appendChild(user_element);
+
+                                user_element.innerHTML += `
+                                <p class="user_name">${name}</p>
+                                <img src="${pp}" class="user_thumb">
+                            `;
+
+                                user_element.addEventListener('click', () => {
+                                    const match_uuid = doc.id,
+                                        thread_id = set_thread_id(current_uuid, match_uuid);
+                                    toggle_page('chat_form');
+                                    init_chat_form(current_uuid, match_uuid);
+                                    recall_chat_history(current_uuid, match_uuid, thread_id);
+                                });
+                            })
+                            .catch(function (error) {
+                                console.log('Error getting documents: ', error);
+                            });
+                    });
+                    // end stuff
+                });
+            })
+    }
 }
 
 // ==============================
@@ -602,7 +674,8 @@ function set_thread_id(uuid1, uuid2) {
     // Set thread participant fields
     const data = {
         uuid1: uuid1,
-        uuid2: uuid2
+        uuid2: uuid2,
+        last_activity: timestamp(),
     };
     db.collection('chats').doc('thread-' + thread_id).set(data).then(function () { }).catch(function (error) {
         console.error(error);
@@ -770,7 +843,7 @@ function toggle_user_block(target, current_uuid, command) {
         decipher_uuid(target).then((name) => {
             console.log(`Toggling block on ${name}...`);
         });
-        toggle_page('user_hub_form'); // Back out
+        toggle_page('browse_users_form'); // Back out
     }).catch(function (error) {
         console.error(error);
     });
@@ -890,7 +963,7 @@ function delete_user(current_uuid) {
     var docRef = db.collection('users').doc(current_uuid).collection('blocked');
 
     docRef.get().then(function (doc) {
-        browse_profiles_wrap.innerHTML = '';
+        browse_profiles_list.innerHTML = '';
         doc.forEach(function (doc) {
             docRef.doc(doc.id).delete();
         });

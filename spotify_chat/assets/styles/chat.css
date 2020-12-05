@@ -46,6 +46,10 @@ body {
 	margin: 2rem 0;
 }
 
+.nav_button {
+	width: calc(100% / 3);
+}
+
 main {
 	background-color: #f6f6f6;
 	width: 100%;
@@ -112,6 +116,7 @@ select option {
 .prompt_form {
 	height: 100%;
 	justify-content: flex-start;
+	overflow-y: scroll;
 }
 
 button,
@@ -161,15 +166,18 @@ button.blue-btn {
 	display: none;
 }
 
-/* Profile Hub */
+/* User forms */
 
-#browse_profiles_wrap {
+#browse_profiles_list,
+#recent_chat_list {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
 }
 
-.user {
+/* Brose Profile Form */
+
+#recent_chat_list .user {
 	display: flex;
 	flex-direction: row-reverse;
 	height: 4rem;
@@ -180,8 +188,7 @@ button.blue-btn {
 	cursor: pointer;
 }
 
-.user_thumb,
-.pp_placeholder {
+#recent_chat_list .user_thumb {
 	height: 100%;
 	width: 4rem;
 	margin: 0 1rem 0 0;
@@ -189,6 +196,59 @@ button.blue-btn {
 	justify-content: center;
 	align-items: center;
 	background-color: var(--grey);
+}
+
+/* Browse User Form */
+
+#browse_profiles_list {
+	padding: 1rem;
+}
+
+#browse_profiles_list .user {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	background-color: white;
+	cursor: pointer;
+	border-radius: 1rem;
+	overflow: hidden;
+}
+
+#browse_profiles_list .user * {
+	margin: 0;
+}
+
+#browse_profiles_list .user_thumb {
+	height: 100%;
+	width: 4rem;
+	margin: 0 1rem 0 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--grey);
+}
+
+#browse_profiles_list .user_top {
+	display: flex;
+	justify-content: flex-end;
+	height: 20rem;
+	background-size: cover;
+	background-repeat: no-repeat;
+	color: white;
+	padding: 1rem;
+	font-size: 2rem;
+	flex-direction: column;
+	text-shadow: 2px 2px black;
+}
+
+#browse_profiles_list .user_btm {
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+}
+
+#browse_profiles_list iframe {
+	height: 5rem;
 }
 
 /* Chat Form */
@@ -280,6 +340,8 @@ button#send_button {
 #profile_view_form {
 	height: 100%;
 	overflow-y: scroll;
+	flex-direction: column;
+	justify-content: flex-start;
 }
 
 .profile_section {
@@ -402,7 +464,7 @@ button#send_button {
 	align-items: flex-start;
 }
 
-iframe {
+#profile_view_form iframe {
 	height: 5rem;
 	border-radius: 1rem 1rem 0 0;
 	width: 100%;
@@ -497,7 +559,8 @@ iframe {
 	cursor: grab;
 }
 
-.track img, .track_info {
+.track img,
+.track_info {
 	margin: 0;
 }
 

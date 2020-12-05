@@ -21,7 +21,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="assets/styles/normalize.css">
     <link rel="stylesheet" href="assets/styles/chat.css">
-    <title>FireStore Chat</title>
+    <title>Shuffle</title>
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="57x57" href="assets/favicons/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="assets/favicons/apple-icon-60x60.png">
@@ -43,7 +43,7 @@
 </head>
 
 <body>
-    <h1 id="title">Shuffle Chat</h1>
+    <h1 id="title">Shuffle</h1>
     <main>
         <nav>
             <button type="button" id="back_button">
@@ -119,9 +119,15 @@
                 <textarea id="bio_input" placeholder="Write a quick bio for yourself" maxlength="75"></textarea>
                 <button type="button" class="green-btn" id="add_account_button">Complete Sign Up</button>
             </form>
-            <!-- ===== Pick who to chat with ===== -->
-            <form class="prompt_form" id="user_hub_form">
-                <div id="browse_profiles_wrap">
+            <!-- ===== Browse Users Form ===== -->
+            <form class="prompt_form" id="browse_users_form">
+                <div id="browse_profiles_list">
+                    <!-- Profiles populated by DB... -->
+                </div>
+            </form>
+            <!-- ===== Recent Users Form ===== -->
+            <form class="prompt_form" id="recent_chat_form">
+                <div id="recent_chat_list">
                     <!-- Profiles populated by DB... -->
                 </div>
             </form>
@@ -234,6 +240,11 @@
                 </div>
                 <button type="button" class="red-btn" id="delete_user_button">Delete My Account</button>
             </form>
+            <nav>
+                <button class="nav_button" id="nav_profile_button">Profile</button>
+                <button class="nav_button" id="nav_browse_button">Browse</button>
+                <button class="nav_button" id="nav_chat_button">Chat</button>
+            </nav>
         </div>
     </main>
     <h2 id="status"></h2>

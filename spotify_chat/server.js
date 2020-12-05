@@ -225,7 +225,7 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_toke
         const data = { // User fields to add
             country: obj.country,
             email: obj.email,
-            new_user: 'true' //TEMP HACK FOR DEV - DELETE THIS LINE
+            // new_user: 'true' //TEMP HACK FOR DEV - DELETE THIS LINE
         };
         docRef.update(data).then(function () { // Using .UPDATE() method
             console.log(`Updated ${user_id} in DB!`);
