@@ -31,16 +31,15 @@ function no() {
 }
 
 function toggle_page(new_form) { // Hides all forms except the form pass to 'new_form' argument, lodes back button
+    chat_box.innerText = '';
+    profile_button.style.display = 'none';
     toggle_modal('close');
     if (new_form == 'login_form') {
         init_login_form();
-        profile_button.style.display = 'none';
     } else if (new_form == 'sign_up_form') {
-        profile_button.style.display = 'none';
         // this init happens once only, therefore its in init()
     } else if (new_form == 'browse_users_form') {
         init_browse_users_form(spotify_id);
-        profile_button.style.display = 'flex';
     } else if (new_form == 'profile_view_form') {
         profile_options_button.style.display = 'flex';
     } else if (new_form == 'profile_cms_form') {
@@ -391,12 +390,10 @@ function init_browse_users_form(current_uuid) { // Initialize match chat selecti
     unsub_all();
     nav_title.innerText = 'Browse Users';
     profile_options_button.style.display = 'none';
+    profile_button.style.display = 'none';
     back_button.style.display = 'none'; // While no logout
     stop_players();
     list_users(current_uuid);
-
-    // User profile button
-    load_profile_button(current_uuid, current_uuid);
 }
 
 function load_profile_button(target, current_uuid) {
@@ -569,15 +566,26 @@ function init_chat_form(current_uuid, match_uuid) { // Initializes the chat form
 
 function send_message(current_uuid, match_uuid, thread_id) { // Sends a message from chat form message input
     if (message_input.value) {
+        // 1. Set uuid's & last active
         const data = {
-            content: message_input.value,
-            from: current_uuid,
-            to: match_uuid,
-            when: timestamp()
+            uuid1: current_uuid,
+            uuid2: match_uuid,
+            last_activity: timestamp(),
         };
-        db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function () {
-            broadcast('Message Sent!', 'var(--green)');
-            message_input.value = '';
+        db.collection('chats').doc('thread-' + thread_id).set(data).then(function () {
+            // 2. Send the message.
+            const data = {
+                content: message_input.value,
+                from: current_uuid,
+                to: match_uuid,
+                when: timestamp()
+            };
+            db.collection('chats').doc('thread-' + thread_id).collection('messages').doc().set(data).then(function () {
+                broadcast('Message Sent!', 'var(--green)');
+                message_input.value = '';
+            }).catch(function (error) {
+                console.error(error);
+            });
         }).catch(function (error) {
             console.error(error);
         });
@@ -667,19 +675,10 @@ function scroll_to_bottom(command) { // Scroll to the bottom if scroll height is
     }
 }
 
-function set_thread_id(uuid1, uuid2) {
+function set_thread_id(uuid1, uuid2) { // param uuid1 = current, param uuid2 = match
     // Determines what the thread_id will be based on current_uuid and match_uuid
     let thread_id;
     uuid1 > uuid2 ? thread_id = uuid1 + '-' + uuid2 : thread_id = uuid2 + '-' + uuid1;
-    // Set thread participant fields
-    const data = {
-        uuid1: uuid1,
-        uuid2: uuid2,
-        last_activity: timestamp(),
-    };
-    db.collection('chats').doc('thread-' + thread_id).set(data).then(function () { }).catch(function (error) {
-        console.error(error);
-    });
     return thread_id;
 }
 
@@ -828,6 +827,7 @@ function display_profile_stats(result) {
         stat_pp.src = pp; // Insert source
     } else {
         profile_pic_placeholder.style.display = 'block';
+        stat_pp.src = ''; // Insert source
     }
 }
 
@@ -1037,41 +1037,22 @@ init(); // First Function
 
 // Completed This Week
 
-// #1. *
+// #1. Recent chat page, sorts by last activity
+// #2. Made browse page like the UI prototype
 
-// #Priority tasks...
+// === Priority tasks...
 
-// #1. *Fix 1st user no event listener?.
+// Ability to fully edit profile after creation
+// Add user photos (on setup page)
+// Add conditions to load_back_button() for the new pages
+// Optimize :last-of-type JS queries
+// Optimize profile pictures to be background images and combine show/hide if statement on profile view page
+// Optimize the chat recall & observer
 
-// Add previously chatted with page
-// - Re-purpose existing browse page with this one
-// - Needs most recent message preview
-// - Sort by last interacted with (maybe create a new field 'last-activity' which is updated each time a message is sent
-//       then query the page with order by 'last-activity')
-// Browse user page
-// - Copy User Hub except it needs...
-//      The anthem, anthem is getting re-named "favorite song"
-//      Age
-//      Vertical layout, large profile picture
+// === Scope Creep Tasks...
 
-// Add nav bar [Profile | Home "Shuffle" | Recent Chats]
-// Add vices setup cms
-// Vices yes, no, do not show properties
-
-// #2. *Add user photos (on setup page).
-// #1. *Guilty-Pleasure song.
-// #4. *Optimize the chat recall & observer.
-
-// Do later...
-
-// #1. *Fully edit profile after creation.
-
-// Scope Creep Tasks...
-
-// #2. *Last active stat, query users only active in passed x days.
-// #3. *Embedded chat messages for links, music. (Try to get meta to appear).
-// #4. *Offline chat storage.
-// #5. *Delete messages, appear as 'Message Deleted'.
-// #3. *Limit user hub and message queries.
-// ____User: Limit to active within 7 days, up to 100 users, button to view more.
-// ____Chats: Limit to 25 chats, (descending query but CSS flex reverse), button to view older.
+// #1. *Last active stat, query users only active in passed x days.
+// #2. *Embedded chat messages for links, music. (Try to get meta to appear).
+// #3. *Offline chat storage.
+// #4. *Delete messages, appear as 'Message Deleted'.
+// #5. *Limit browse user results and chat message results.

@@ -47,7 +47,8 @@ body {
 }
 
 .nav_button {
-	width: calc(100% / 3);
+	width: calc(100% / 3 - 0.25rem);
+	box-shadow: none;
 }
 
 main {
@@ -137,6 +138,7 @@ textarea {
 button {
 	background-color: var(--dark-grey);
 	color: white;
+	cursor: pointer;
 }
 
 button[disabled] {
