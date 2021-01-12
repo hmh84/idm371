@@ -83,7 +83,7 @@ function getDialogue(thebody) {
     })
 }
 
-// ===== Step 3: Login Request for Spotify =====
+// ===== Step 2: Login Request for Spotify =====
 
 app.get('/login', function (req, res) {
     var state = generateRandomString(16);
@@ -101,7 +101,7 @@ app.get('/login', function (req, res) {
         }));
 });
 
-// ===== Step 4: Receive Response from Spotify =====
+// ===== Step 3: Receive Response from Spotify =====
 
 // Authorization Check
 app.get('/callback', function (req, res) {
@@ -187,7 +187,7 @@ app.get('/callback', function (req, res) {
     }
 });
 
-// ===== Step 5: Get Refresh & Access Tokens =====
+// ===== Step 4: Get Refresh & Access Tokens =====
 
 app.get('/refresh_token', function (req, res) {
     // Get access token from refresh token
@@ -212,7 +212,7 @@ app.get('/refresh_token', function (req, res) {
     });
 });
 
-// ===== Step 6: Redirect to Shuffle w/ Complete Data =====
+// ===== Step 5: Redirect to Shuffle w/ Complete Data =====
 
 function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_token, refresh_token) {
     if (user_status) { // New Users
