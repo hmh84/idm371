@@ -168,6 +168,16 @@ function broadcast(message, color) { // Sends a feedback message to the user
     }, 5000);
 }
 
+function disable_autofill() {
+    const all_text_inputs = docQA('input');
+    console.log(all_text_inputs);
+    all_text_inputs.forEach(input => {
+        input.setAttribute('autocomplete', 'off');
+    });
+}
+
+disable_autofill(); // Init
+
 // ==============================
 // Init Shuffle App
 // ==============================
@@ -427,10 +437,10 @@ function list_users(current_uuid) { // Populates SELECT form with matches
                             <p class="user_age">${result.age}</p>
                         </div>
                         <div class="user_btm">
-                            ${result.anthem_id && '<p class="anthem_label">' + name + "'s Favorite Song</p>"}
-                            <iframe ${result.anthem_id ? 'src=' + 'https://open.spotify.com/embed/track/' + result.anthem_id : 'style="display: none;"'} id="stat_anthem" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <iframe ${result.anthem_id ? 'src=' + 'https://open.spotify.com/embed/track/' + result.anthem_id : 'style="display: none;"'} id="stat_anthem" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
                         </div>
-                    `;
+                        `;
+                    // ${result.anthem_id && '<p class="anthem_label">' + name + "'s Favorite Song</p>"}
 
                     user_element.addEventListener('click', () => {
                         const match_uuid = doc.id,
