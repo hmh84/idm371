@@ -1,42 +1,63 @@
-/**
- RESOURCES:
- Spotify:
- * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
- Firebase with node.js:
- * https://medium.com/feedflood/write-to-cloud-firestore-using-node-js-server-c84859fefb86
- */
+x// ====================
+// Modules
+// ====================
 
-//STEP 1: ADD DEPENDENCIES / AUTHENTICATION FOR SPOTIFY
-const express = require('express'); // Express web server framework
+// NPM Modules
+const express = require('express'); // Web Server Framework
 const request = require('request'); // "Request" library
-const cors = require('cors');
-const querystring = require('querystring');
-const cookieParser = require('cookie-parser');
-const path = require('path');
+const cors = require('cors'); // Cross-origin Access
+const querystring = require('querystring'); // Parse and stringify URL query strings
+const cookieParser = require('cookie-parser'); // Headers Cookies
+const admin = require('firebase-admin'); // FireBase Functions
 
-const config = require('../secret/config');
+// Our Modules
+const config = require('../secret/config'); // Secret Keys
+
+// ====================
+// Vars
+// ====================
 
 const client_id = config.client_id;
 const client_secret = config.client_secret; // Your secret
 const redirect_uri = config.redirect_uri; // Your redirect uri
 
-//STEP 2: CONNECT TO FIREBASE FIRESTORE DB WITH SERVICE ACCT KEY
-const admin = require('firebase-admin');
+// ====================
+// Start Express Server
+// ====================
+
+const app = express();
+app.use(express.static(__dirname + '/'))
+    .use(cors())
+    .use(cookieParser())
+    .use(express.urlencoded());
+app.engine('html', require('ejs').renderFile);
+
+const port = 8888;
+app.listen(port);
+console.log('Server started at localhost:' + port);
+
+// ====================
+// Connect to FireBase
+// ====================
+
 const serviceAccount = require('../secret/serviceAccountKey.json');
-//initialize admin SDK using serciceAcountKey
-admin.initializeApp({
+
+admin.initializeApp({ // Init Admin SDK w/ Keys
     credential: admin.credential.cert(serviceAccount)
 });
-const db = admin.firestore();
+const db = admin.firestore(); // db Var
 
-//STEP 2.5: DECLARE SOME VARS, HELPER FUNCTIONS
-/**
- this helper function provided by spotify tutorial
- used to authenticate when requesting login to the API
- * Generates a random string containing numbers and letters
- * @param  {number} length The length of the string
- * @return {string} The generated string
- */
+// ====================
+// Login w/ Spotify
+// ====================
+
+// ===== Step 1: Declare Vars & Helper Functions =====
+
+/** Generates a random string containing numbers and letters
+    * @param  {number} length // The length of the string
+    * @return {string} // The generated string
+*/
+
 const generateRandomString = function (length) {
     var text = '';
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -47,13 +68,13 @@ const generateRandomString = function (length) {
     return text;
 };
 
-//statekey and state are used to redirect user
+// statekey and state are used to redirect user
 const stateKey = 'spotify_auth_state';
 
-//get data to send to firestore db as json string
-//this function sends it as a promise
+// get data to send to firestore db as json string
+// this function sends it as a promise
 function getDialogue(thebody) {
-    //return a promise since we'll imitating an API call
+    // return a promise since we'll imitating an API call
     return new Promise(function (resolve, reject) {
         resolve({
             "country": thebody.country,
@@ -62,23 +83,9 @@ function getDialogue(thebody) {
     })
 }
 
-//STEP 3: START EXPRESS FRAMEWORK
-//this gives you functions that let you say node app.js
-//and it runs a server
-//instead of having to make the whole http request manually
-const app = express();
-app.use(express.static(__dirname + '/'))
-    .use(cors())
-    .use(cookieParser())
-    .use(express.urlencoded());
-app.engine('html', require('ejs').renderFile);
+// ===== Step 3: Login Request for Spotify =====
 
-
-//STEP 4: SEND REQUEST FOR INFO TO SPOTIFY
-//@Spotify heres my creds, send user pls
-//when the user hits a button with href=/login, this happens
 app.get('/login', function (req, res) {
-
     var state = generateRandomString(16);
     res.cookie(stateKey, state);
 
@@ -94,27 +101,26 @@ app.get('/login', function (req, res) {
         }));
 });
 
-//STEP 5: GET INFO BACK FROM SPOTIFY
-//double check its them though
-app.get('/callback', function (req, res) {
+// ===== Step 4: Receive Response from Spotify =====
 
+// Authorization Check
+app.get('/callback', function (req, res) {
     // your application requests refresh and access tokens
     // after checking the state parameter
-
-    //first get spotify request's secret keys or set to null
+    // first get spotify request's secret keys or set to null
     var code = req.query.code || null;
     var state = req.query.state || null;
 
-    //check if we saved a state (our code for authentication)
+    // check if we saved a state (our code for authentication)
     const storedState = req.cookies ? req.cookies[stateKey] : null;
 
-    //if state isnt right we don't take the response
+    // if state isnt right we don't take the response
     if (state === null || state !== storedState) {
         res.redirect('/#' +
             querystring.stringify({
                 error: 'state_mismatch'
             }));
-    } else { //if the state checks out, we go ahead and get the response
+    } else { // if the state checks out, we go ahead and get the response
         res.clearCookie(stateKey);
         const authOptions = {
             url: 'https://accounts.spotify.com/api/token',
@@ -129,7 +135,7 @@ app.get('/callback', function (req, res) {
             json: true
         };
 
-        //handle the response
+        // handle the response
         request.post(authOptions, function (error, response, body) {
             if (!error && response.statusCode === 200) {
 
@@ -142,10 +148,11 @@ app.get('/callback', function (req, res) {
                     json: true
                 };
 
-                //here is where we get the response
-                //body is what we want to send
+                // here is where we get the response
+                // body is what we want to send
                 // use the access token to access the Spotify Web API
-                //STEP 6: SEND INFO FROM RESPONSE BACK TO FIRESTORE DB
+
+                // ===== SEND INFO FROM RESPONSE BACK TO FIREBASE =====
                 request.get(options, function (error, response, body) {
                     getDialogue(body).then(result => {
                         const obj = result;
@@ -180,10 +187,10 @@ app.get('/callback', function (req, res) {
     }
 });
 
-//this is how the demo shows requesting a refresh token
-app.get('/refresh_token', function (req, res) {
+// ===== Step 5: Get Refresh & Access Tokens =====
 
-    // requesting access token from refresh token
+app.get('/refresh_token', function (req, res) {
+    // Get access token from refresh token
     var refresh_token = req.query.refresh_token;
     var authOptions = {
         url: 'https://accounts.spotify.com/api/token',
@@ -205,9 +212,7 @@ app.get('/refresh_token', function (req, res) {
     });
 });
 
-// ==============================
-// REDIRECT TO SHUFFLE (chat.html)
-// ==============================
+// ===== Step 6: Redirect to Shuffle w/ Complete Data =====
 
 function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_token, refresh_token) {
     if (user_status) { // New Users
@@ -225,7 +230,7 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_toke
         const data = { // User fields to add
             country: obj.country,
             email: obj.email,
-            // new_user: 'true' //TEMP HACK FOR DEV - DELETE THIS LINE
+            // new_user: 'true' // TEMP HACK FOR DEV - DELETE THIS LINE
         };
         docRef.update(data).then(function () { // Using .UPDATE() method
             console.log(`Updated ${user_id} in DB!`);
@@ -244,9 +249,9 @@ function redirect_to_shuffle(res, docRef, obj, user_id, user_status, access_toke
         }));
 }
 
-// ==============================
-// GET SEARCH RESULT FOR SONG
-// ==============================
+// ====================
+// Spotify Track Search
+// ====================
 
 function search(criteria, token, callback) {
     let query = criteria;
@@ -264,7 +269,6 @@ function search(criteria, token, callback) {
 }
 
 app.get('/search', function (req, res) {
-
     let criteria = req.query.query,
         token = req.query.access_token;
 
@@ -296,37 +300,3 @@ app.get('/search', function (req, res) {
         }
     });
 });
-
-// ==============================
-// GET REFRESH TOKEN
-// ==============================
-
-app.get('/refresh_token', function (req, res) {
-
-    // requesting access token from refresh token
-    var authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-        form: {
-            grant_type: 'refresh_token',
-            refresh_token: refresh_token
-        },
-        json: true
-    };
-
-    request.post(authOptions, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            var access_token = body.access_token;
-            res.send({
-                'access_token': access_token
-            });
-        }
-    });
-});
-
-// ==============================
-// START NODE SERVER
-// ==============================
-
-app.listen(8888);
-console.log('Server started at localhost:8888');
