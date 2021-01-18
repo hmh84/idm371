@@ -1,5 +1,5 @@
 <?php get_header();?>
-<main class="p-main-content">
+<main class="p-main-content l-grid">
   <?php while (have_posts()) : the_post(); ?>
 
   <?php
@@ -36,7 +36,7 @@
         <p><?php echo $acc; ?></p>
       <?php endif; ?>
 
-      <h5>Total Hours: <?php echo $hrs; ?></h5>
+      <h2 class="u-align-center">Total Hours: <?php echo $hrs; ?></h2>
 
       <?php if($s_link) : ?>
         <span>
